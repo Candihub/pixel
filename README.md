@@ -1,5 +1,9 @@
 # Pixel
 
+## Contributing
+
+Please, see the [CONTRIBUTING](CONTRIBUTING.md) file.
+
 ## Contributor Code of Conduct
 
 Please note that this project is released with a [Contributor Code of
