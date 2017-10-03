@@ -1,5 +1,42 @@
 # Pixel
 
+## Requirements
+
+* Python 3.6+
+* [Pipenv](https://docs.pipenv.org)
+
+
+_Nota bene_: to install and use Pipenv, we invite you to read the [project
+documentation](https://docs.pipenv.org). In most cases, installing it can be
+resumed to:
+
+```bash
+$ pip3 install --user --upgrade pipenv
+```
+
+Mac OS X users may rather consider using the following command:
+
+```bash
+$ sudo -H pip3 install --upgrade pipenv
+```
+
+## Quick start
+
+```bash
+# Clone the project
+$ git clone git@github.com:Candihub/pixel.git
+$ cd pixel
+# Install project dependencies (production & development)
+$ pipenv install --dev
+# Create a development database
+$ pipenv run ./manage.py migrate
+# Run the django development server:
+$ pipenv run ./manage.py runserver
+```
+
+Open your favorite browser with the following url: http://127.0.0.1:8000 and it
+should work™.
+
 ## Contributing
 
 Please, see the [CONTRIBUTING](CONTRIBUTING.md) file.
