@@ -100,3 +100,15 @@ class Development(Base):
             'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         }
     }
+
+
+class Test(Base):
+
+    SECRET_KEY = '@$in@#7a=chkv*jwt+kj4ac9^xaq&*y*40v7hrgwvaa&@k%mb@'
+    
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',
+        }
+    }
