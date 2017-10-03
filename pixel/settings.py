@@ -64,16 +64,16 @@ class Base(Configuration):
     # Password validation
     AUTH_PASSWORD_VALIDATORS = [
         {
-            'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+            'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',  # noqa
         },
         {
-            'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+            'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',  # noqa
         },
         {
-            'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+            'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',  # noqa
         },
         {
-            'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+            'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',  # noqa
         },
     ]
 
@@ -105,7 +105,7 @@ class Development(Base):
 class Test(Base):
 
     SECRET_KEY = '@$in@#7a=chkv*jwt+kj4ac9^xaq&*y*40v7hrgwvaa&@k%mb@'
-    
+
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
