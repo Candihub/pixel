@@ -14,6 +14,12 @@ resumed to:
 $ pip3 install --user --upgrade pipenv
 ```
 
+Mac OS X users may rather consider using the following command:
+
+```bash
+$ sudo -H pip3 install --upgrade pipenv
+```
+
 ## Quick start
 
 ```bash
