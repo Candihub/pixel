@@ -37,6 +37,14 @@ $ pipenv run ./manage.py runserver
 Open your favorite browser with the following url: http://127.0.0.1:8000 and it
 should work™.
 
+## Run the tests
+
+Project tests use pytest. To run them in your virtualenv, use Pipenv as follow:
+
+```bash
+$ pipenv run py.test
+```
+
 ## Contributing
 
 Please, see the [CONTRIBUTING](CONTRIBUTING.md) file.
