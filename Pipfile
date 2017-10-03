@@ -4,6 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+
 django = "*"
 "django-configurations" = "*"
 
@@ -14,6 +15,7 @@ django = "*"
 
 pytest = "*"
 "pytest-django" = "*"
+"pytest-cov" = "*"
 
 
 [requires]
