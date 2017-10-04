@@ -1,0 +1,61 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/pixel
+    docker:
+      - image: circleci/python:3.6.1
+        environment:
+          WORKON_HOME: ~/.venvs
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - px-dependencies-{{ checksum "Pipfile.lock" }}
+          - px-dependencies-
+      - run:
+          name: install dependencies
+          command: |
+            pip3 install --user pipenv
+            pipenv install --dev
+      - save_cache:
+          paths:
+            - ~/.venvs
+          key: px-dependencies-{{ checksum "Pipfile.lock" }}
+
+  lint:
+    working_directory: ~/pixel
+    docker:
+      - image: circleci/python:3.6.1
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - px-dependencies-{{ checksum "Pipfile.lock" }}
+          - px-dependencies-
+      - run:
+          name: lint the code
+          command: pipenv run flake8
+
+  test:
+    working_directory: ~/pixel
+    docker:
+      - image: circleci/python:3.6.1
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - px-dependencies-{{ checksum "Pipfile.lock" }}
+          - px-dependencies-
+      - run:
+          name: test the code
+          command: pipenv run pytest
+
+workflows:
+  version: 2
+  backend:
+    jobs:
+      - build
+      - lint:
+        requires: build
+      - test:
+        requires: build
