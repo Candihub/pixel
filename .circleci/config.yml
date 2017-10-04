@@ -1,0 +1,21 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/pixel
+    docker:
+      - image: circleci/python:3.6.1
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - px-dependencies-{{ checksum "Pipfile.lock" }}
+          - px-dependencies-
+      - run:
+          name: install dependencies
+          command: |
+            pip3 install --user pipenv
+            pipenv install --dev
+      - save_cache:
+          paths:
+            - {{ pipenv --venv }}
+          key: px-dependencies-{{ checksum "Pipfile.lock" }}
