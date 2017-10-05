@@ -1,5 +1,0 @@
-[flake8]
-exclude =
-    .git,
-    .venv,
-    __pycache__
