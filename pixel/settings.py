@@ -79,6 +79,7 @@ class Base(Configuration):
             'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',  # noqa
         },
     ]
+    AUTH_USER_MODEL = 'core.Pixeler'
 
     # Internationalization
     LANGUAGE_CODE = 'en-us'
