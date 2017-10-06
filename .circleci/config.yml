@@ -83,7 +83,7 @@ jobs:
           command: |
             echo "export PATH=~/.local/bin:~/pixel/.venv/bin:$PATH" >> $BASH_ENV
       - run:
-          name: Test the code
+          name: Report code coverage
           command: |
             pipenv run coveralls
 
