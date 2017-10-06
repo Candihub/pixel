@@ -1,5 +1,8 @@
 # Pixel
 
+[![CircleCI](https://circleci.com/gh/Candihub/pixel.svg?style=svg)](https://circleci.com/gh/Candihub/pixel)
+[![Coverage Status](https://coveralls.io/repos/github/Candihub/pixel/badge.svg)](https://coveralls.io/github/Candihub/pixel)
+
 ## Requirements
 
 * Python 3.6+
