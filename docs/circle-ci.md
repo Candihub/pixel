@@ -1,5 +1,9 @@
 # Circle-CI
 
+This documentation contains notes about how we proceed to integrate and
+configure CircleCI for the Pixel project. **Once configured, those steps don't
+have to be reproduced.**
+
 ## Integration steps
 
 1. Login to [circleci.com](https://circleci.com) with your github account to
