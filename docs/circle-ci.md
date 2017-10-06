@@ -26,7 +26,7 @@ At the time of writing, Pipenv is not that easy to integrate with CircleCI. This
 is mostly due to CircleCI restrictions on environment manipulation during
 runtime (`$PATH`). Here are a few tips used to integrate Pipenv with CircleCI.
 
-### Add the user base’s binary directory to your `PATH`
+### Add the user base’s binary directory to the `PATH`
 
 If Pipenv is installed in user mode, _e.g._:
 
@@ -50,15 +50,19 @@ jobs:
             echo "export PATH=~/.local/bin:$PATH" >> $BASH_ENV
 ```
 
+For a more complete explanation on the `BASH_ENV` variable, please refer to the
+[CircleCI 2.0
+documentation](https://circleci.com/docs/2.0/env-vars/#interpolating-environment-variables-to-set-other-environment-variables).
+
 ### Force virtualenv path
 
 Pipenv creates virtualenvs for you when running for the first time in a project
 directory. This virtualenv will be located into something like
-`~/.local/share/virtualenvs/pixel-YcbOu4pz`. The project key (last part of the
-PATH) is hardly predictable, but we need to add this virtualenv to the cache to
-speed up tests (we will use this cache in CircleCI workflow to avoid installing
-project dependencies at each step). One solution is to force the virtualenv path
-as follow:
+`~/.local/share/virtualenvs/pixel-YcbOu4pz`. The project key (last part of this
+path) is hardly predictable, but we need to add this virtualenv to the cache to
+speed up tests (we will use this cache in a CircleCI workflow to avoid
+installing project dependencies for each job of the workflow). One solution is
+to force the virtualenv path as follow:
 
 ```yaml
 version: 2
@@ -105,5 +109,5 @@ jobs:
             echo "export PATH=~/.local/bin:~/pixel/.venv/bin:$PATH" >> $BASH_ENV
 ```
 
-Please note that we need to define the `PIPENV_VENV_IN_PROJECT` in every job
-that will use our cached virtualenv.
+Please note that we need to define the `PIPENV_VENV_IN_PROJECT` and add a step
+to fix the `PATH` in every job that will use our cached virtualenv.
