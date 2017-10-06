@@ -67,6 +67,26 @@ jobs:
           command: |
             pipenv run pytest
 
+  coverage:
+    working_directory: ~/pixel
+    docker:
+      - image: circleci/python:3.6.1
+        environment:
+          PIPENV_VENV_IN_PROJECT: 1
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - backend-deps-v2-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+      - run:
+          name: Add Pipenv & installed tools to the PATH
+          command: |
+            echo "export PATH=~/.local/bin:~/pixel/.venv/bin:$PATH" >> $BASH_ENV
+      - run:
+          name: Test the code
+          command: |
+            pipenv run coveralls
+
 workflows:
   version: 2
 
@@ -79,3 +99,6 @@ workflows:
       - test:
           requires:
             - build
+      - coverage:
+          requires:
+            - test
