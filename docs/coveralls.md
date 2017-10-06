@@ -25,14 +25,15 @@ have to be reproduced.**
    settings:  `COVERALLS_REPO_TOKEN` with the repository token as value (see
    previous section).
 2. Add `coveralls` to project development dependencies
-3. Add a new `coverage` job (depending on test) in CircleCI configuration:
+3. Add `coveralls` as a `test` job command in CircleCI configuration after all
+   tests successfully passed:
 
 ```yaml
 version: 2
 jobs:
   # [...]
 
-  coverage:
+  test:
     # [...]
     steps:
       # [...]
@@ -40,15 +41,5 @@ jobs:
           name: Report code coverage
           command: |
             pipenv run coveralls
-
-workflows:
-  version: 2
-
-  backend:
-    jobs:
-      # [...]
-
-      - coverage:
-          requires:
-            - test
+          when: on_success
 ```
