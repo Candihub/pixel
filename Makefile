@@ -16,6 +16,10 @@ test:  ## run the test suite
 	pipenv run pytest
 .PHONY: test
 
+coverage:  ## publish coverage statistics
+	pipenv run coveralls
+.PHONY: coverage
+
 lint:  ## lint the code
 	pipenv run flake8
 .PHONY: lint
