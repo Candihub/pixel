@@ -30,11 +30,11 @@ $ sudo -H pip3 install --upgrade pipenv
 $ git clone git@github.com:Candihub/pixel.git
 $ cd pixel
 # Install project dependencies (production & development)
-$ pipenv install --dev
+$ make bootstrap
 # Create a development database
-$ pipenv run ./manage.py migrate
+$ make migrate-db
 # Run the django development server:
-$ pipenv run ./manage.py runserver
+$ make dev
 ```
 
 Open your favorite browser with the following url: http://127.0.0.1:8000 and it
@@ -45,7 +45,7 @@ should work™.
 Project tests use pytest. To run them in your virtualenv, use Pipenv as follow:
 
 ```bash
-$ pipenv run py.test
+$ make test
 ```
 
 ## Lint the code
@@ -54,7 +54,7 @@ This project use `flake8` to ensure coding style consistency (PEP8). To run it
 in your virtualenv, use Pipenv as follow:
 
 ```bash
-$ pipenv run flake8
+$ make lint
 ```
 
 ## Contributing
