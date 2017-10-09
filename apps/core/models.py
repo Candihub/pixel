@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext as _
 from mptt.models import MPTTModel, TreeForeignKey
+from tagulous import models as tgl_models
 
 
 class PublicDatabase(models.Model):
@@ -237,6 +238,14 @@ class Pixel(models.Model):
         return self.uuid
 
 
+class Tag(tgl_models.TagModel):
+    """The Pixel tag model is mostly used to add facets to experiment search.
+    """
+
+    force_lowercase = True
+    tree = True
+
+
 class Experiment(models.Model):
     """An experiment correspond to preliminary work on an OmicsUnit, _e.g._ a
     publication or preliminary work from a partnering laboratory.
@@ -270,6 +279,10 @@ class Experiment(models.Model):
         'OmicsUnit',
         related_name='experiments',
         related_query_name='experiment',
+    )
+
+    tags = tgl_models.TagField(
+        to=Tag,
     )
 
     created_at = models.DateTimeField(

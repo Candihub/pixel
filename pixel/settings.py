@@ -27,6 +27,7 @@ class Base(Configuration):
 
         # third party
         'mptt',
+        'tagulous',
 
         # Pixel apps
         'apps.core',
