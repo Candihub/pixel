@@ -275,12 +275,6 @@ class Experiment(models.Model):
         on_delete=models.CASCADE,
     )
 
-    omics_units = models.ManyToManyField(
-        'OmicsUnit',
-        related_name='experiments',
-        related_query_name='experiment',
-    )
-
     tags = tgl_models.TagField(
         to=Tag,
     )
