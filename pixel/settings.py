@@ -98,6 +98,10 @@ class Development(Base):
     SECRET_KEY = 'b9((zo$cmb9giq@2#%we910ot=$wxk9xqfj*!eg#t%c556n^_9'
     DEBUG = True
 
+    INSTALLED_APPS = Base.INSTALLED_APPS + [
+        'django_extensions',
+    ]
+
     # Database
     DATABASES = {
         'default': {
