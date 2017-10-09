@@ -275,6 +275,12 @@ class Experiment(models.Model):
         on_delete=models.CASCADE,
     )
 
+    data_sources = models.ManyToManyField(
+        'DataSource',
+        related_name='experiments',
+        related_query_name='experiment',
+    )
+
     tags = tgl_models.TagField(
         to=Tag,
     )
