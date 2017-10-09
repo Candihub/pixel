@@ -25,6 +25,9 @@ class Base(Configuration):
         'django.contrib.messages',
         'django.contrib.staticfiles',
 
+        # third party
+        'mptt',
+
         # Pixel apps
         'apps.core',
     ]
