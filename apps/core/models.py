@@ -262,10 +262,6 @@ class Experiment(models.Model):
         blank=True,
     )
 
-    primary_data_url = models.URLField(
-        _("Primary data url"),
-    )
-
     release_date = models.DateField(
         _("Release date"),
     )
