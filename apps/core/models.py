@@ -21,6 +21,7 @@ class Species(models.Model):
     name = models.CharField(
         _("Name"),
         max_length=100,
+        unique=True,
     )
 
     reference = models.ForeignKey(
@@ -73,6 +74,9 @@ class Strain(models.Model):
     class Meta:
         verbose_name = _("Strain")
         verbose_name_plural = _("Strains")
+        unique_together = (
+            ('name', 'species'),
+        )
 
     def __str__(self):
         return self.name
@@ -91,6 +95,7 @@ class OmicsUnitType(models.Model):
     name = models.CharField(
         _("Name"),
         max_length=100,
+        unique=True,
     )
 
     description = models.TextField(
@@ -101,6 +106,9 @@ class OmicsUnitType(models.Model):
     class Meta:
         verbose_name = _("Omics unit type")
         verbose_name_plural = _("Omics unit types")
+
+    def __str__(self):
+        return self.name
 
 
 class OmicsUnit(models.Model):
@@ -151,6 +159,9 @@ class OmicsUnit(models.Model):
     class Meta:
         verbose_name = _("Omics Unit")
         verbose_name_plural = _("Omics Units")
+        unique_together = (
+            ('reference', 'strain', 'type')
+        )
 
     def __str__(self):
         return self.reference
@@ -217,10 +228,6 @@ class Experiment(models.Model):
         blank=True,
     )
 
-    release_date = models.DateField(
-        _("Release date"),
-    )
-
     omics_domain = models.ForeignKey(
         'OmicsDomain',
         on_delete=models.CASCADE,
@@ -236,6 +243,10 @@ class Experiment(models.Model):
 
     tags = tgl_models.TagField(
         to=Tag,
+    )
+
+    released_at = models.DateField(
+        _("Release date"),
     )
 
     created_at = models.DateTimeField(

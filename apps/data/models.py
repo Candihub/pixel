@@ -72,10 +72,6 @@ class Entry(models.Model):
     class Meta:
         verbose_name = _("Entry")
         verbose_name_plural = _("Entries")
-        unique_together = (
-            ('identifier', 'repository'),
-            ('url', 'repository'),
-        )
 
     def clean(self):
         """An Entry should have at least an identifier or an url
