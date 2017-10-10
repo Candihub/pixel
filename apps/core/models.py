@@ -335,6 +335,12 @@ class Analysis(models.Model):
         upload_to=secondary_data_upload_to
     )
 
+    notebook_url = models.URLField(
+        _("Notebook url"),
+        help_text=_("Paste an URL to your Jupiter Notebook here"),
+        blank=True,
+    )
+
     pixeler = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
