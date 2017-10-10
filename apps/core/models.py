@@ -2,39 +2,10 @@ import uuid
 
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
-from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext as _
 from mptt.models import MPTTModel, TreeForeignKey
 from tagulous import models as tgl_models
-
-
-class PublicDatabase(models.Model):
-    """Public Database from where reference identifiers are extracted
-    """
-
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False,
-    )
-
-    name = models.CharField(
-        _("Name"),
-        max_length=100,
-    )
-
-    url = models.URLField(
-        _("URL"),
-        blank=True,
-    )
-
-    class Meta:
-        verbose_name = _("Public Database")
-        verbose_name_plural = _("Public Databases")
-
-    def __str__(self):
-        return self.name
 
 
 class Species(models.Model):
@@ -52,15 +23,11 @@ class Species(models.Model):
         max_length=100,
     )
 
-    reference_identifier = models.CharField(
-        _("Reference Identifier"),
-        max_length=100,
-        blank=True,
-    )
-
-    reference_database = models.ForeignKey(
-        'PublicDatabase',
+    reference = models.ForeignKey(
+        'data.Entry',
         on_delete=models.CASCADE,
+        related_name='species',
+        related_query_name='species',
     )
 
     description = models.TextField(
@@ -99,6 +66,8 @@ class Strain(models.Model):
     species = models.ForeignKey(
         'Species',
         on_delete=models.CASCADE,
+        related_name='strains',
+        related_query_name='strain',
     )
 
     class Meta:
@@ -144,31 +113,23 @@ class OmicsUnit(models.Model):
         editable=False,
     )
 
-    reference_identifier = models.CharField(
-        _("Reference Identifier"),
-        max_length=100,
-        blank=True,
-    )
-
-    custom_identifier = models.CharField(
-        _("Custom Identifier"),
-        max_length=100,
-        blank=True,
-    )
-
-    reference_database = models.ForeignKey(
-        'PublicDatabase',
+    reference = models.ForeignKey(
+        'data.Entry',
         on_delete=models.CASCADE,
     )
 
     strain = models.ForeignKey(
         'Strain',
         on_delete=models.CASCADE,
+        related_name='omics_units',
+        related_query_name='omics_unit',
     )
 
     type = models.ForeignKey(
         'OmicsUnitType',
         on_delete=models.CASCADE,
+        related_name='omics_units',
+        related_query_name='omics_unit',
     )
 
     STATUS_DUBIOUS = 1
@@ -192,15 +153,7 @@ class OmicsUnit(models.Model):
         verbose_name_plural = _("Omics Units")
 
     def __str__(self):
-        return self.original_identifier or self.custom_identifier
-
-    def clean(self):
-        """An OmicsUnit should have at least an original or a custom identifier
-        """
-        if not self.original_identifier and not self.custom_identifier:
-            raise ValidationError(
-                _("You need to provide an identifier (custom or original)")
-            )
+        return self.reference
 
 
 class Pixel(models.Model):
@@ -228,6 +181,8 @@ class Pixel(models.Model):
     omics_unit = models.ForeignKey(
         'OmicsUnit',
         on_delete=models.CASCADE,
+        related_name='pixels',
+        related_query_name='pixel',
     )
 
     class Meta:
@@ -269,10 +224,12 @@ class Experiment(models.Model):
     omics_domain = models.ForeignKey(
         'OmicsDomain',
         on_delete=models.CASCADE,
+        related_name='experiments',
+        related_query_name='experiment',
     )
 
-    data_sources = models.ManyToManyField(
-        'DataSource',
+    entries = models.ManyToManyField(
+        'data.Entry',
         related_name='experiments',
         related_query_name='experiment',
     )
@@ -340,6 +297,8 @@ class Analysis(models.Model):
     pixeler = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
+        related_name='analyses',
+        related_query_name='analysis',
     )
 
     created_at = models.DateTimeField(
@@ -403,46 +362,3 @@ class Pixeler(AbstractUser):
         default=uuid.uuid4,
         editable=False,
     )
-
-
-class DataSource(models.Model):
-
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False,
-    )
-
-    TYPE_DB = 1
-    TYPE_PAPER = 2
-    TYPE_PARTNER = 3
-    TYPE_CHOICES = (
-        (TYPE_DB, _("Public database")),
-        (TYPE_PAPER, _("Scientific publication")),
-        (TYPE_PARTNER, _("Partnering laboratory")),
-    )
-    type = models.PositiveSmallIntegerField(
-        _("Source type"),
-        choices=TYPE_CHOICES,
-        default=TYPE_DB,
-    )
-
-    reference_identifier = models.CharField(
-        _("Reference Identifier"),
-        max_length=100,
-        blank=True,
-    )
-
-    description = models.TextField(
-        _("Description"),
-        blank=True,
-    )
-
-    primary_data_url = models.URLField(
-        _("Primary data url"),
-        blank=True,
-    )
-
-    class Meta:
-        verbose_name = _("Data source")
-        verbose_name_plural = _("Data sources")
