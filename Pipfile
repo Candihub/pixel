@@ -21,6 +21,7 @@ pytest = "*"
 "flake8" = "*"
 coveralls = "*"
 "django-extensions" = "*"
+"factory-boy" = "*"
 
 
 [requires]
