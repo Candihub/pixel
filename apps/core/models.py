@@ -312,6 +312,10 @@ class Analysis(models.Model):
         related_query_name='analysis',
     )
 
+    tags = tgl_models.TagField(
+        to=Tag,
+    )
+
     created_at = models.DateTimeField(
         auto_now_add=True,
         editable=False,
