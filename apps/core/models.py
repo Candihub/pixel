@@ -228,8 +228,8 @@ class Experiment(models.Model):
         blank=True,
     )
 
-    omics_domain = models.ForeignKey(
-        'OmicsDomain',
+    omics_area = models.ForeignKey(
+        'OmicsArea',
         on_delete=models.CASCADE,
         related_name='experiments',
         related_query_name='experiment',
@@ -327,8 +327,8 @@ class Analysis(models.Model):
         verbose_name_plural = _("Analyses")
 
 
-class OmicsDomain(MPTTModel):
-    """Omics Domain (Tree)
+class OmicsArea(MPTTModel):
+    """Omics Area (Tree)
     """
 
     id = models.UUIDField(
@@ -357,8 +357,8 @@ class OmicsDomain(MPTTModel):
     )
 
     class Meta:
-        verbose_name = _("Omics domain")
-        verbose_name_plural = _("Omics domains")
+        verbose_name = _("Omics area")
+        verbose_name_plural = _("Omics areas")
 
     class MPTTMeta:
         order_insertion_by = ['name']
