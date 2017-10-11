@@ -275,7 +275,14 @@ class Analysis(models.Model):
     """
 
     def secondary_data_upload_to(instance, filename):
-        return '{0}/{1}'.format(instance.pixeler.id, instance.id)
+        return '{0}/{1}/secondary_data'.format(
+            instance.pixeler.id, instance.id
+        )
+
+    def notebook_upload_to(instance, filename):
+        return '{0}/{1}/notebook'.format(
+            instance.pixeler.id, instance.id
+        )
 
     id = models.UUIDField(
         primary_key=True,
@@ -296,13 +303,17 @@ class Analysis(models.Model):
 
     secondary_data = models.FileField(
         _("Secondary data"),
-        upload_to=secondary_data_upload_to
+        upload_to=secondary_data_upload_to,
     )
 
-    notebook_url = models.URLField(
-        _("Notebook url"),
-        help_text=_("Paste an URL to your Jupiter Notebook here"),
+    notebook = models.FileField(
+        _("Notebook"),
+        help_text=_(
+            "Upload your Jupiter Notebook or any other document helping to "
+            "understand your analysis"
+        ),
         blank=True,
+        upload_to=notebook_upload_to,
     )
 
     pixeler = models.ForeignKey(
