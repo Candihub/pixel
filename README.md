@@ -69,5 +69,5 @@ agree to abide by its terms. See [CODE_OF_CONDUCT](CODE_OF_CONDUCT.md) file.
 
 ## License
 
-Monod is released under the BSD-3 License. See the bundled [LICENSE](LICENSE)
+Pixel is released under the BSD-3 License. See the bundled [LICENSE](LICENSE)
 file for details.
