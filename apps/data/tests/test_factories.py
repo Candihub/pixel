@@ -12,8 +12,8 @@ class RepositoryFactoryTestCase(TestCase):
 
         repository = factories.RepositoryFactory()
 
-        self.assertGreater(len(repository.name), 1)
-        self.assertGreater(len(repository.url), 1)
+        self.assertGreater(len(repository.name), 0)
+        self.assertGreater(len(repository.url), 0)
         self.assertEqual(qs.count(), 1)
 
 
@@ -29,9 +29,9 @@ class EntryFactoryTestCase(TestCase):
 
         entry = factories.EntryFactory()
 
-        self.assertGreater(len(entry.identifier), 1)
-        self.assertGreater(len(entry.description), 1)
-        self.assertGreater(len(entry.url), 1)
-        self.assertGreater(len(entry.repository.name), 1)
+        self.assertGreater(len(entry.identifier), 0)
+        self.assertGreater(len(entry.description), 0)
+        self.assertGreater(len(entry.url), 0)
+        self.assertGreater(len(entry.repository.name), 0)
         self.assertEqual(entry_qs.count(), 1)
         self.assertEqual(repository_qs.count(), 1)
