@@ -191,6 +191,12 @@ class Pixel(models.Model):
 
     omics_unit = models.ForeignKey(
         'OmicsUnit',
+        related_name='pixels',
+        related_query_name='pixel',
+    )
+
+    analysis = models.ForeignKey(
+        'Analysis',
         on_delete=models.CASCADE,
         related_name='pixels',
         related_query_name='pixel',
@@ -284,12 +290,6 @@ class Analysis(models.Model):
 
     experiments = models.ManyToManyField(
         'Experiment',
-        related_name='analyses',
-        related_query_name='analysis',
-    )
-
-    pixels = models.ManyToManyField(
-        'Pixel',
         related_name='analyses',
         related_query_name='analysis',
     )
