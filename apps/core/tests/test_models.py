@@ -213,8 +213,29 @@ class OmicsUnitTestCase(TestCase):
         raise NotImplementedError('You have work to do @thomasdenecker!')
 
     def test_cannot_create_two_omics_units_with_same_reference_type_and_strain_(self):  # noqa
-        # TODO
-        raise NotImplementedError('You have work to do @thomasdenecker!')
+        
+        reference=self.reference
+
+        qs = models.OmicsUnit.objects.all()
+        self.assertEqual(qs.count(), 0)
+
+        models.OmicsUnit.objects.create(
+            reference=self.reference,
+            strain=self.strain,
+            type=self.type,
+            status=models.OmicsUnit.STATUS_INVALID
+        )
+
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                models.OmicsUnit.objects.create(
+                    reference=self.reference,
+                    strain=self.strain,
+                    type=self.type,
+                    status=models.OmicsUnit.STATUS_INVALID
+                )
+
+        self.assertEqual(qs.count(), 1)
 
 
 class PixelTestCase(TestCase):
