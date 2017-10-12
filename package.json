@@ -4,5 +4,12 @@
   "description": "Integration of smart 'omics' data",
   "repository": "git@github.com:Candihub/pixel.git",
   "author": "CandiHub",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "autoprefixer": "^7.1.5",
+    "foundation-sites": "^6.4.4-rc1",
+    "node-sass": "^4.5.3",
+    "nodemon": "^1.12.1",
+    "postcss-cli": "^4.1.1"
+  }
 }
