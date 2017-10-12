@@ -123,3 +123,16 @@ class StrainTestCase(TestCase):
                 )
 
         self.assertEqual(qs.count(), 1)
+
+
+class OmicsUnitTypeTestCase(TestCase):
+
+    def test_can_create_omics_unit_type(self):
+        # TODO
+        # raise NotImplementedError('You have work to do @thomasdenecker!')
+        pass
+
+    def test_model_representation(self):
+        # TODO
+        # raise NotImplementedError('You have work to do @thomasdenecker!')
+        pass
