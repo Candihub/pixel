@@ -128,13 +128,11 @@ class OmicsUnitTypeTestCase(TestCase):
 
     def test_can_create_omics_unit_type(self):
         # TODO
-        # raise NotImplementedError('You have work to do @thomasdenecker!')
-        pass
+        raise NotImplementedError('You have work to do @thomasdenecker!')
 
     def test_model_representation(self):
         # TODO
-        # raise NotImplementedError('You have work to do @thomasdenecker!')
-        pass
+        raise NotImplementedError('You have work to do @thomasdenecker!')
 
 
 class OmicsUnitTestCase(TestCase):
@@ -195,13 +193,11 @@ class OmicsUnitTestCase(TestCase):
 
     def test_model_representation(self):
         # TODO
-        # raise NotImplementedError('You have work to do @thomasdenecker!')
-        pass
+        raise NotImplementedError('You have work to do @thomasdenecker!')
 
     def test_cannot_create_two_omics_units_with_same_reference_type_and_strain_(self):  # noqa
         # TODO
-        # raise NotImplementedError('You have work to do @thomasdenecker!')
-        pass
+        raise NotImplementedError('You have work to do @thomasdenecker!')
 
 
 class PixelTestCase(TestCase):
