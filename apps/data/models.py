@@ -80,3 +80,6 @@ class Entry(models.Model):
             raise ValidationError(
                 _("You need to provide an identifier or an url for an Entry")
             )
+
+    def __str__(self):
+        return str(self.id)
