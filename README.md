@@ -7,6 +7,8 @@
 
 * Python 3.6+
 * [Pipenv](https://docs.pipenv.org)
+* [Node.js 8+](https://nodejs.org/en/)
+* [Yarn](https://yarnpkg.com/lang/en/)
 
 
 _Nota bene_: to install and use Pipenv, we invite you to read the [project
