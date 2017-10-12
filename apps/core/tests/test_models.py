@@ -275,3 +275,58 @@ class PixelTestCase(TestCase):
         )
 
         self.assertEqual(str(pixel), str(pixel.id))
+
+
+class ExperimentTestCase(TestCase):
+
+    def setUp(self):
+
+        self.omics_area = models.OmicsArea.objects.create(name='RNAseq')
+
+    def test_can_create_experiment_without_entries_or_tags(self):
+
+        qs = models.Experiment.objects.all()
+        self.assertEqual(qs.count(), 0)
+
+        description = 'lorem ipsum'
+        released_at = datetime.date(1980, 10, 14)
+        experiment = models.Experiment.objects.create(
+            description=description,
+            omics_area=self.omics_area,
+            released_at=released_at,
+        )
+
+        self.assertEqual(experiment.description, description)
+        self.assertEqual(experiment.released_at, released_at)
+        self.assertEqual(experiment.omics_area.id, self.omics_area.id)
+        self.assertEqual(experiment.entries.count(), 0)
+        self.assertEqual(experiment.tags.count(), 0)
+
+        self.assertEqual(qs.count(), 1)
+
+    def test_can_add_entries_to_experiment(self):
+
+        experiment = models.Experiment.objects.create(
+            description='lorem ipsum',
+            omics_area=self.omics_area,
+            released_at=datetime.date(1980, 10, 14),
+        )
+        entries = [EntryFactory() for e in range(2)]
+        experiment.entries.add(*entries)
+
+        self.assertEqual(experiment.entries.count(), len(entries))
+
+    def test_can_add_tags_to_experiment(self):
+
+        experiment = models.Experiment.objects.create(
+            description='lorem ipsum',
+            omics_area=self.omics_area,
+            released_at=datetime.date(1980, 10, 14),
+        )
+
+        tags = ['ph', 'NaOH 3M']
+        experiment.tags = tags
+        experiment.save()
+
+        self.assertEqual(models.Tag.objects.count(), len(experiment.tags))
+        self.assertEqual(models.Tag.objects.count(), len(tags))
