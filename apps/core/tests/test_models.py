@@ -203,3 +203,75 @@ class OmicsUnitTestCase(TestCase):
         # TODO
         # raise NotImplementedError('You have work to do @thomasdenecker!')
         pass
+
+
+class PixelTestCase(TestCase):
+
+    def setUp(self):
+
+        # OmicsUnit
+        species = models.Species.objects.create(
+            name='Saccharomyces cerevisiae',
+            reference=EntryFactory(),
+            description='lorem ipsum',
+        )
+        strain = models.Strain.objects.create(
+            name='S288c / XJ24-24a',
+            species=species,
+        )
+        reference = EntryFactory()
+        type = models.OmicsUnitType.objects.create(name='Promoter')
+        self.omics_unit = models.OmicsUnit.objects.create(
+            reference=reference,
+            strain=strain,
+            type=type,
+        )
+
+        # Analysis
+        omics_area = models.OmicsArea.objects.create(name='RNAseq')
+        experiment = models.Experiment.objects.create(
+            omics_area=omics_area,
+            released_at=datetime.date(1980, 10, 14),
+        )
+        pixeler = models.Pixeler.objects.create(
+            username='johndoe',
+            email='john@doe.com',
+            password='toto,1234!'
+        )
+        self.analysis = models.Analysis.objects.create(
+            secondary_data='/fake/path/secondary_data',
+            pixeler=pixeler,
+        )
+        self.analysis.experiments.add(experiment)
+
+    def test_can_create_pixel(self):
+
+        qs = models.Pixel.objects.all()
+        self.assertEqual(qs.count(), 0)
+
+        value = 42.42
+        quality_score = 0.54
+        pixel = models.Pixel.objects.create(
+            value=value,
+            quality_score=quality_score,
+            omics_unit=self.omics_unit,
+            analysis=self.analysis,
+        )
+
+        self.assertEqual(pixel.value, value)
+        self.assertEqual(pixel.quality_score, quality_score)
+        self.assertEqual(pixel.omics_unit.id, self.omics_unit.id)
+        self.assertEqual(pixel.analysis.id, self.analysis.id)
+
+        self.assertEqual(qs.count(), 1)
+
+    def test_model_representation(self):
+
+        pixel = models.Pixel.objects.create(
+            value=42.42,
+            quality_score=0.54,
+            omics_unit=self.omics_unit,
+            analysis=self.analysis,
+        )
+
+        self.assertEqual(str(pixel), str(pixel.id))
