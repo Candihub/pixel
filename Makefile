@@ -2,6 +2,7 @@ default: help
 
 bootstrap: ## install the project dependencies
 	pipenv install -d
+	yarn install -D
 .PHONY: bootstrap
 
 migrate-db:  ## perform database migrations
