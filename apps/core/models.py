@@ -207,7 +207,7 @@ class Pixel(models.Model):
         verbose_name_plural = _("Pixels")
 
     def __str__(self):
-        return self.uuid
+        return str(self.id)
 
 
 class Tag(tgl_models.TagModel):
