@@ -209,8 +209,14 @@ class OmicsUnitTestCase(TestCase):
         self.assertEqual(omics_unit.status, models.OmicsUnit.STATUS_INVALID)
 
     def test_model_representation(self):
-        # TODO
-        raise NotImplementedError('You have work to do @thomasdenecker!')
+        
+        omics_unit = models.OmicsUnit.objects.create(
+            reference=self.reference,
+            strain=self.strain,
+            type=self.type,
+        )
+
+        self.assertEqual(str(omics_unit), str(omics_unit.reference))
 
     def test_cannot_create_two_omics_units_with_same_reference_type_and_strain_(self):  # noqa
         
@@ -222,8 +228,7 @@ class OmicsUnitTestCase(TestCase):
         models.OmicsUnit.objects.create(
             reference=self.reference,
             strain=self.strain,
-            type=self.type,
-            status=models.OmicsUnit.STATUS_INVALID
+            type=self.type
         )
 
         with self.assertRaises(IntegrityError):
@@ -231,8 +236,7 @@ class OmicsUnitTestCase(TestCase):
                 models.OmicsUnit.objects.create(
                     reference=self.reference,
                     strain=self.strain,
-                    type=self.type,
-                    status=models.OmicsUnit.STATUS_INVALID
+                    type=self.type
                 )
 
         self.assertEqual(qs.count(), 1)

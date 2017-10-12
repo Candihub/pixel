@@ -164,7 +164,7 @@ class OmicsUnit(models.Model):
         )
 
     def __str__(self):
-        return self.reference
+        return str(self.reference)
 
 
 class Pixel(models.Model):
