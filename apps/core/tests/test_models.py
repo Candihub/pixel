@@ -209,7 +209,7 @@ class OmicsUnitTestCase(TestCase):
         self.assertEqual(omics_unit.status, models.OmicsUnit.STATUS_INVALID)
 
     def test_model_representation(self):
-        
+
         omics_unit = models.OmicsUnit.objects.create(
             reference=self.reference,
             strain=self.strain,
@@ -219,8 +219,6 @@ class OmicsUnitTestCase(TestCase):
         self.assertEqual(str(omics_unit), str(omics_unit.reference))
 
     def test_cannot_create_two_omics_units_with_same_reference_type_and_strain_(self):  # noqa
-        
-        reference=self.reference
 
         qs = models.OmicsUnit.objects.all()
         self.assertEqual(qs.count(), 0)
