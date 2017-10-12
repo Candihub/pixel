@@ -433,3 +433,81 @@ class AnalysisTestCase(TestCase):
         )
 
         self.assertEqual(upload_path, expected)
+
+
+class OmicsAreaTestCase(TestCase):
+
+    def test_can_create_omics_area(self):
+
+        qs = models.OmicsArea.objects.all()
+        self.assertEqual(qs.count(), 0)
+
+        name = 'RNAseq'
+        description = 'lorem ipsum'
+
+        omics_area = models.OmicsArea.objects.create(
+            name=name,
+            description=description,
+        )
+
+        self.assertEqual(omics_area.name, name)
+        self.assertEqual(omics_area.description, description)
+        self.assertEqual(qs.count(), 1)
+
+    def test_can_create_omics_area_tree(self):
+
+        qs = models.OmicsArea.objects.all()
+        self.assertEqual(qs.count(), 0)
+
+        root_omics_area = models.OmicsArea.objects.create(
+            name='Genomics',
+        )
+        child_omics_area = models.OmicsArea.objects.create(
+            name='RNAseq',
+            parent=root_omics_area,
+        )
+
+        self.assertEqual(
+            root_omics_area.children.get().name,
+            child_omics_area.name,
+        )
+        self.assertEqual(
+            child_omics_area.parent.name,
+            root_omics_area.name,
+        )
+        self.assertEqual(qs.count(), 2)
+
+    def test_omics_area_tree_order_insertion_by_name(self):
+
+        qs = models.OmicsArea.objects.all()
+        self.assertEqual(qs.count(), 0)
+
+        root_omics_area = models.OmicsArea.objects.create(
+            name='Genomics',
+        )
+        first_child_omics_area = models.OmicsArea.objects.create(
+            name='RNAseq',
+            parent=root_omics_area,
+        )
+        second_child_omics_area = models.OmicsArea.objects.create(
+            name='Microarrays',
+            parent=root_omics_area,
+        )
+        third_child_omics_area = models.OmicsArea.objects.create(
+            name='SAGE',
+            parent=root_omics_area,
+        )
+
+        self.assertEqual(
+            root_omics_area.children.all()[0].name,
+            second_child_omics_area.name,
+        )
+        self.assertEqual(
+            root_omics_area.children.all()[1].name,
+            first_child_omics_area.name,
+        )
+        self.assertEqual(
+            root_omics_area.children.all()[2].name,
+            third_child_omics_area.name,
+        )
+        self.assertEqual(qs.count(), 4)
