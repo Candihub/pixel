@@ -35,3 +35,27 @@ class EntryFactoryTestCase(TestCase):
         self.assertGreater(len(entry.repository.name), 0)
         self.assertEqual(entry_qs.count(), 1)
         self.assertEqual(repository_qs.count(), 1)
+
+    def test_entry_fake_identifier(self):
+
+        entry = factories.EntryFactory()
+
+        self.assertRegex(entry.identifier, 'FK-[0-9]{6}')
+
+    def test_can_create_multiple_entries(self):
+
+        qs = models.Entry.objects.all()
+        self.assertEqual(qs.count(), 0)
+
+        first_entry = factories.EntryFactory()
+        second_entry = factories.EntryFactory()
+
+        self.assertEqual(qs.count(), 2)
+        self.assertNotEqual(
+            first_entry.identifier,
+            second_entry.identifier
+        )
+        self.assertNotEqual(
+            first_entry.id,
+            second_entry.id
+        )

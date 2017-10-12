@@ -14,7 +14,7 @@ class RepositoryFactory(DjangoModelFactory):
 
 class EntryFactory(DjangoModelFactory):
 
-    identifier = Sequence(lambda n: 'FK-%06d'.format(n))
+    identifier = Sequence(lambda n: 'FK-{:06d}'.format(n))
     description = Faker('text', max_nb_chars=300)
     url = Faker('url')
     repository = SubFactory(RepositoryFactory)
