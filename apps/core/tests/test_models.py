@@ -329,3 +329,107 @@ class ExperimentTestCase(TestCase):
 
         self.assertEqual(models.Tag.objects.count(), len(experiment.tags))
         self.assertEqual(models.Tag.objects.count(), len(tags))
+
+
+class AnalysisTestCase(TestCase):
+
+    def setUp(self):
+
+        omics_area = models.OmicsArea.objects.create(name='RNAseq')
+        self.experiment = models.Experiment.objects.create(
+            omics_area=omics_area,
+            released_at=datetime.date(1980, 10, 14),
+        )
+        self.pixeler = models.Pixeler.objects.create(
+            username='johndoe',
+            email='john@doe.com',
+            password='toto,1234!'
+        )
+
+    def test_can_create_analysis_without_experiments_or_tags(self):
+
+        qs = models.Analysis.objects.all()
+        self.assertEqual(qs.count(), 0)
+
+        description = 'lorem ipsum'
+        secondary_data = '/fake/path/secondary_data'
+        notebook = '/fake/path/notebook'
+        analysis = models.Analysis.objects.create(
+            description=description,
+            secondary_data=secondary_data,
+            notebook=notebook,
+            pixeler=self.pixeler,
+        )
+
+        self.assertEqual(analysis.description, description)
+        self.assertEqual(analysis.secondary_data, secondary_data)
+        self.assertEqual(analysis.notebook, notebook)
+        self.assertEqual(analysis.pixeler.id, self.pixeler.id)
+        self.assertEqual(analysis.experiments.count(), 0)
+        self.assertEqual(analysis.tags.count(), 0)
+
+        self.assertEqual(qs.count(), 1)
+
+    def test_can_create_analysis_with_experiments(self):
+
+        analysis = models.Analysis.objects.create(
+            description='lorem ipsum',
+            secondary_data='/fake/path/secondary_data',
+            notebook='/fake/path/notebook',
+            pixeler=self.pixeler,
+        )
+        analysis.experiments.add(self.experiment)
+
+        self.assertEqual(analysis.experiments.count(), 1)
+        self.assertEqual(analysis.tags.count(), 0)
+
+    def test_can_create_analysis_with_tags(self):
+
+        analysis = models.Analysis.objects.create(
+            description='lorem ipsum',
+            secondary_data='/fake/path/secondary_data',
+            notebook='/fake/path/notebook',
+            pixeler=self.pixeler,
+        )
+        tags = ['foo technique', 'bar technique']
+        analysis.tags = tags
+        analysis.save()
+
+        self.assertEqual(analysis.tags.count(), len(analysis.tags))
+        self.assertEqual(analysis.tags.count(), len(tags))
+
+    def test_secondary_data_upload_to(self):
+
+        analysis = models.Analysis(
+            description='lorem ipsum',
+            secondary_data='/fake/path/secondary_data',
+            pixeler=self.pixeler,
+        )
+
+        upload_path = models.Analysis.secondary_data_upload_to(
+            analysis,
+            'misc.csv'
+        )
+        expected = '{}/{}/secondary_data'.format(
+            analysis.pixeler.id, analysis.id
+        )
+
+        self.assertEqual(upload_path, expected)
+
+    def test_notebook_upload_to(self):
+
+        analysis = models.Analysis(
+            description='lorem ipsum',
+            secondary_data='/fake/path/secondary_data',
+            pixeler=self.pixeler,
+        )
+
+        upload_path = models.Analysis.notebook_upload_to(
+            analysis,
+            'misc.csv'
+        )
+        expected = '{}/{}/notebook'.format(
+            analysis.pixeler.id, analysis.id
+        )
+
+        self.assertEqual(upload_path, expected)
