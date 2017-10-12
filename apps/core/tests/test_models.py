@@ -511,3 +511,23 @@ class OmicsAreaTestCase(TestCase):
             third_child_omics_area.name,
         )
         self.assertEqual(qs.count(), 4)
+
+
+class PixelerTestCase(TestCase):
+
+    def test_can_create_pixeler(self):
+
+        qs = models.Pixeler.objects.all()
+        self.assertEqual(qs.count(), 0)
+
+        username = 'johndoe'
+        email = 'john@doe.com'
+        pixeler = models.Pixeler.objects.create(
+            username=username,
+            email=email,
+            password='toto,1234!'
+        )
+
+        self.assertEqual(pixeler.username, username)
+        self.assertEqual(pixeler.email, email)
+        self.assertEqual(qs.count(), 1)
