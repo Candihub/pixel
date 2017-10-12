@@ -127,8 +127,20 @@ class StrainTestCase(TestCase):
 class OmicsUnitTypeTestCase(TestCase):
 
     def test_can_create_omics_unit_type(self):
-        # TODO
-        raise NotImplementedError('You have work to do @thomasdenecker!')
+        name = 'gene'
+        description = 'lorem ipsum'
+
+        qs = models.OmicsUnitType.objects.all()
+        self.assertEqual(qs.count(), 0)
+
+        omics_unit_type = models.OmicsUnitType.objects.create(
+            name=name,
+            description=description,
+        )
+
+        self.assertEqual(omics_unit_type.name, name)
+        self.assertEqual(omics_unit_type.description, description)
+        self.assertEqual(qs.count(), 1)
 
     def test_model_representation(self):
         # TODO
