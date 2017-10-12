@@ -127,14 +127,29 @@ class StrainTestCase(TestCase):
 class OmicsUnitTypeTestCase(TestCase):
 
     def test_can_create_omics_unit_type(self):
-        # TODO
-        # raise NotImplementedError('You have work to do @thomasdenecker!')
-        pass
+        name = 'gene'
+        description = 'lorem ipsum'
+
+        qs = models.OmicsUnitType.objects.all()
+        self.assertEqual(qs.count(), 0)
+
+        omics_unit_type = models.OmicsUnitType.objects.create(
+            name=name,
+            description=description
+        )
+
+        self.assertEqual(omics_unit_type.name, name)
+        self.assertEqual(omics_unit_type.description, description)
+        self.assertEqual(qs.count(), 1)
 
     def test_model_representation(self):
-        # TODO
-        # raise NotImplementedError('You have work to do @thomasdenecker!')
-        pass
+        name = 'gene'
+
+        omics_unit_type = models.OmicsUnitType.objects.create(
+            name=name
+        )
+
+        self.assertEqual(str(omics_unit_type), name)
 
 
 class OmicsUnitTestCase(TestCase):
@@ -194,14 +209,35 @@ class OmicsUnitTestCase(TestCase):
         self.assertEqual(omics_unit.status, models.OmicsUnit.STATUS_INVALID)
 
     def test_model_representation(self):
-        # TODO
-        # raise NotImplementedError('You have work to do @thomasdenecker!')
-        pass
+
+        omics_unit = models.OmicsUnit.objects.create(
+            reference=self.reference,
+            strain=self.strain,
+            type=self.type,
+        )
+
+        self.assertEqual(str(omics_unit), str(omics_unit.reference))
 
     def test_cannot_create_two_omics_units_with_same_reference_type_and_strain_(self):  # noqa
-        # TODO
-        # raise NotImplementedError('You have work to do @thomasdenecker!')
-        pass
+
+        qs = models.OmicsUnit.objects.all()
+        self.assertEqual(qs.count(), 0)
+
+        models.OmicsUnit.objects.create(
+            reference=self.reference,
+            strain=self.strain,
+            type=self.type
+        )
+
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                models.OmicsUnit.objects.create(
+                    reference=self.reference,
+                    strain=self.strain,
+                    type=self.type
+                )
+
+        self.assertEqual(qs.count(), 1)
 
 
 class PixelTestCase(TestCase):
