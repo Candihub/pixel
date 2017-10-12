@@ -135,7 +135,7 @@ class OmicsUnitTypeTestCase(TestCase):
 
         omics_unit_type = models.OmicsUnitType.objects.create(
             name=name,
-            description=description,
+            description=description
         )
 
         self.assertEqual(omics_unit_type.name, name)
@@ -143,8 +143,13 @@ class OmicsUnitTypeTestCase(TestCase):
         self.assertEqual(qs.count(), 1)
 
     def test_model_representation(self):
-        # TODO
-        raise NotImplementedError('You have work to do @thomasdenecker!')
+        name = 'gene'
+
+        omics_unit_type = models.OmicsUnitType.objects.create(
+            name=name
+        )
+
+        self.assertEqual(str(omics_unit_type), name)
 
 
 class OmicsUnitTestCase(TestCase):
