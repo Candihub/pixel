@@ -360,11 +360,37 @@ class ExperimentTestCase(TestCase):
         )
 
         tags = ['ph', 'NaOH 3M']
-        experiment.tags = tags
+        experiment.tags = ', '.join(tags)
         experiment.save()
 
         self.assertEqual(models.Tag.objects.count(), len(experiment.tags))
         self.assertEqual(models.Tag.objects.count(), len(tags))
+
+    def test_can_add_hierarchical_tags_to_experiment(self):
+
+        experiment = models.Experiment.objects.create(
+            description='lorem ipsum',
+            omics_area=self.omics_area,
+            released_at=datetime.date(1980, 10, 14),
+        )
+
+        tags = ['condition/ph/high', 'condition/salt/NaOH 3M']
+        experiment.tags = ', '.join(tags)
+        experiment.save()
+
+        expected_tags = list(
+            set([t.strip() for tag in tags for t in tag.split('/')])
+        )
+        expected_experiment_tags = [tag.split('/')[-1] for tag in tags]
+
+        self.assertEqual(
+            models.Tag.objects.count(),
+            len(expected_tags)
+        )
+        self.assertEqual(
+            experiment.tags.count(),
+            len(expected_experiment_tags)
+        )
 
 
 class AnalysisTestCase(TestCase):
@@ -433,6 +459,33 @@ class AnalysisTestCase(TestCase):
 
         self.assertEqual(analysis.tags.count(), len(analysis.tags))
         self.assertEqual(analysis.tags.count(), len(tags))
+
+    def test_can_add_hierarchical_tags_to_analysis(self):
+
+        analysis = models.Analysis.objects.create(
+            description='lorem ipsum',
+            secondary_data='/fake/path/secondary_data',
+            notebook='/fake/path/notebook',
+            pixeler=self.pixeler,
+        )
+
+        tags = ['foo/bar/pca', 'foo/bayes']
+        analysis.tags = ', '.join(tags)
+        analysis.save()
+
+        expected_tags = list(
+            set([t.strip() for tag in tags for t in tag.split('/')])
+        )
+        expected_experiment_tags = [tag.split('/')[-1] for tag in tags]
+
+        self.assertEqual(
+            models.Tag.objects.count(),
+            len(expected_tags)
+        )
+        self.assertEqual(
+            analysis.tags.count(),
+            len(expected_experiment_tags)
+        )
 
     def test_secondary_data_upload_to(self):
 
