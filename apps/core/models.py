@@ -210,12 +210,12 @@ class Pixel(models.Model):
         return str(self.id)
 
 
-class Tag(tgl_models.TagModel):
+class Tag(tgl_models.TagTreeModel):
     """The Pixel tag model is mostly used to add facets to experiment search.
     """
 
-    force_lowercase = True
-    tree = True
+    class TagMeta:
+        force_lowercase = True
 
 
 class Experiment(models.Model):
