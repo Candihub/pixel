@@ -11,5 +11,7 @@ $foundation-palette: (
   alert: $color4,
 );
 
-$body-background: lighten($color1, 10%);
+$body-background: lighten($color1, 7%);
 $body-font-color: $color5;
+$header-background: $color1;
+$footer-background: $color4;
