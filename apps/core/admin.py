@@ -1,7 +1,8 @@
 from django.contrib import admin
-from .models import Species, Strain, OmicsUnitType, \
-                    OmicsUnit, Pixel, Tag, Experiment, \
-                    Analysis, OmicsArea, Pixeler
+from .models import (
+    Analysis, Experiment, OmicsArea, OmicsUnit, OmicsUnitType, Pixel, Pixeler,
+    Species, Strain, Tag
+)
 
 admin.site.register(Species)
 admin.site.register(Strain)
