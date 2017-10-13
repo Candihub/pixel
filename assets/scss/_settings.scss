@@ -1,0 +1,15 @@
+/*
+  Foundation overrides and more
+ */
+
+// Colors
+$foundation-palette: (
+  primary: $color3,
+  secondary: $color4,
+  success: #2ec4b6,
+  warning: #ff9f1c,
+  alert: $color4,
+);
+
+$body-background: lighten($color1, 10%);
+$body-font-color: $color5;
