@@ -9,6 +9,7 @@ django = "*"
 "django-configurations" = "*"
 "django-mptt" = "*"
 "django-tagulous" = "*"
+"django-extensions" = "*"
 
 
 
@@ -20,7 +21,6 @@ pytest = "*"
 "pytest-cov" = "*"
 "flake8" = "*"
 coveralls = "*"
-"django-extensions" = "*"
 "factory-boy" = "*"
 
 

@@ -28,6 +28,7 @@ class Base(Configuration):
         # third party
         'mptt',
         'tagulous',
+        'django_extensions',
 
         # Pixel apps
         'apps.core',
@@ -101,10 +102,6 @@ class Development(Base):
 
     SECRET_KEY = 'b9((zo$cmb9giq@2#%we910ot=$wxk9xqfj*!eg#t%c556n^_9'
     DEBUG = True
-
-    INSTALLED_APPS = Base.INSTALLED_APPS + [
-        'django_extensions',
-    ]
 
     # Database
     DATABASES = {
