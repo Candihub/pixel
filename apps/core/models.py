@@ -29,6 +29,8 @@ class Species(models.Model):
         on_delete=models.CASCADE,
         related_name='species',
         related_query_name='species',
+        blank=True,
+        null=True,
     )
 
     repository = models.ForeignKey(
