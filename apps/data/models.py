@@ -91,4 +91,3 @@ class Entry(UUIDModelMixin, models.Model):
             raise ValidationError(
                 _("You need to provide an identifier or an url for an Entry")
             )
-

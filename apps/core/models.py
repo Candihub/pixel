@@ -245,7 +245,6 @@ class Pixel(UUIDModelMixin, models.Model):
         verbose_name_plural = _("Pixels")
 
 
-
 class Tag(tgl_models.TagTreeModel):
     """The Pixel tag model is mostly used to add facets to experiment search.
     """
