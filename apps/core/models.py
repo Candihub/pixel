@@ -406,9 +406,10 @@ class OmicsArea(MPTTModel):
 
     class MPTTMeta:
         order_insertion_by = ['name']
-    
+
     def __str__(self):
         return str(self.name)
+
 
 class Pixeler(AbstractUser):
     """Pixel database user
