@@ -271,7 +271,14 @@ class OmicsUnitTestCase(TestCase):
             type=self.type,
         )
 
-        self.assertEqual(str(omics_unit), str(omics_unit.reference))
+        custom_id = '{} ({}/{}/{})'.format(
+                omics_unit.id.hex[:7],
+                omics_unit.type,
+                omics_unit.strain,
+                omics_unit.strain.species.name
+            )
+
+        self.assertEqual(str(omics_unit), str(custom_id))
 
     def test_cannot_create_two_omics_units_with_same_reference_type_and_strain_(self):  # noqa
 
@@ -364,7 +371,7 @@ class PixelTestCase(TestCase):
             analysis=self.analysis,
         )
 
-        self.assertEqual(str(pixel), str(pixel.id))
+        self.assertEqual(str(pixel), str(pixel.id.hex[:7]))
 
 
 class ExperimentTestCase(TestCase):
