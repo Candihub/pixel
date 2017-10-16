@@ -1,6 +1,6 @@
 from django.contrib import admin
 from . import models
-
+from mptt.admin import MPTTModelAdmin
 
 class AnalysisAdmin(admin.ModelAdmin):
     model = models.Analysis
@@ -31,10 +31,11 @@ class ExperimentAdmin(admin.ModelAdmin):
     get_omics_area.short_description = 'Omics area'
 
 
-class OmicsAreaAdmin(admin.ModelAdmin):
+class OmicsAreaAdmin(MPTTModelAdmin):
     model = models.OmicsArea
+    search_fields = ['name']
     list_display = (
-        'name', 'description', 'level', 'parent'
+        'name', 'description', 'level'
     )
 
 
