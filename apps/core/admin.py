@@ -56,7 +56,6 @@ class OmicsUnitAdmin(UUIDModelAdminMixin, admin.ModelAdmin):
 @admin.register(models.OmicsUnitType)
 class OmicsUnitTypeAdmin(admin.ModelAdmin):
     search_fields = ['name']
-    ordering = ['name']
     list_display = (
         'name', 'description'
     )
@@ -91,7 +90,6 @@ class SpeciesAdmin(admin.ModelAdmin):
     list_display = (
         'name', 'description', 'reference', 'repository'
     )
-    ordering = ['name']
 
 
 @admin.register(models.Strain)
