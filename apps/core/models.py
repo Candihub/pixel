@@ -186,6 +186,12 @@ class OmicsUnit(models.Model):
     def __str__(self):
         return str(self.reference)
 
+    def get_strain(self):
+        return str(self.strain)
+
+    def get_species(self):
+        return str(self.strain.species)
+
 
 class Pixel(models.Model):
     """A pixel is the smallest measurement unit for an Omics study
@@ -361,6 +367,9 @@ class Analysis(models.Model):
         verbose_name = _("Analysis")
         verbose_name_plural = _("Analyses")
 
+    def __str__(self):
+        return str(self.description)
+
 
 class OmicsArea(MPTTModel):
     """Omics Area (Tree)
@@ -397,7 +406,9 @@ class OmicsArea(MPTTModel):
 
     class MPTTMeta:
         order_insertion_by = ['name']
-
+    
+    def __str__(self):
+        return str(self.name)
 
 class Pixeler(AbstractUser):
     """Pixel database user

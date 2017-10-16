@@ -15,12 +15,16 @@ class ExperimentAdmin(admin.ModelAdmin):
     model = models.Analysis
     list_display = (
         'description', 'created_at', 'released_at', 'saved_at',
-        'get_omics_area', 'get_tags'
+        'get_omics_area', 'get_tags', 'get_entries'
     )
 
     def get_tags(self, obj):
         return "\n".join([t.name for t in obj.tags.all()])
     get_tags.short_description = 'Tags'
+
+    def get_entries(self, obj):
+        return "\n".join([e.identifier for e in obj.entries.all()])
+    get_entries.short_description = 'Entries'
 
     def get_omics_area(self, obj):
         return (obj.omics_area.name)
@@ -28,14 +32,20 @@ class ExperimentAdmin(admin.ModelAdmin):
 
 
 class OmicsAreaAdmin(admin.ModelAdmin):
-    pass
+    model = models.OmicsArea
+    list_display = (
+        'name', 'description', 'level', 'parent'
+    )
 
 
 class OmicsUnitAdmin(admin.ModelAdmin):
     model = models.OmicsUnit
     list_display = (
-        'entry_identifier', 'strain', 'type', 'status'
+        'entry_identifier', 'strain', 'get_species', 'type', 'status'
     )
+
+    def get_species(self, obj):
+        return (obj.strain.species.name)
 
     def entry_identifier(self, obj):
         return (obj.reference.identifier)
@@ -53,32 +63,58 @@ class OmicsUnitTypeAdmin(admin.ModelAdmin):
 
 
 class PixelAdmin(admin.ModelAdmin):
-    pass
+    model = models.Pixel
+    list_display = (
+        'get_analysis', 'get_species', 'get_strain',  'quality_score'
+    )
+
+    def get_analysis(self, obj):
+        return (obj.analysis.description)
+    get_analysis.short_description = 'Analysis'
+
+    def get_species(self, obj):
+        return (obj.omics_unit.get_species())
+    get_species.short_description = 'Species'
+
+    def get_strain(self, obj):
+        return (obj.omics_unit.get_strain())
+    get_strain.short_description = 'Strain'
 
 
 class SpeciesAdmin(admin.ModelAdmin):
+    search_fields = ['name']
     model = models.Species
     list_display = (
-        'name', 'description', 'reference'
+        'name', 'description', 'reference', 'repository'
     )
     ordering = ['name']
 
 
 class StrainAdmin(admin.ModelAdmin):
+    search_fields = ['name']
     model = models.Strain
     list_display = (
-        'name', 'description', 'get_species'
+        'name', 'description', 'get_species', 'entry_identifier'
     )
 
     def get_species(self, obj):
         return (obj.species.name)
-
     get_species.short_description = 'Species'
+
+    def entry_identifier(self, obj):
+        if obj.reference is not None:
+            return (obj.reference.identifier)
+        else:
+            return ("-")
     list_filter = ('species__name',)
 
 
 class TagAdmin(admin.ModelAdmin):
     model = models.Tag
+    search_fields = ['name']
+    list_display = (
+        'name', 'label', 'level', 'count', 'parent'
+    )
 
 
 class PixelerAdmin(admin.ModelAdmin):
