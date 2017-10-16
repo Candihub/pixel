@@ -82,6 +82,15 @@ class Strain(models.Model):
         related_query_name='strain',
     )
 
+    reference = models.ForeignKey(
+        'data.Entry',
+        on_delete=models.CASCADE,
+        related_name='strains',
+        related_query_name='strain',
+        blank=True,
+        null=True,
+    )
+
     class Meta:
         verbose_name = _("Strain")
         verbose_name_plural = _("Strains")
