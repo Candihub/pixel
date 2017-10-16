@@ -3,7 +3,7 @@ import datetime
 from django.db import IntegrityError, transaction
 from django.test import TestCase
 
-from apps.data.factories import EntryFactory
+from apps.data.factories import EntryFactory, RepositoryFactory
 from .. import models
 
 
@@ -29,6 +29,26 @@ class SpeciesTestCase(TestCase):
         self.assertEqual(species.description, description)
         self.assertEqual(qs.count(), 1)
 
+    def test_can_create_species_with_repository(self):
+
+        name = 'Saccharomyces cerevisiae'
+        repository = RepositoryFactory()
+        description = 'lorem ipsum'
+
+        qs = models.Species.objects.all()
+        self.assertEqual(qs.count(), 0)
+
+        species = models.Species.objects.create(
+            name=name,
+            repository=repository,
+            description=description,
+        )
+
+        self.assertEqual(species.name, name)
+        self.assertEqual(species.repository.id, repository.id)
+        self.assertEqual(species.description, description)
+        self.assertEqual(qs.count(), 1)
+
     def test_can_create_species_without_description(self):
 
         name = 'Saccharomyces cerevisiae'
@@ -44,6 +64,22 @@ class SpeciesTestCase(TestCase):
 
         self.assertEqual(species.name, name)
         self.assertEqual(species.reference.id, reference.id)
+        self.assertEqual(qs.count(), 1)
+
+    def test_can_create_species_without_reference_or_repository(self):
+
+        name = 'Saccharomyces cerevisiae'
+
+        qs = models.Species.objects.all()
+        self.assertEqual(qs.count(), 0)
+
+        species = models.Species.objects.create(
+            name=name,
+        )
+
+        self.assertEqual(species.name, name)
+        self.assertEqual(species.reference, None)
+        self.assertEqual(species.repository, None)
         self.assertEqual(qs.count(), 1)
 
     def test_model_representation(self):
@@ -76,6 +112,7 @@ class StrainTestCase(TestCase):
 
         name = 'S288c / XJ24-24a'
         description = 'lorem ipsum'
+        reference = EntryFactory()
 
         qs = models.Strain.objects.all()
         self.assertEqual(qs.count(), 0)
@@ -83,11 +120,29 @@ class StrainTestCase(TestCase):
         strain = models.Strain.objects.create(
             name=name,
             description=description,
-            species=self.species
+            species=self.species,
+            reference=reference,
         )
 
         self.assertEqual(strain.name, name)
         self.assertEqual(strain.description, description)
+        self.assertEqual(strain.species.id, self.species.id)
+        self.assertEqual(strain.reference.id, reference.id)
+        self.assertEqual(qs.count(), 1)
+
+    def test_can_create_strain_without_reference(self):
+
+        name = 'S288c / XJ24-24a'
+
+        qs = models.Strain.objects.all()
+        self.assertEqual(qs.count(), 0)
+
+        strain = models.Strain.objects.create(
+            name=name,
+            species=self.species,
+        )
+
+        self.assertEqual(strain.name, name)
         self.assertEqual(strain.species.id, self.species.id)
         self.assertEqual(qs.count(), 1)
 

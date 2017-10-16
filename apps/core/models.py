@@ -29,6 +29,17 @@ class Species(models.Model):
         on_delete=models.CASCADE,
         related_name='species',
         related_query_name='species',
+        blank=True,
+        null=True,
+    )
+
+    repository = models.ForeignKey(
+        'data.Repository',
+        on_delete=models.CASCADE,
+        related_name='species',
+        related_query_name='species',
+        blank=True,
+        null=True,
     )
 
     description = models.TextField(
@@ -69,6 +80,15 @@ class Strain(models.Model):
         on_delete=models.CASCADE,
         related_name='strains',
         related_query_name='strain',
+    )
+
+    reference = models.ForeignKey(
+        'data.Entry',
+        on_delete=models.CASCADE,
+        related_name='strains',
+        related_query_name='strain',
+        blank=True,
+        null=True,
     )
 
     class Meta:
