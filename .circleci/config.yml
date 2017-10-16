@@ -54,7 +54,7 @@ jobs:
             - ~/pixel/.venv
           key: backend-deps-v3-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
 
-  lint:
+  lint_backend:
     working_directory: ~/pixel
     docker:
       - image: circleci/python:3.6.1
@@ -73,7 +73,7 @@ jobs:
           name: Lint the code
           command: make lint
 
-  test:
+  test_backend:
     working_directory: ~/pixel
     docker:
       - image: circleci/python:3.6.1
@@ -101,13 +101,13 @@ jobs:
 workflows:
   version: 2
 
-  backend:
+  pixel:
     jobs:
       - build_backend
       - build_frontend
-      - lint:
+      - lint_backend:
           requires:
             - build_backend
-      - test:
+      - test_backend:
           requires:
             - build_backend
