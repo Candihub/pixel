@@ -3,11 +3,28 @@ from . import models
 
 
 class AnalysisAdmin(admin.ModelAdmin):
-    pass
+    model = models.Analysis
+    list_display = (
+        'description', 'pixeler', 'created_at', 'saved_at',
+        'notebook', 'secondary_data'
+    )
+    list_filter = ('created_at', 'saved_at')
 
 
 class ExperimentAdmin(admin.ModelAdmin):
-    pass
+    model = models.Analysis
+    list_display = (
+        'description', 'created_at', 'released_at', 'saved_at',
+        'get_omics_area', 'get_tags'
+    )
+
+    def get_tags(self, obj):
+        return "\n".join([t.name for t in obj.tags.all()])
+    get_tags.short_description = 'Tags'
+
+    def get_omics_area(self, obj):
+        return (obj.omics_area.name)
+    get_omics_area.short_description = 'Omics area'
 
 
 class OmicsAreaAdmin(admin.ModelAdmin):
@@ -15,7 +32,16 @@ class OmicsAreaAdmin(admin.ModelAdmin):
 
 
 class OmicsUnitAdmin(admin.ModelAdmin):
-    pass
+    model = models.OmicsUnit
+    list_display = (
+        'entry_identifier', 'strain', 'type', 'status'
+    )
+
+    def entry_identifier(self, obj):
+        return (obj.reference.identifier)
+
+    entry_identifier.short_description = 'Entry identifier'
+    list_filter = ['status']
 
 
 class OmicsUnitTypeAdmin(admin.ModelAdmin):
@@ -39,7 +65,16 @@ class SpeciesAdmin(admin.ModelAdmin):
 
 
 class StrainAdmin(admin.ModelAdmin):
-    pass
+    model = models.Strain
+    list_display = (
+        'name', 'description', 'get_species'
+    )
+
+    def get_species(self, obj):
+        return (obj.species.name)
+
+    get_species.short_description = 'Species'
+    list_filter = ('species__name',)
 
 
 class TagAdmin(admin.ModelAdmin):
