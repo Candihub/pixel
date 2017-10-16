@@ -112,6 +112,7 @@ class StrainTestCase(TestCase):
 
         name = 'S288c / XJ24-24a'
         description = 'lorem ipsum'
+        reference = EntryFactory()
 
         qs = models.Strain.objects.all()
         self.assertEqual(qs.count(), 0)
@@ -119,11 +120,29 @@ class StrainTestCase(TestCase):
         strain = models.Strain.objects.create(
             name=name,
             description=description,
-            species=self.species
+            species=self.species,
+            reference=reference,
         )
 
         self.assertEqual(strain.name, name)
         self.assertEqual(strain.description, description)
+        self.assertEqual(strain.species.id, self.species.id)
+        self.assertEqual(strain.reference.id, reference.id)
+        self.assertEqual(qs.count(), 1)
+
+    def test_can_create_strain_without_reference(self):
+
+        name = 'S288c / XJ24-24a'
+
+        qs = models.Strain.objects.all()
+        self.assertEqual(qs.count(), 0)
+
+        strain = models.Strain.objects.create(
+            name=name,
+            species=self.species,
+        )
+
+        self.assertEqual(strain.name, name)
         self.assertEqual(strain.species.id, self.species.id)
         self.assertEqual(qs.count(), 1)
 
