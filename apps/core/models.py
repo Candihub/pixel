@@ -131,7 +131,28 @@ class OmicsUnitType(models.Model):
         return self.name
 
 
-class OmicsUnit(models.Model):
+class UUIDModelMixin(object):
+
+    def __str__(self):
+
+        print(self.__class__.__name__)
+        if self.__class__.__name__ == "OmicsUnit":
+            return '{} ({}/{}/{})'.format(
+                self.get_short_uuid(),
+                self.type,
+                self.strain,
+                self.strain.species.name
+            )
+        else:
+            return self.get_short_uuid()
+
+    def get_short_uuid(self):
+        if not isinstance(self.id, uuid.UUID):
+            raise TypeError(_("{} model id is not a valid UUID").format(self))
+        return self.id.hex[:7]
+
+
+class OmicsUnit(UUIDModelMixin, models.Model):
     """The Omics Unit could be a gene, a promoter, etc.
     """
 
@@ -183,17 +204,8 @@ class OmicsUnit(models.Model):
             ('reference', 'strain', 'type')
         )
 
-    def __str__(self):
-        return str(self.reference)
 
-    def get_strain(self):
-        return str(self.strain)
-
-    def get_species(self):
-        return str(self.strain.species)
-
-
-class Pixel(models.Model):
+class Pixel(UUIDModelMixin, models.Model):
     """A pixel is the smallest measurement unit for an Omics study
     """
 
@@ -232,8 +244,6 @@ class Pixel(models.Model):
         verbose_name = _("Pixel")
         verbose_name_plural = _("Pixels")
 
-    def __str__(self):
-        return str(self.id)
 
 
 class Tag(tgl_models.TagTreeModel):
@@ -296,7 +306,7 @@ class Experiment(models.Model):
         verbose_name_plural = _("Experiments")
 
 
-class Analysis(models.Model):
+class Analysis(UUIDModelMixin, models.Model):
     """An analysis from a set of pixels
     """
 
@@ -366,9 +376,6 @@ class Analysis(models.Model):
     class Meta:
         verbose_name = _("Analysis")
         verbose_name_plural = _("Analyses")
-
-    def __str__(self):
-        return str(self.description)
 
 
 class OmicsArea(MPTTModel):

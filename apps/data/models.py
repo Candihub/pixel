@@ -5,6 +5,17 @@ from django.db import models
 from django.utils.translation import ugettext as _
 
 
+class UUIDModelMixin(object):
+
+    def __str__(self):
+        return self.get_short_uuid()
+
+    def get_short_uuid(self):
+        if not isinstance(self.id, uuid.UUID):
+            raise TypeError(_("{} model id is not a valid UUID").format(self))
+        return self.id.hex[:7]
+
+
 class Repository(models.Model):
     """A repository is a provider from where reference data can be fetched.
     It can be a public database or a private source of data.
@@ -36,7 +47,7 @@ class Repository(models.Model):
         return self.name
 
 
-class Entry(models.Model):
+class Entry(UUIDModelMixin, models.Model):
 
     id = models.UUIDField(
         primary_key=True,
@@ -81,5 +92,3 @@ class Entry(models.Model):
                 _("You need to provide an identifier or an url for an Entry")
             )
 
-    def __str__(self):
-        return str(self.id)

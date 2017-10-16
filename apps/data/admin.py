@@ -1,4 +1,5 @@
 from django.contrib import admin
+
 from .models import Entry, Repository
 
 
@@ -19,7 +20,6 @@ class EntryAdmin(admin.ModelAdmin):
     )
 
     def repository_url(self, obj):
-        return '<a href="%s" target="_blank">%s</a>' % \
-                (obj.repository.url, obj.repository.name)
+        return obj.repository.url
     repository_url.short_description = 'Repository'
     repository_url.allow_tags = True
