@@ -2,6 +2,7 @@ from django.contrib import admin
 from . import models
 from mptt.admin import MPTTModelAdmin
 
+
 class AnalysisAdmin(admin.ModelAdmin):
     model = models.Analysis
     list_display = (
