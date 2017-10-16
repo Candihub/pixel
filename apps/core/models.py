@@ -31,6 +31,15 @@ class Species(models.Model):
         related_query_name='species',
     )
 
+    repository = models.ForeignKey(
+        'data.Repository',
+        on_delete=models.CASCADE,
+        related_name='species',
+        related_query_name='species',
+        blank=True,
+        null=True,
+    )
+
     description = models.TextField(
         _("Description"),
         blank=True,
