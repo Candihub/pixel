@@ -3,7 +3,7 @@ CSS_DIR           = static/css
 SASS_INCLUDE_PATH = node_modules/foundation-sites/scss/
 
 # Node
-YARN_RUN = yarn run --
+YARN_RUN = yarn
 NODEMON  = $(YARN_RUN) nodemon
 POSTCSS  = $(YARN_RUN) postcss
 SASS     = $(YARN_RUN) node-sass
