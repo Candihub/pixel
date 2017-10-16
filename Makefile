@@ -11,8 +11,8 @@ SASS     = $(YARN_RUN) node-sass
 default: help
 
 bootstrap: ## install the project dependencies
-	pipenv install -d
-	@if [ -z "$$CI" ]; then yarn install -D; fi
+	@if [ -z "$$CI" ] || [ -n "$$CI_BUILD_BACKEND" ]; then pipenv install -d; fi
+	@if [ -z "$$CI" ] || [ -n "$$CI_BUILD_FRONTEND" ]; then yarn install -D; fi
 .PHONY: bootstrap
 
 watch-css: ## continuously build CSS
