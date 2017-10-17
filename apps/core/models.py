@@ -1,9 +1,11 @@
 import uuid
+import mptt
 
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext as _
+from mptt.fields import TreeForeignKey
 from mptt.models import MPTTModel, TreeForeignKey
 from tagulous import models as tgl_models
 
@@ -267,7 +269,7 @@ class Experiment(models.Model):
         blank=True,
     )
 
-    omics_area = models.ForeignKey(
+    omics_area = mptt.fields.TreeForeignKey(
         'OmicsArea',
         on_delete=models.CASCADE,
         related_name='experiments',
