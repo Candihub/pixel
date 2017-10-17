@@ -1,12 +1,38 @@
 version: 2
 jobs:
 
-  build:
+  build_frontend:
+    working_directory: ~/pixel
+    docker:
+      - image: circleci/node:8
+        environment:
+          CI_BUILD_FRONTEND: 1
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - frontend-deps-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
+      - run:
+          name: Install dependencies
+          command: |
+            make bootstrap
+      - run:
+          name: Build styles
+          command: |
+            make build-css
+      - save_cache:
+          paths:
+            - ~/pixel/static
+            - ~/pixel/node_modules
+          key: frontend-deps-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
+
+  build_backend:
     working_directory: ~/pixel
     docker:
       - image: circleci/python:3.6.1
         environment:
           PIPENV_VENV_IN_PROJECT: 1
+          CI_BUILD_BACKEND: 1
     steps:
       - checkout
       - restore_cache:
@@ -28,7 +54,7 @@ jobs:
             - ~/pixel/.venv
           key: backend-deps-v3-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
 
-  lint:
+  lint_backend:
     working_directory: ~/pixel
     docker:
       - image: circleci/python:3.6.1
@@ -47,7 +73,7 @@ jobs:
           name: Lint the code
           command: make lint
 
-  test:
+  test_backend:
     working_directory: ~/pixel
     docker:
       - image: circleci/python:3.6.1
@@ -75,12 +101,13 @@ jobs:
 workflows:
   version: 2
 
-  backend:
+  pixel:
     jobs:
-      - build
-      - lint:
+      - build_backend
+      - build_frontend
+      - lint_backend:
           requires:
-            - build
-      - test:
+            - build_backend
+      - test_backend:
           requires:
-            - build
+            - build_backend

@@ -3,7 +3,7 @@ CSS_DIR           = static/css
 SASS_INCLUDE_PATH = node_modules/foundation-sites/scss/
 
 # Node
-YARN_RUN = yarn run --
+YARN_RUN = yarn
 NODEMON  = $(YARN_RUN) nodemon
 POSTCSS  = $(YARN_RUN) postcss
 SASS     = $(YARN_RUN) node-sass
@@ -11,8 +11,8 @@ SASS     = $(YARN_RUN) node-sass
 default: help
 
 bootstrap: ## install the project dependencies
-	pipenv install -d
-	@if [ -z "$$CI" ]; then yarn install -D; fi
+	@if [ -z "$$CI" ] || [ -n "$$CI_BUILD_BACKEND" ]; then pipenv install -d; fi
+	@if [ -z "$$CI" ] || [ -n "$$CI_BUILD_FRONTEND" ]; then yarn install -D; fi
 .PHONY: bootstrap
 
 watch-css: ## continuously build CSS
