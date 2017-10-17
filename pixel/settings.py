@@ -119,6 +119,10 @@ class Test(Base):
 
     SECRET_KEY = '@$in@#7a=chkv*jwt+kj4ac9^xaq&*y*40v7hrgwvaa&@k%mb@'
 
+    INSTALLED_APPS = Base.INSTALLED_APPS + [
+        'apps.core.tests.mixins',
+    ]
+
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',

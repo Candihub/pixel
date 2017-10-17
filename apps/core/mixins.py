@@ -10,5 +10,9 @@ class UUIDModelMixin(object):
 
     def get_short_uuid(self):
         if not isinstance(self.id, uuid.UUID):
-            raise TypeError(_("{} model id is not a valid UUID").format(self))
+            raise TypeError(
+                _("{} model id is not a valid UUID").format(
+                    self.__class__.__name__
+                )
+            )
         return self.id.hex[:7]
