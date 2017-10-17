@@ -9,6 +9,8 @@ from mptt.fields import TreeForeignKey
 from mptt.models import MPTTModel
 from tagulous import models as tgl_models
 
+from .mixins import UUIDModelMixin
+
 
 class Species(models.Model):
     """Canonical species
@@ -131,17 +133,6 @@ class OmicsUnitType(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class UUIDModelMixin(object):
-
-    def __str__(self):
-            return self.get_short_uuid()
-
-    def get_short_uuid(self):
-        if not isinstance(self.id, uuid.UUID):
-            raise TypeError(_("{} model id is not a valid UUID").format(self))
-        return self.id.hex[:7]
 
 
 class OmicsUnit(UUIDModelMixin, models.Model):

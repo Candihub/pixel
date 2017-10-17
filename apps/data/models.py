@@ -4,16 +4,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext as _
 
-
-class UUIDModelMixin(object):
-
-    def __str__(self):
-        return self.get_short_uuid()
-
-    def get_short_uuid(self):
-        if not isinstance(self.id, uuid.UUID):
-            raise TypeError(_("{} model id is not a valid UUID").format(self))
-        return self.id.hex[:7]
+from apps.core.mixins import UUIDModelMixin
 
 
 class Repository(models.Model):
