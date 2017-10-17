@@ -272,11 +272,11 @@ class OmicsUnitTestCase(TestCase):
         )
 
         custom_id = '{} ({}/{}/{})'.format(
-                omics_unit.id.hex[:7],
-                omics_unit.type,
-                omics_unit.strain,
-                omics_unit.strain.species.name
-            )
+            omics_unit.id.hex[:7],
+            omics_unit.type,
+            omics_unit.strain,
+            omics_unit.strain.species.name
+        )
 
         self.assertEqual(str(omics_unit), str(custom_id))
 
@@ -371,7 +371,7 @@ class PixelTestCase(TestCase):
             analysis=self.analysis,
         )
 
-        self.assertEqual(str(pixel), str(pixel.id.hex[:7]))
+        self.assertEqual(str(pixel), pixel.id.hex[:7])
 
 
 class ExperimentTestCase(TestCase):
