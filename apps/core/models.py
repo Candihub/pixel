@@ -202,6 +202,7 @@ class OmicsUnit(UUIDModelMixin, models.Model):
                 self.strain.species.name
                 )
 
+
 class Pixel(UUIDModelMixin, models.Model):
     """A pixel is the smallest measurement unit for an Omics study
     """
