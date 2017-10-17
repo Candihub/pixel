@@ -6,7 +6,7 @@ from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext as _
 from mptt.fields import TreeForeignKey
-from mptt.models import MPTTModel, TreeForeignKey
+from mptt.models import MPTTModel
 from tagulous import models as tgl_models
 
 
