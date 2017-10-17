@@ -663,6 +663,18 @@ class OmicsAreaTestCase(TestCase):
         )
         self.assertEqual(qs.count(), 4)
 
+    def test_model_representation(self):
+
+        name = 'RNAseq'
+        description = 'lorem ipsum'
+
+        omics_area = models.OmicsArea.objects.create(
+            name=name,
+            description=description,
+        )
+
+        self.assertEqual(str(omics_area), name)
+
 
 class PixelerTestCase(TestCase):
 
