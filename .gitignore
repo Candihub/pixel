@@ -106,3 +106,6 @@ venv.bak/
 
 # Node stuff
 node_modules/
+
+# Styles
+static/css/main.css

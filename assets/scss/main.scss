@@ -1,0 +1,19 @@
+/* -- Configuration -- */
+@import 'colors';
+@import 'settings';
+
+/* -- Foundation -- */
+@import 'foundation';
+
+$global-flexbox: true;
+
+@include foundation-button;
+@include foundation-global-styles;
+@include foundation-menu;
+@include foundation-top-bar;
+@include foundation-typography;
+@include foundation-xy-grid-classes;
+
+/* -- Pixel -- */
+@import 'commons';
+@import 'layout';

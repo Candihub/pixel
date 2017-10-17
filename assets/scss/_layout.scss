@@ -1,0 +1,49 @@
+.base-layout {
+  @include xy-grid($direction: 'vertical', $wrap: 'false');;
+  justify-content: space-between;
+  min-height: 100vh;
+
+  .main-navigation {
+    @include top-bar-container;
+    margin-bottom: 1rem;
+
+    .logo {
+      height: 2rem;
+
+      img {
+        height: 100%;
+      }
+    }
+
+    .navigation-links {
+
+      .links {
+        @include menu-base;
+      }
+    }
+  }
+
+  .page-header {}
+
+  .page-content {
+    text-align: center;
+  }
+
+  .page-footer {
+    @include xy-grid;
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: $footer-background;
+    font-size: 0.8rem;
+    color: $white;
+
+    .copyright {
+      @include xy-cell;
+      text-align: center;
+
+      a {
+        color: $footer-link-color;
+      }
+    }
+  }
+}

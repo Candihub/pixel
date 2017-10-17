@@ -1,3 +1,13 @@
+# Assets
+CSS_DIR           = static/css
+SASS_INCLUDE_PATH = node_modules/foundation-sites/scss/
+
+# Node
+YARN_RUN = yarn run --
+NODEMON  = $(YARN_RUN) nodemon
+POSTCSS  = $(YARN_RUN) postcss
+SASS     = $(YARN_RUN) node-sass
+
 default: help
 
 bootstrap: ## install the project dependencies
@@ -5,12 +15,24 @@ bootstrap: ## install the project dependencies
 	@if [ -z "$$CI" ]; then yarn install -D; fi
 .PHONY: bootstrap
 
+watch-css: ## continuously build CSS
+	@$(NODEMON) -e scss -x 'make build-css'
+.PHONY: watch-css
+
+build-css: ## build CSS with Sass, Autoprefixer, etc.
+	@$(SASS) --output-style compressed --include-path $(SASS_INCLUDE_PATH) assets/scss/main.scss $(CSS_DIR)/main.css
+	@$(POSTCSS) $(CSS_DIR)/*.css -r --use autoprefixer
+.PHONY: build-css
+
 migrate-db:  ## perform database migrations
 	pipenv run python manage.py migrate
 .PHONY: migrate-db
 
-dev: ## start the dev environment
+run-server: ## start the development server
 	pipenv run python manage.py runserver
+.PHONY: run-server
+
+dev: ; ${MAKE} -j2 watch-css run-server ## start the dev environment
 .PHONY: dev
 
 test:  ## run the test suite
