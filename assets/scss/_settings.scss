@@ -4,14 +4,15 @@
 
 // Colors
 $foundation-palette: (
-  primary: $color3,
-  secondary: $color4,
+  primary: $color4,
+  secondary: $color5,
   success: #2ec4b6,
   warning: #ff9f1c,
-  alert: $color4,
+  alert: darken($color4, 10%),
 );
 
-$body-background: lighten($color1, 7%);
+$body-background: #fff;
 $body-font-color: $color5;
-$header-background: $color1;
-$footer-background: $color4;
+$header-background: $color3;
+$footer-background: $color3;
+$footer-link-color: $color5;

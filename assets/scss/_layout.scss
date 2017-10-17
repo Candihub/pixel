@@ -40,6 +40,10 @@
     .copyright {
       @include xy-cell;
       text-align: center;
+
+      a {
+        color: $footer-link-color;
+      }
     }
   }
 }
