@@ -16,10 +16,5 @@ class RepositoryAdmin(admin.ModelAdmin):
 class EntryAdmin(admin.ModelAdmin):
     search_fields = ['identifier', 'repository']
     list_display = (
-        'identifier', 'description', 'url', 'repository_url'
+        'identifier', 'description', 'url'
     )
-
-    def repository_url(self, obj):
-        return obj.repository.url
-    repository_url.short_description = 'Repository'
-    repository_url.allow_tags = True

@@ -134,16 +134,6 @@ class OmicsUnitType(models.Model):
 class UUIDModelMixin(object):
 
     def __str__(self):
-
-        print(self.__class__.__name__)
-        if self.__class__.__name__ == "OmicsUnit":
-            return '{} ({}/{}/{})'.format(
-                self.get_short_uuid(),
-                self.type,
-                self.strain,
-                self.strain.species.name
-            )
-        else:
             return self.get_short_uuid()
 
     def get_short_uuid(self):
@@ -204,6 +194,13 @@ class OmicsUnit(UUIDModelMixin, models.Model):
             ('reference', 'strain', 'type')
         )
 
+    def __str__(self):
+        return '{} ({}/{}/{})'.format(
+                self.get_short_uuid(),
+                self.type,
+                self.strain,
+                self.strain.species.name
+                )
 
 class Pixel(UUIDModelMixin, models.Model):
     """A pixel is the smallest measurement unit for an Omics study

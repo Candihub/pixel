@@ -25,7 +25,6 @@ class ExperimentAdmin(admin.ModelAdmin):
     list_display = (
         'description', 'created_at', 'released_at', 'saved_at',
     )
-
     list_filter = ('tags', 'entries')
 
 
@@ -47,6 +46,7 @@ class OmicsUnitAdmin(UUIDModelAdminMixin, admin.ModelAdmin):
 
     def get_species(self, obj):
         return obj.strain.species.name
+    get_species.short_description = 'Species'
 
     def get_reference_identifier(self, obj):
         return obj.reference.identifier
@@ -78,9 +78,10 @@ class PixelAdmin(admin.ModelAdmin):
 
 @admin.register(models.Pixeler)
 class PixelerAdmin(admin.ModelAdmin):
-    list_display = ('username', 'first_name',
-                    'last_name', 'email', 'last_login'
-                    )
+    list_display = (
+        'username', 'first_name',
+        'last_name', 'email', 'last_login',
+    )
     list_filter = ('is_superuser', 'is_active', 'is_staff')
 
 
