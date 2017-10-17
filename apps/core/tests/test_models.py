@@ -362,17 +362,6 @@ class PixelTestCase(TestCase):
 
         self.assertEqual(qs.count(), 1)
 
-    def test_model_representation(self):
-
-        pixel = models.Pixel.objects.create(
-            value=42.42,
-            quality_score=0.54,
-            omics_unit=self.omics_unit,
-            analysis=self.analysis,
-        )
-
-        self.assertEqual(str(pixel), pixel.id.hex[:7])
-
 
 class ExperimentTestCase(TestCase):
 
