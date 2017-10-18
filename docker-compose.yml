@@ -3,8 +3,10 @@ version: '3'
 services:
   db:
     image: postgres
+    env_file: env.d/development
   web:
     build: .
+    env_file: env.d/development
     command: ./manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app/pixel

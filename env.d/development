@@ -1,0 +1,10 @@
+# Django
+DJANGO_SETTINGS_MODULE=pixel.settings
+DJANGO_CONFIGURATION=Development
+DJANGO_SECRET_KEY=ThisIsAnExampleKeyForDevPurposeOnly
+
+# Database
+POSTGRES_HOST=db
+POSTGRES_DB=pixel
+POSTGRES_USER=pixel
+POSTGRES_PASSWORD=42answertotheultimatequestionoflifetheuniverseandeverything
