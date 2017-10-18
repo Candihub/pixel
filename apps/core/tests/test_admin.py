@@ -36,3 +36,44 @@ class OmicsUnitAdminTestCase(TestCase):
             self.omics_unit_admin.get_reference_identifier(self.omics_unit),
             self.omics_unit.reference.identifier
         )
+
+
+class StrainAdminTestCase(TestCase):
+
+    def setUp(self):
+        site = AdminSite()
+        self.Strain = factories.StrainFactory()
+        self.Strain_admin = admin.StrainAdmin(models.Strain, site)
+
+    def test_get_species(self):
+        self.assertEqual(
+            self.Strain_admin.get_species(self.Strain),
+            self.Strain.species.name
+        )
+
+    def test_entry_identifier_Not_None(self):
+        self.assertEqual(
+            self.Strain_admin.entry_identifier(self.Strain),
+            self.Strain.reference.identifier
+        )
+
+    def test_entry_identifier_None(self):
+        self.Strain.reference = None
+        self.assertEqual(
+            self.Strain_admin.entry_identifier(self.Strain),
+            "-"
+        )
+
+
+class PixelAdminTestCase(TestCase):
+
+    def setUp(self):
+        site = AdminSite()
+        self.Pixel = factories.PixelFactory()
+        self.Pixel_admin = admin.PixelAdmin(models.Pixel, site)
+
+    def test_get_analysis(self):
+        self.assertEqual(
+            self.Pixel_admin.get_analysis(self.Pixel),
+            self.Pixel.analysis.description
+        )

@@ -49,3 +49,85 @@ class OmicsUnitFactory(DjangoModelFactory):
     class Meta:
         model = 'core.OmicsUnit'
         django_get_or_create = ('reference', 'strain')
+
+
+class PixelerFactory(DjangoModelFactory):
+
+    date_joined = Faker('date_object')
+    email = Faker('email')
+    first_name = Faker('first_name')
+    is_active = Faker('boolean')
+    is_staff = Faker('boolean')
+    is_superuser = Faker('boolean')
+    last_login = Faker('date_object')
+    last_name = Faker("last_name")
+    password = Faker("password")
+    username = Faker("user_name")
+
+    class Meta:
+        model = 'core.Pixeler'
+        django_get_or_create = ('username',)
+
+
+class OmicsAreaFactory(DjangoModelFactory):
+    description = Faker('text', max_nb_chars=300)
+    level = Faker('pyint')
+    lft = Faker('pyint')
+    name = Faker('word')
+    rght = Faker('pyint')
+    tree_id = Faker('pyint')
+
+    class Meta:
+        model = 'core.OmicsArea'
+        django_get_or_create = ('name',)
+
+
+class TagFactory(DjangoModelFactory):
+    count = Faker('pyint')
+    label = Faker('word')
+    level = Faker('pyint')
+    name = Faker('word')
+    path = Faker('text', max_nb_chars=300)
+    protected = Faker('boolean')
+    slug = Faker('word')
+
+    class Meta:
+        model = 'core.Tag'
+        django_get_or_create = ('name', 'slug', 'path', 'label',)
+
+
+class ExperimentFactory(DjangoModelFactory):
+    omics_area = SubFactory(OmicsAreaFactory)
+    created_at = Faker('date_object')
+    description = Faker('text', max_nb_chars=300)
+    released_at = Faker('date_object')
+    saved_at = Faker('date_object')
+
+    class Meta:
+        model = 'core.Experiment'
+        django_get_or_create = ('omics_area', 'created_at')
+
+
+class AnalysisFactory(DjangoModelFactory):
+    pixeler = SubFactory(PixelerFactory)
+    created_at = Faker('date_object')
+    description = Faker('text', max_nb_chars=300)
+    notebook = Faker('file_path', depth=1, category=None, extension=None)
+    saved_at = Faker('date_object')
+    secondary_data = Faker('file_path', depth=1, category=None, extension=None)
+
+    class Meta:
+        model = 'core.Analysis'
+        django_get_or_create = ('secondary_data', 'pixeler',)
+
+
+class PixelFactory(DjangoModelFactory):
+
+    value = Faker('pyfloat')
+    quality_score = Faker('pyfloat', left_digits=0)
+    omics_unit = SubFactory(OmicsUnitFactory)
+    analysis = SubFactory(AnalysisFactory)
+
+    class Meta:
+        model = 'core.Pixel'
+        django_get_or_create = ('value', 'omics_unit', 'analysis')
