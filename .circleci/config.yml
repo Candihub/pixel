@@ -30,9 +30,17 @@ jobs:
           keys:
           - frontend-deps-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
       - run:
+          name: Login to DockerHub
+          command: |
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
+      - run:
           name: Build container
           command: |
-            docker build -t pixel:build-dev --build-arg DEVELOPMENT="true" .
+            docker build -t candihub/pixel:$CIRCLE_BRANCH-dev --build-arg DEVELOPMENT="true" .
+      - run:
+          name: Publish container
+          command: |
+            docker push candihub/pixel:$CIRCLE_BRANCH-dev
 
   lint_backend:
     machine: true
@@ -40,7 +48,7 @@ jobs:
       - run:
           name: Lint the code
           command: |
-            docker run pixel:build-dev flake8
+            docker run candihub/pixel:$CIRCLE_BRANCH-dev flake8
 
   test_backend:
     machine: true
@@ -48,11 +56,11 @@ jobs:
       - run:
           name: Test the code
           command: |
-            docker run pixel:build-dev pytest
+            docker run candihub/pixel:$CIRCLE_BRANCH-dev pytest
       - run:
           name: Report code coverage
           command: |
-            docker run pixel:build-dev coveralls
+            docker run candihub/pixel:$CIRCLE_BRANCH-dev coveralls
           when: on_success
 
 workflows:
