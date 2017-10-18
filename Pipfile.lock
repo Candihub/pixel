@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "e3e72d930a98063ca9b0d417b0b9ceaf22f8189d939b69b38b4c3a6ede162d64"
+            "sha256": "105b7c51d9c02f9208f8de5ec0b91ee837971b33801360b4c657d2a61b10bf5c"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -29,6 +29,13 @@
         ]
     },
     "default": {
+        "dj-database-url": {
+            "hashes": [
+                "sha256:e16d94c382ea0564c48038fa7fe8d9c890ef1ab1a8ec4cb48e732c124b9482fd",
+                "sha256:a6832d8445ee9d788c5baa48aef8130bf61fdc442f7d9a548424d25cd85c9f08"
+            ],
+            "version": "==0.4.2"
+        },
         "django": {
             "hashes": [
                 "sha256:7ab6a9c798a5f9f359ee6da3677211f883fb02ef32cebe9b29751eb7a871febf",
@@ -179,10 +186,10 @@
         },
         "faker": {
             "hashes": [
-                "sha256:d846e75a3afcf0ded240c7652b1ffa7efd90bd25758a1d6f078e9a07d44054d3",
-                "sha256:c8bf7423ce097216b998479ff5df2278008fa0206f46470a96cf2672de52f9a0"
+                "sha256:f2d7f4b0956bd610645aa7c62ae6a30fc323936b6298e521847410509236f389",
+                "sha256:3c98dd04bba667ecfddb77fcd0dfd19b376b258d21beeaf5b95578826e275a83"
             ],
-            "version": "==0.8.5"
+            "version": "==0.8.6"
         },
         "flake8": {
             "hashes": [
@@ -268,12 +275,12 @@
             ],
             "version": "==1.11.0"
         },
-        "unidecode": {
+        "text-unidecode": {
             "hashes": [
-                "sha256:61f807220eda0203a774a09f84b4304a3f93b5944110cc132af29ddb81366883",
-                "sha256:280a6ab88e1f2eb5af79edff450021a0d3f0448952847cd79677e55e58bad051"
+                "sha256:b7a515d2b14d476b35f7701ceac9872737cbb7a8b2cd07431f3cd73837b97a18",
+                "sha256:1943a4bfb52f2b5068c8da25cdcfcf28c64c41d891dff70c662927c18ac58052"
             ],
-            "version": "==0.4.21"
+            "version": "==1.0"
         },
         "urllib3": {
             "hashes": [
