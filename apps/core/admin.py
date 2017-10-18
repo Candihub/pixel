@@ -107,8 +107,8 @@ class StrainAdmin(admin.ModelAdmin):
     def get_entry_identifier(self, obj):
         if obj.reference is None:
             return '-'
-        else:
-            return obj.reference.identifier
+            
+        return obj.reference.identifier
     list_filter = ('species__name',)
 
 

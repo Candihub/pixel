@@ -53,13 +53,13 @@ class OmicsUnitFactory(DjangoModelFactory):
 
 class PixelerFactory(DjangoModelFactory):
 
-    date_joined = Faker('date')
+    date_joined = Faker('date_time_this_decade')
     email = Faker('email')
     first_name = Faker('first_name')
     is_active = Faker('pybool')
     is_staff = Faker('pybool')
     is_superuser = Faker('pybool')
-    last_login = Faker('date')
+    last_login = Faker('date_time_this_decade')
     last_name = Faker("last_name")
     password = Faker("password")
     username = Faker("user_name")
