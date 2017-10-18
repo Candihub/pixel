@@ -8,7 +8,9 @@ RUN pip install pipenv --upgrade
 RUN groupadd --gid 10001 app && \
     useradd --uid 10001 --gid 10001 --home /app --create-home app
 
-WORKDIR /app
+RUN su app -c "mkdir /app/pixel"
+
+WORKDIR /app/pixel
 
 # Install python requirements
 COPY Makefile Makefile
@@ -17,7 +19,7 @@ COPY Pipfile.lock Pipfile.lock
 RUN su app -c "make install" && \
     rm -fr /app/.cache/pip
 
-COPY . /app/
+COPY . /app/pixel
 
 # Gunicorn
 RUN mkdir -p /usr/local/etc/gunicorn
