@@ -17,8 +17,8 @@ MANAGE          = $(COMPOSE_RUN_WEB) ./manage.py
 default: help
 
 bootstrap: ## install development dependencies
-	@if [ -z "$$CI" ] || [ -n "$$CI_BUILD_BACKEND" ]; then $(COMPOSE) build web; fi
-	@if [ -z "$$CI" ] || [ -n "$$CI_BUILD_FRONTEND" ]; then yarn install -D; fi
+	@if [ -z "$$CI" ] || [ -n "$$CI_BUILD_BACKEND" ]; then $(COMPOSE) build web; ${MAKE} migrate-db; fi
+	@if [ -z "$$CI" ] || [ -n "$$CI_BUILD_FRONTEND" ]; then yarn install -D; ${MAKE} build-css; fi
 .PHONY: bootstrap
 
 watch-css: ## continuously build CSS
@@ -37,6 +37,10 @@ migrate-db:  ## perform database migrations
 run-server: ## start the development server
 	@$(COMPOSE) up
 .PHONY: run-server
+
+stop-server: ## stop the development server
+	@$(COMPOSE) stop
+.PHONY: stop-server
 
 dev: ; ${MAKE} -j2 watch-css run-server ## start the dev environment
 .PHONY: dev
