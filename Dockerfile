@@ -1,9 +1,12 @@
 FROM python:3.6
 
+# Development build
+ARG DEVELOPMENT
+
 # Install Pipenv
 RUN pip install pipenv --upgrade
 
-# add a non-privileged user for installing and running
+# Add a non-privileged user for installing and running
 # the application
 RUN groupadd --gid 10001 app && \
     useradd --uid 10001 --gid 10001 --home /app --create-home app
@@ -13,10 +16,9 @@ RUN su app -c "mkdir /app/pixel"
 WORKDIR /app/pixel
 
 # Install python requirements
-COPY Makefile Makefile
 COPY Pipfile Pipfile
 COPY Pipfile.lock Pipfile.lock
-RUN su app -c "make install" && \
+RUN su app -c "if [ -z $DEVELOPMENT ]; then pipenv --bare install ; else pipenv --bare install -d ; fi" && \
     rm -fr /app/.cache/pip
 
 COPY . /app/pixel

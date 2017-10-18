@@ -1,11 +1,14 @@
-version: '3'
+version: '2.1'
 
 services:
   db:
     image: postgres
     env_file: env.d/development
   web:
-    build: .
+    build:
+      context: .
+      args:
+        DEVELOPMENT: "true"
     env_file: env.d/development
     command: ./manage.py runserver 0.0.0.0:8000
     volumes:
