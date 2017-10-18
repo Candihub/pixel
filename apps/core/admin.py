@@ -65,15 +65,15 @@ class OmicsUnitTypeAdmin(admin.ModelAdmin):
 class PixelAdmin(admin.ModelAdmin):
     list_display = (
         'get_short_uuid', 'value', 'quality_score', 'omics_unit',
-        'get_analysis',
+        'get_analysis_description',
     )
     list_filter = (
         'omics_unit__type', 'analysis__experiments__omics_area'
     )
 
-    def get_analysis(self, obj):
+    def get_analysis_description(self, obj):
         return obj.analysis.description
-    get_analysis.short_description = 'Analysis'
+    get_analysis_description.short_description = 'Analysis'
 
 
 @admin.register(models.Pixeler)
@@ -97,18 +97,18 @@ class SpeciesAdmin(admin.ModelAdmin):
 class StrainAdmin(admin.ModelAdmin):
     search_fields = ['name']
     list_display = (
-        'name', 'description', 'get_species', 'entry_identifier'
+        'name', 'description', 'get_species', 'get_entry_identifier'
     )
 
     def get_species(self, obj):
         return (obj.species.name)
     get_species.short_description = 'Species'
 
-    def entry_identifier(self, obj):
-        if obj.reference is not None:
-            return (obj.reference.identifier)
+    def get_entry_identifier(self, obj):
+        if obj.reference is None:
+            return '-'
         else:
-            return ("-")
+            return obj.reference.identifier
     list_filter = ('species__name',)
 
 

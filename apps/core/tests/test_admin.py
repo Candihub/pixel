@@ -51,16 +51,16 @@ class StrainAdminTestCase(TestCase):
             self.Strain.species.name
         )
 
-    def test_entry_identifier_Not_None(self):
+    def test_get_entry_identifier_with_reference(self):
         self.assertEqual(
-            self.Strain_admin.entry_identifier(self.Strain),
+            self.Strain_admin.get_entry_identifier(self.Strain),
             self.Strain.reference.identifier
         )
 
-    def test_entry_identifier_None(self):
+    def test_get_entry_identifier_without_reference(self):
         self.Strain.reference = None
         self.assertEqual(
-            self.Strain_admin.entry_identifier(self.Strain),
+            self.Strain_admin.get_entry_identifier(self.Strain),
             "-"
         )
 
@@ -72,8 +72,8 @@ class PixelAdminTestCase(TestCase):
         self.Pixel = factories.PixelFactory()
         self.Pixel_admin = admin.PixelAdmin(models.Pixel, site)
 
-    def test_get_analysis(self):
+    def test_get_analysis_description(self):
         self.assertEqual(
-            self.Pixel_admin.get_analysis(self.Pixel),
+            self.Pixel_admin.get_analysis_description(self.Pixel),
             self.Pixel.analysis.description
         )

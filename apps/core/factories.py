@@ -53,13 +53,13 @@ class OmicsUnitFactory(DjangoModelFactory):
 
 class PixelerFactory(DjangoModelFactory):
 
-    date_joined = Faker('date_object')
+    date_joined = Faker('date')
     email = Faker('email')
     first_name = Faker('first_name')
-    is_active = Faker('boolean')
-    is_staff = Faker('boolean')
-    is_superuser = Faker('boolean')
-    last_login = Faker('date_object')
+    is_active = Faker('pybool')
+    is_staff = Faker('pybool')
+    is_superuser = Faker('pybool')
+    last_login = Faker('date')
     last_name = Faker("last_name")
     password = Faker("password")
     username = Faker("user_name")
@@ -82,26 +82,12 @@ class OmicsAreaFactory(DjangoModelFactory):
         django_get_or_create = ('name',)
 
 
-class TagFactory(DjangoModelFactory):
-    count = Faker('pyint')
-    label = Faker('word')
-    level = Faker('pyint')
-    name = Faker('word')
-    path = Faker('text', max_nb_chars=300)
-    protected = Faker('boolean')
-    slug = Faker('word')
-
-    class Meta:
-        model = 'core.Tag'
-        django_get_or_create = ('name', 'slug', 'path', 'label',)
-
-
 class ExperimentFactory(DjangoModelFactory):
     omics_area = SubFactory(OmicsAreaFactory)
-    created_at = Faker('date_object')
+    created_at = Faker('datetime')
     description = Faker('text', max_nb_chars=300)
-    released_at = Faker('date_object')
-    saved_at = Faker('date_object')
+    released_at = Faker('datetime')
+    saved_at = Faker('datetime')
 
     class Meta:
         model = 'core.Experiment'
@@ -110,10 +96,10 @@ class ExperimentFactory(DjangoModelFactory):
 
 class AnalysisFactory(DjangoModelFactory):
     pixeler = SubFactory(PixelerFactory)
-    created_at = Faker('date_object')
+    created_at = Faker('date')
     description = Faker('text', max_nb_chars=300)
     notebook = Faker('file_path', depth=1, category=None, extension=None)
-    saved_at = Faker('date_object')
+    saved_at = Faker('date')
     secondary_data = Faker('file_path', depth=1, category=None, extension=None)
 
     class Meta:
