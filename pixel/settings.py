@@ -3,7 +3,7 @@ Django settings for pixel project.
 """
 import os
 
-from configurations import Configuration
+from configurations import Configuration, values
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -11,6 +11,16 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 class Base(Configuration):
+    """
+    Depends on environment variables that SHOULD be defined:
+
+    DJANGO_SECRET_KEY="yourkey"
+    POSTGRES_DB="foo"
+    POSTGRES_USER="foo"
+    POSTGRES_PASSWORD="bar"
+    """
+
+    SECRET_KEY = values.Value(None)
 
     DEBUG = False
 
@@ -67,6 +77,28 @@ class Base(Configuration):
 
     WSGI_APPLICATION = 'pixel.wsgi.application'
 
+    # Databases connections
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': values.Value(
+                None, environ_name='POSTGRES_DB', environ_prefix=None
+            ),
+            'USER': values.Value(
+                None, environ_name='POSTGRES_USER', environ_prefix=None
+            ),
+            'PASSWORD': values.Value(
+                None, environ_name='POSTGRES_PASSWORD', environ_prefix=None
+            ),
+            'HOST': values.Value(
+                'db', environ_name='POSTGRES_HOST', environ_prefix=None
+            ),
+            'PORT': values.Value(
+                '', environ_name='POSTGRES_PORT', environ_prefix=None
+            ),
+        }
+    }
+
     # Password validation
     AUTH_PASSWORD_VALIDATORS = [
         {
@@ -100,16 +132,7 @@ class Base(Configuration):
 
 class Development(Base):
 
-    SECRET_KEY = 'b9((zo$cmb9giq@2#%we910ot=$wxk9xqfj*!eg#t%c556n^_9'
     DEBUG = True
-
-    # Database
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        }
-    }
 
 
 class Test(Base):
