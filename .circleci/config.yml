@@ -13,13 +13,9 @@ jobs:
           keys:
           - frontend-deps-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
       - run:
-          name: Install dependencies
+          name: Install dependencies & build styles
           command: |
             make bootstrap
-      - run:
-          name: Build styles
-          command: |
-            make build-css
       - save_cache:
           paths:
             - ~/pixel/static
@@ -27,75 +23,36 @@ jobs:
           key: frontend-deps-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
 
   build_backend:
-    working_directory: ~/pixel
-    docker:
-      - image: circleci/python:3.6.1
-        environment:
-          PIPENV_VENV_IN_PROJECT: 1
-          CI_BUILD_BACKEND: 1
+    machine: true
     steps:
       - checkout
       - restore_cache:
           keys:
-          - backend-deps-v3-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-      # In user mode, Pipenv is installed to $HOME/.local/bin
+          - frontend-deps-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
       - run:
-          name: Add Pipenv to the PATH
+          name: Build container
           command: |
-            echo "export PATH=~/.local/bin:$PATH" >> $BASH_ENV
-      - run:
-          name: Install dependencies
-          command: |
-            pip3 install --user pipenv
-            make bootstrap
-      - save_cache:
-          paths:
-            - ~/.local
-            - ~/pixel/.venv
-          key: backend-deps-v3-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+            docker build -t pixel:build-dev --build-arg DEVELOPMENT="true" .
 
   lint_backend:
-    working_directory: ~/pixel
-    docker:
-      - image: circleci/python:3.6.1
-        environment:
-          PIPENV_VENV_IN_PROJECT: 1
+    machine: true
     steps:
-      - checkout
-      - restore_cache:
-          keys:
-          - backend-deps-v3-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-      - run:
-          name: Add Pipenv & installed tools to the PATH
-          command: |
-            echo "export PATH=~/.local/bin:~/pixel/.venv/bin:$PATH" >> $BASH_ENV
       - run:
           name: Lint the code
-          command: make lint
+          command: |
+            docker run pixel:build-dev flake8
 
   test_backend:
-    working_directory: ~/pixel
-    docker:
-      - image: circleci/python:3.6.1
-        environment:
-          PIPENV_VENV_IN_PROJECT: 1
+    machine: true
     steps:
-      - checkout
-      - restore_cache:
-          keys:
-          - backend-deps-v3-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-      - run:
-          name: Add Pipenv & installed tools to the PATH
-          command: |
-            echo "export PATH=~/.local/bin:~/pixel/.venv/bin:$PATH" >> $BASH_ENV
       - run:
           name: Test the code
           command: |
-            make test
+            docker run pixel:build-dev pytest
       - run:
           name: Report code coverage
           command: |
-            make coverage
+            docker run pixel:build-dev coveralls
           when: on_success
 
 workflows:
@@ -103,8 +60,10 @@ workflows:
 
   pixel:
     jobs:
-      - build_backend
       - build_frontend
+      - build_backend:
+          requires:
+            - build_frontend
       - lint_backend:
           requires:
             - build_backend
