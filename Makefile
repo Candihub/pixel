@@ -8,16 +8,18 @@ NODEMON  = $(YARN_RUN) nodemon
 POSTCSS  = $(YARN_RUN) postcss
 SASS     = $(YARN_RUN) node-sass
 
+# Docker
+COMPOSE         = docker-compose
+COMPOSE_RUN     = $(COMPOSE) run --rm
+COMPOSE_RUN_WEB = $(COMPOSE_RUN) web
+MANAGE          = $(COMPOSE_RUN_WEB) ./manage.py
+
 default: help
 
 bootstrap: ## install development dependencies
-	@if [ -z "$$CI" ] || [ -n "$$CI_BUILD_BACKEND" ]; then pipenv install -d; fi
+	@if [ -z "$$CI" ] || [ -n "$$CI_BUILD_BACKEND" ]; then $(COMPOSE) build web; fi
 	@if [ -z "$$CI" ] || [ -n "$$CI_BUILD_FRONTEND" ]; then yarn install -D; fi
 .PHONY: bootstrap
-
-install: ## install production dependencies
-	pipenv --bare install
-.PHONY: install
 
 watch-css: ## continuously build CSS
 	@$(NODEMON) -e scss -x 'make build-css'
@@ -29,26 +31,26 @@ build-css: ## build CSS with Sass, Autoprefixer, etc.
 .PHONY: build-css
 
 migrate-db:  ## perform database migrations
-	pipenv run python manage.py migrate
+	@$(MANAGE) migrate
 .PHONY: migrate-db
 
 run-server: ## start the development server
-	pipenv run python manage.py runserver
+	@$(COMPOSE) up
 .PHONY: run-server
 
 dev: ; ${MAKE} -j2 watch-css run-server ## start the dev environment
 .PHONY: dev
 
 test:  ## run the test suite
-	pipenv run pytest
+	@$(COMPOSE_RUN_WEB) pytest
 .PHONY: test
 
 coverage:  ## publish coverage statistics
-	pipenv run coveralls
+	@$(COMPOSE_RUN_WEB) coveralls
 .PHONY: coverage
 
 lint:  ## lint the code
-	pipenv run flake8
+	@$(COMPOSE_RUN_WEB) flake8
 .PHONY: lint
 
 help:
