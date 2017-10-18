@@ -10,10 +10,14 @@ SASS     = $(YARN_RUN) node-sass
 
 default: help
 
-bootstrap: ## install the project dependencies
+bootstrap: ## install development dependencies
 	@if [ -z "$$CI" ] || [ -n "$$CI_BUILD_BACKEND" ]; then pipenv install -d; fi
 	@if [ -z "$$CI" ] || [ -n "$$CI_BUILD_FRONTEND" ]; then yarn install -D; fi
 .PHONY: bootstrap
+
+install: ## install production dependencies
+	pipenv --bare install
+.PHONY: install
 
 watch-css: ## continuously build CSS
 	@$(NODEMON) -e scss -x 'make build-css'
