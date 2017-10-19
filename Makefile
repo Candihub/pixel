@@ -9,10 +9,13 @@ POSTCSS  = $(YARN_RUN) postcss
 SASS     = $(YARN_RUN) node-sass
 
 # Docker
-COMPOSE         = docker-compose
-COMPOSE_RUN     = $(COMPOSE) run --rm
-COMPOSE_RUN_WEB = $(COMPOSE_RUN) web
-MANAGE          = $(COMPOSE_RUN_WEB) ./manage.py
+COMPOSE              = docker-compose -f docker-compose.yml -p pixel-dev
+COMPOSE_RUN          = $(COMPOSE) run --rm
+COMPOSE_RUN_WEB      = $(COMPOSE_RUN) web
+MANAGE               = $(COMPOSE_RUN_WEB) ./manage.py
+COMPOSE_TEST         = docker-compose -f docker-compose.test.yml -p pixel-test
+COMPOSE_TEST_RUN     = $(COMPOSE_TEST) run --rm
+COMPOSE_TEST_RUN_WEB = $(COMPOSE_TEST_RUN) web
 
 default: help
 
@@ -46,11 +49,11 @@ dev: ; ${MAKE} -j2 watch-css run-server ## start the dev environment
 .PHONY: dev
 
 test:  ## run the test suite
-	@$(COMPOSE_RUN_WEB) pytest
+	@$(COMPOSE_TEST_RUN_WEB) pytest
 .PHONY: test
 
 coverage:  ## publish coverage statistics
-	@$(COMPOSE_RUN_WEB) coveralls
+	@$(COMPOSE_TEST_RUN_WEB) coveralls
 .PHONY: coverage
 
 lint:  ## lint the code

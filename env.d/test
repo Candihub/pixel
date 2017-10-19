@@ -1,0 +1,10 @@
+# Django
+DJANGO_SETTINGS_MODULE=pixel.settings
+DJANGO_CONFIGURATION=Test
+DJANGO_SECRET_KEY=UnitTestingIsForTheWeak
+
+# Database
+POSTGRES_HOST=db
+POSTGRES_DB=pixel_test
+POSTGRES_USER=pixel_test
+POSTGRES_PASSWORD=42answertotheultimatequestionoflifetheuniverseandeverything
