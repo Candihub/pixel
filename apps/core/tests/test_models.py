@@ -271,7 +271,14 @@ class OmicsUnitTestCase(TestCase):
             type=self.type,
         )
 
-        self.assertEqual(str(omics_unit), str(omics_unit.reference))
+        custom_id = '{} ({}/{}/{})'.format(
+            omics_unit.id.hex[:7],
+            omics_unit.type,
+            omics_unit.strain,
+            omics_unit.strain.species.name
+        )
+
+        self.assertEqual(str(omics_unit), str(custom_id))
 
     def test_cannot_create_two_omics_units_with_same_reference_type_and_strain_(self):  # noqa
 
@@ -354,17 +361,6 @@ class PixelTestCase(TestCase):
         self.assertEqual(pixel.analysis.id, self.analysis.id)
 
         self.assertEqual(qs.count(), 1)
-
-    def test_model_representation(self):
-
-        pixel = models.Pixel.objects.create(
-            value=42.42,
-            quality_score=0.54,
-            omics_unit=self.omics_unit,
-            analysis=self.analysis,
-        )
-
-        self.assertEqual(str(pixel), str(pixel.id))
 
 
 class ExperimentTestCase(TestCase):
@@ -655,6 +651,18 @@ class OmicsAreaTestCase(TestCase):
             third_child_omics_area.name,
         )
         self.assertEqual(qs.count(), 4)
+
+    def test_model_representation(self):
+
+        name = 'RNAseq'
+        description = 'lorem ipsum'
+
+        omics_area = models.OmicsArea.objects.create(
+            name=name,
+            description=description,
+        )
+
+        self.assertEqual(str(omics_area), name)
 
 
 class PixelerTestCase(TestCase):

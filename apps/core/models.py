@@ -1,11 +1,15 @@
 import uuid
+import mptt
 
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext as _
-from mptt.models import MPTTModel, TreeForeignKey
+from mptt.fields import TreeForeignKey
+from mptt.models import MPTTModel
 from tagulous import models as tgl_models
+
+from .mixins import UUIDModelMixin
 
 
 class Species(models.Model):
@@ -131,7 +135,7 @@ class OmicsUnitType(models.Model):
         return self.name
 
 
-class OmicsUnit(models.Model):
+class OmicsUnit(UUIDModelMixin, models.Model):
     """The Omics Unit could be a gene, a promoter, etc.
     """
 
@@ -184,10 +188,15 @@ class OmicsUnit(models.Model):
         )
 
     def __str__(self):
-        return str(self.reference)
+        return '{} ({}/{}/{})'.format(
+                self.get_short_uuid(),
+                self.type,
+                self.strain,
+                self.strain.species.name
+                )
 
 
-class Pixel(models.Model):
+class Pixel(UUIDModelMixin, models.Model):
     """A pixel is the smallest measurement unit for an Omics study
     """
 
@@ -226,9 +235,6 @@ class Pixel(models.Model):
         verbose_name = _("Pixel")
         verbose_name_plural = _("Pixels")
 
-    def __str__(self):
-        return str(self.id)
-
 
 class Tag(tgl_models.TagTreeModel):
     """The Pixel tag model is mostly used to add facets to experiment search.
@@ -254,7 +260,7 @@ class Experiment(models.Model):
         blank=True,
     )
 
-    omics_area = models.ForeignKey(
+    omics_area = mptt.fields.TreeForeignKey(
         'OmicsArea',
         on_delete=models.CASCADE,
         related_name='experiments',
@@ -290,7 +296,7 @@ class Experiment(models.Model):
         verbose_name_plural = _("Experiments")
 
 
-class Analysis(models.Model):
+class Analysis(UUIDModelMixin, models.Model):
     """An analysis from a set of pixels
     """
 
@@ -397,6 +403,9 @@ class OmicsArea(MPTTModel):
 
     class MPTTMeta:
         order_insertion_by = ['name']
+
+    def __str__(self):
+        return str(self.name)
 
 
 class Pixeler(AbstractUser):

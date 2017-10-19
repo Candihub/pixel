@@ -4,6 +4,8 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext as _
 
+from apps.core.mixins import UUIDModelMixin
+
 
 class Repository(models.Model):
     """A repository is a provider from where reference data can be fetched.
@@ -36,7 +38,7 @@ class Repository(models.Model):
         return self.name
 
 
-class Entry(models.Model):
+class Entry(UUIDModelMixin, models.Model):
 
     id = models.UUIDField(
         primary_key=True,
@@ -80,6 +82,3 @@ class Entry(models.Model):
             raise ValidationError(
                 _("You need to provide an identifier or an url for an Entry")
             )
-
-    def __str__(self):
-        return str(self.id)
