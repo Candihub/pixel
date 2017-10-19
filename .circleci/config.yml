@@ -66,13 +66,14 @@ jobs:
           POSTGRES_PASSWORD: pixel42
       - image: postgres:9.6
         environment:
-          POSTGRES_USER: pixel
           POSTGRES_DB: pixel
+          POSTGRES_USER: pixel
           POSTGRES_PASSWORD: pixel42
     steps:
       - run:
           name: Test the code
           command: |
+            sleep 10
             make test-ci
       - run:
           name: Report code coverage
