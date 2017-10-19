@@ -82,16 +82,16 @@ class Base(Configuration):
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': values.Value(
-                None, environ_name='POSTGRES_DB', environ_prefix=None
+                '', environ_name='POSTGRES_DB', environ_prefix=None
             ),
             'USER': values.Value(
-                None, environ_name='POSTGRES_USER', environ_prefix=None
+                '', environ_name='POSTGRES_USER', environ_prefix=None
             ),
             'PASSWORD': values.Value(
-                None, environ_name='POSTGRES_PASSWORD', environ_prefix=None
+                '', environ_name='POSTGRES_PASSWORD', environ_prefix=None
             ),
             'HOST': values.Value(
-                'db', environ_name='POSTGRES_HOST', environ_prefix=None
+                '', environ_name='POSTGRES_HOST', environ_prefix=None
             ),
             'PORT': values.Value(
                 '', environ_name='POSTGRES_PORT', environ_prefix=None

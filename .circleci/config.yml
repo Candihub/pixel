@@ -43,24 +43,41 @@ jobs:
             docker push candihub/pixel:$CIRCLE_BRANCH-dev
 
   lint_backend:
-    machine: true
+    working_directory: /app/pixel
+    docker:
+      - image: candihub/pixel:$CIRCLE_BRANCH-dev
     steps:
       - run:
           name: Lint the code
           command: |
-            docker run candihub/pixel:$CIRCLE_BRANCH-dev flake8
+            make lint-ci
 
   test_backend:
-    machine: true
+    working_directory: /app/pixel
+    docker:
+      - image: candihub/pixel:$CIRCLE_BRANCH-dev
+        environment:
+          DJANGO_SETTINGS_MODULE: pixel.settings
+          DJANGO_CONFIGURATION: Test
+          DJANGO_SECRET_KEY: ThisIsAnExampleKeyForDevPurposeOnly
+          POSTGRES_HOST: localhost
+          POSTGRES_DB: pixel
+          POSTGRES_USER: pixel
+          POSTGRES_PASSWORD: pixel42
+      - image: postgres:9.6
+        environment:
+          POSTGRES_USER: pixel
+          POSTGRES_DB: pixel
+          POSTGRES_PASSWORD: pixel42
     steps:
       - run:
           name: Test the code
           command: |
-            docker run candihub/pixel:$CIRCLE_BRANCH-dev pytest
+            make test-ci
       - run:
           name: Report code coverage
           command: |
-            docker run candihub/pixel:$CIRCLE_BRANCH-dev coveralls
+            make coverage-ci
           when: on_success
 
 workflows:
