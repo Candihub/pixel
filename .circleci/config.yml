@@ -36,17 +36,37 @@ jobs:
       - run:
           name: Build container
           command: |
-            docker build -t candihub/pixel:$CIRCLE_BRANCH-dev --build-arg DEVELOPMENT="true" .
+            docker build -t candihub/pixel:$CIRCLE_BRANCH .
       - run:
           name: Publish container
           command: |
-            docker push candihub/pixel:$CIRCLE_BRANCH-dev
+            docker push candihub/pixel:$CIRCLE_BRANCH
+
+  build_dev_backend:
+    working_directory: /app/pixel
+    docker:
+      - image: candihub/pixel:$CIRCLE_BRANCH
+    steps:
+      - restore_cache:
+          keys:
+            - backend-dev-deps-v1-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+      - run:
+          name: Install development dependencies
+          command: |
+            make install-ci
+      - save_cache:
+          paths:
+            - ~/.local/share/virtualenvs
+          key: backend-dev-deps-v1-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
 
   lint_backend:
     working_directory: /app/pixel
     docker:
-      - image: candihub/pixel:$CIRCLE_BRANCH-dev
+      - image: candihub/pixel:$CIRCLE_BRANCH
     steps:
+      - restore_cache:
+          keys:
+            - backend-dev-deps-v1-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
       - run:
           name: Lint the code
           command: |
@@ -55,7 +75,7 @@ jobs:
   test_backend:
     working_directory: /app/pixel
     docker:
-      - image: candihub/pixel:$CIRCLE_BRANCH-dev
+      - image: candihub/pixel:$CIRCLE_BRANCH
         environment:
           DJANGO_SETTINGS_MODULE: pixel.settings
           DJANGO_CONFIGURATION: Test
@@ -70,6 +90,9 @@ jobs:
           POSTGRES_USER: pixel
           POSTGRES_PASSWORD: pixel42
     steps:
+      - restore_cache:
+          keys:
+            - backend-dev-deps-v1-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
       - run:
           name: Test the code
           command: |
@@ -90,9 +113,12 @@ workflows:
       - build_backend:
           requires:
             - build_frontend
+      - build_dev_backend:
+          requires:
+            - build_backend
       - lint_backend:
           requires:
-            - build_backend
+            - build_dev_backend
       - test_backend:
           requires:
-            - build_backend
+            - build_dev_backend
