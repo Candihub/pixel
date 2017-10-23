@@ -99,6 +99,14 @@ jobs:
             sleep 10
             make test-ci
       - run:
+          name: Create git repository
+          command: |
+            git init
+            git remote add origin $CIRCLE_REPOSITORY_URL
+            git fetch
+            git reset origin/$CIRCLE_BRANCH
+            git checkout origin/$CIRCLE_BRANCH
+      - run:
           name: Report code coverage
           command: |
             make coverage-ci
