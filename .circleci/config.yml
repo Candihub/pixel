@@ -103,6 +103,8 @@ jobs:
           command: |
             git init
             git remote add origin $CIRCLE_REPOSITORY_URL
+            mkdir ~/.ssh
+            ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
             git fetch
             git reset origin/$CIRCLE_BRANCH
             git checkout origin/$CIRCLE_BRANCH
