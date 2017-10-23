@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "fc6b83cb7f5d4df70597c4fcfd685477dbbb7e6d0646b0505dcf41d87eada7f5"
+            "sha256": "6952061736de99e44f55f9c3ad8690fbc1ffbfaf63ebab2d60305030ac0d9b18"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -9,12 +9,12 @@
             "os_name": "posix",
             "platform_machine": "x86_64",
             "platform_python_implementation": "CPython",
-            "platform_release": "16.7.0",
-            "platform_system": "Darwin",
-            "platform_version": "Darwin Kernel Version 16.7.0: Thu Jun 15 17:36:27 PDT 2017; root:xnu-3789.70.16~2/RELEASE_X86_64",
+            "platform_release": "4.9.49-moby",
+            "platform_system": "Linux",
+            "platform_version": "#1 SMP Wed Sep 27 23:17:17 UTC 2017",
             "python_full_version": "3.6.2",
             "python_version": "3.6",
-            "sys_platform": "darwin"
+            "sys_platform": "linux"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -29,13 +29,6 @@
         ]
     },
     "default": {
-        "dj-database-url": {
-            "hashes": [
-                "sha256:e16d94c382ea0564c48038fa7fe8d9c890ef1ab1a8ec4cb48e732c124b9482fd",
-                "sha256:a6832d8445ee9d788c5baa48aef8130bf61fdc442f7d9a548424d25cd85c9f08"
-            ],
-            "version": "==0.4.2"
-        },
         "django": {
             "hashes": [
                 "sha256:7ab6a9c798a5f9f359ee6da3677211f883fb02ef32cebe9b29751eb7a871febf",
@@ -229,10 +222,10 @@
         },
         "flake8": {
             "hashes": [
-                "sha256:f1a9d8886a9cbefb52485f4f4c770832c7fb569c084a9a314fb1eaa37c0c2c86",
-                "sha256:c20044779ff848f67f89c56a0e4624c04298cd476e25253ac0c36f910a1a11d8"
+                "sha256:c7841163e2b576d435799169b78703ad6ac1bbb0f199994fc05f700b2a90ea37",
+                "sha256:7253265f7abd8b313e3892944044a365e3f4ac3fcdcfb4298f55ee9ddf188ba0"
             ],
-            "version": "==3.4.1"
+            "version": "==3.5.0"
         },
         "idna": {
             "hashes": [
@@ -264,10 +257,10 @@
         },
         "pyflakes": {
             "hashes": [
-                "sha256:cc5eadfb38041f8366128786b4ca12700ed05bbf1403d808e89d57d67a3875a7",
-                "sha256:aa0d4dff45c0cc2214ba158d29280f8fa1129f3e87858ef825930845146337f4"
+                "sha256:08bd6a50edf8cffa9fa09a463063c425ecaaf10d1eb0335a7e8b1401aef89e6f",
+                "sha256:8d616a382f243dbf19b54743f280b80198be0bca3a5396f1d2e1fca6223e8805"
             ],
-            "version": "==1.5.0"
+            "version": "==1.6.0"
         },
         "pytest": {
             "hashes": [

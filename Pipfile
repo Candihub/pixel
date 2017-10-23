@@ -7,13 +7,12 @@ name = "pypi"
 
 [packages]
 
-django = "*"
+Django = "*"
 django-configurations = "*"
 django-mptt = "*"
 django-tagulous = "*"
 django-extensions = "*"
 gunicorn = "*"
-dj-database-url = "*"
 "psycopg2" = "*"
 
 
@@ -24,7 +23,7 @@ pytest-django = "*"
 pytest-cov = "*"
 "flake8" = "*"
 coveralls = "*"
-factory-boy = "*"
+factory_boy = "*"
 
 
 [requires]
