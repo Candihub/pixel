@@ -128,7 +128,8 @@ top of it to run `flake8` (our code linter).
 Similarly to the code linting step, we use Pixel docker production image plus
 cached development dependencies on top of it to run the test suite.
 
-> nota bene: you will find a waiting loop hack for this step (before running
+> nota bene: you will find a waiting loop hack with
+[`dockerize`](https://github.com/jwilder/dockerize) for this job (before running
 `pytest`), this hack is required to ensure that the `postgresql` container is
 running, that the target database has been created and is fully operational.
 

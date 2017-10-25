@@ -81,6 +81,7 @@ jobs:
           DJANGO_CONFIGURATION: Test
           DJANGO_SECRET_KEY: ThisIsAnExampleKeyForTestingPurposeOnly
           POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
           POSTGRES_DB: pixel
           POSTGRES_USER: pixel
           POSTGRES_PASSWORD: pixel42
@@ -94,11 +95,21 @@ jobs:
           keys:
             - backend-dev-deps-v1-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
       - run:
-          name: Test the code
+          name: Add $HOME/bin to the PATH
+          command: |
+            mkdir $HOME/bin
+            echo "export PATH=$HOME/bin:$PATH" >> $BASH_ENV
+      - run:
+          name: Install dockerize
+          command: bin/ci --install-dockerize
+      - run:
           # NB: we need to wait for the postgresl database to be created before
           # running tests
+          name: Wait for db
+          command: dockerize -wait tcp://$POSTGRES_HOST:$POSTGRES_PORT -timeout 1m
+      - run:
+          name: Test the code
           command: |
-            sleep 10
             make test-ci
       - run:
           name: Create git repository

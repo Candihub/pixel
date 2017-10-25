@@ -6,8 +6,9 @@ function usage() {
     echo "$script_name [options]"
     echo
     echo "Options:"
-    echo "  -h|--help      : Display this help message"
-    echo "  --set-git-repo : Setup git repository from raw sources"
+    echo "  -h|--help           : Display this help message"
+    echo "  --set-git-repo      : Setup git repository from raw sources"
+    echo "  --install-dockerize : Install dockerize tool"
     echo
 
     exit 1
@@ -25,6 +26,16 @@ function set_git_repo() {
     git checkout origin/$CIRCLE_BRANCH
 }
 
+function install_dockerize(){
+    local version="v0.5.0"
+    local archive="dockerize-linux-amd64-$version.tar.gz"
+
+    echo "Installing dockerize $version"
+    wget https://github.com/jwilder/dockerize/releases/download/$version/$archive
+    tar -C $HOME/bin -xzvf $archive
+    rm $archive
+}
+
 function main() {
   declare program="$0"
 
@@ -36,6 +47,9 @@ function main() {
       case "$key" in
           --set-git-repo)
               set_git_repo
+              ;;
+          --install-dockerize)
+              install_dockerize
               ;;
           -h|--help|help)
               usage "$program"
