@@ -1,7 +1,7 @@
 version: 2
 jobs:
 
-  build_frontend:
+  frontend-build:
     working_directory: ~/pixel
     docker:
       - image: circleci/node:8
@@ -22,7 +22,7 @@ jobs:
             - ~/pixel/node_modules
           key: frontend-deps-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
 
-  build_backend:
+  backend-build:
     machine: true
     steps:
       - checkout
@@ -42,7 +42,7 @@ jobs:
           command: |
             docker push candihub/pixel:$CIRCLE_BRANCH
 
-  build_dev_backend:
+  backend-build-dev:
     working_directory: /app/pixel
     docker:
       - image: candihub/pixel:$CIRCLE_BRANCH
@@ -59,7 +59,7 @@ jobs:
             - ~/.local/share/virtualenvs
           key: backend-dev-deps-v1-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
 
-  lint_backend:
+  backend-lint:
     working_directory: /app/pixel
     docker:
       - image: candihub/pixel:$CIRCLE_BRANCH
@@ -72,14 +72,14 @@ jobs:
           command: |
             make lint-ci
 
-  test_backend:
+  backend-test:
     working_directory: /app/pixel
     docker:
       - image: candihub/pixel:$CIRCLE_BRANCH
         environment:
           DJANGO_SETTINGS_MODULE: pixel.settings
           DJANGO_CONFIGURATION: Test
-          DJANGO_SECRET_KEY: ThisIsAnExampleKeyForDevPurposeOnly
+          DJANGO_SECRET_KEY: ThisIsAnExampleKeyForTestingPurposeOnly
           POSTGRES_HOST: localhost
           POSTGRES_DB: pixel
           POSTGRES_USER: pixel
@@ -119,16 +119,16 @@ workflows:
 
   pixel:
     jobs:
-      - build_frontend
-      - build_backend:
+      - frontend-build
+      - backend-build:
           requires:
-            - build_frontend
-      - build_dev_backend:
+            - frontend-build
+      - backend-build-dev:
           requires:
-            - build_backend
-      - lint_backend:
+            - backend-build
+      - backend-lint:
           requires:
-            - build_dev_backend
-      - test_backend:
+            - backend-build-dev
+      - backend-test:
           requires:
-            - build_dev_backend
+            - backend-build-dev
