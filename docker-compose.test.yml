@@ -8,7 +8,7 @@ services:
     build:
       context: .
       args:
-        DEVELOPMENT: "true"
+        IS_NOT_PRODUCTION: true
     env_file: env.d/test
     depends_on:
       - db

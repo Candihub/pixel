@@ -16,10 +16,10 @@ we run every commands with this user account. The `app` user home directory is
 
 By default, when building this container, you will only install production
 dependencies. If you need development tools (_e.g._ to run tests), you can add
-the `--build-arg DEVELOPMENT=true` to your build command:
+the `--build-arg IS_NOT_PRODUCTION=true` to your build command:
 
 ```bash
-$ docker build -t pixel:dev --build-arg DEVELOPMENT=true .
+$ docker build -t pixel:dev --build-arg IS_NOT_PRODUCTION=true .
 ```
 
 To decrease the size of our container, we only copy what is required to run the
