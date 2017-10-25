@@ -1,5 +1,5 @@
 # Gunicorn-django settings
-bind = ['unix:/app/run/gunicorn.sock']
+bind = ['unix:/app/pixel/run/gunicorn.sock']
 graceful_timeout = 90
 loglevel = 'error'
 name = 'pixel'
