@@ -133,9 +133,18 @@ class Base(Configuration):
     MEDIA_ROOT = os.path.join(BASE_DIR, 'public', 'media')
     MEDIA_URL = '/media/'
 
+
 class Development(Base):
 
     DEBUG = True
+
+
+class Staging(Base):
+    pass
+
+
+class Production(Base):
+    pass
 
 
 class Test(Base):

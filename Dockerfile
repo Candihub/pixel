@@ -34,6 +34,11 @@ USER app
 RUN mkdir -p public/media && \
     mkdir -p public/static
 
+# Use fake Django environment to collectstatic
+ENV DJANGO_SETTINGS_MODULE=pixel.settings \
+    DJANGO_CONFIGURATION=Production \
+    DJANGO_SECRET_KEY=ThisIsAFakeKeyUsedForBuildingPurpose
+
 RUN pipenv run ./manage.py collectstatic -c
 
 # docker run commands within enabled pipenv
