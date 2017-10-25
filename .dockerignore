@@ -6,9 +6,11 @@
 .gitignore
 Dockerfile
 assets
-docker-compose.yml
 docs
 env.d
 node_modules
 db.sqlite3
+docker-compose.*
+package.json
+yarn.lock
 *.md
