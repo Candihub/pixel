@@ -5,25 +5,10 @@
 
 ## Requirements
 
-* Python 3.6+
-* [Pipenv](https://docs.pipenv.org)
+* [Docker 1.12.6+](https://docs.docker.com/)
+* [Docker compose](https://docs.docker.com/compose/)
 * [Node.js 8+](https://nodejs.org/en/)
 * [Yarn 1.2+](https://yarnpkg.com/lang/en/)
-
-
-_Nota bene_: to install and use Pipenv, we invite you to read the [project
-documentation](https://docs.pipenv.org). In most cases, installing it can be
-resumed to:
-
-```bash
-$ pip3 install --user --upgrade pipenv
-```
-
-Mac OS X users may rather consider using the following command:
-
-```bash
-$ sudo -H pip3 install --upgrade pipenv
-```
 
 ## Quick start
 
@@ -35,16 +20,16 @@ $ cd pixel
 $ make bootstrap
 # Create a development database
 $ make migrate-db
-# Run the django development server:
+# Run the Django development server:
 $ make dev
 ```
 
-Open your favorite browser with the following url: http://127.0.0.1:8000 and it
+Open your favourite browser with the following url: http://127.0.0.1:8000 and it
 should work™.
 
 ## Run the tests
 
-Project tests use pytest. To run them in your virtualenv, use Pipenv as follow:
+Project tests are using `pytest` within a docker container. To run them use:
 
 ```bash
 $ make test
@@ -53,7 +38,7 @@ $ make test
 ## Lint the code
 
 This project use `flake8` to ensure coding style consistency (PEP8). To run it
-in your virtualenv, use Pipenv as follow:
+within a docker container, use:
 
 ```bash
 $ make lint
