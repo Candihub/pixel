@@ -31,5 +31,7 @@ RUN su app -c "mkdir run"
 EXPOSE 80
 
 USER app
+
+# docker run commands within enabled pipenv
 ENTRYPOINT ["pipenv", "run"]
 CMD ["gunicorn", "-c", "/usr/local/etc/gunicorn/pixel.py", "pixel.wsgi:application"]
