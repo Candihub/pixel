@@ -8,7 +8,7 @@ services:
     build:
       context: .
       args:
-        IS_NOT_PRODUCTION: true
+        IS_NOT_PRODUCTION: "true"
     env_file: env.d/development
     command: ./manage.py runserver 0.0.0.0:8000
     volumes:
