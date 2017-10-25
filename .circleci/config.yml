@@ -14,8 +14,7 @@ jobs:
           - frontend-deps-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
       - run:
           name: Install dependencies & build styles
-          command: |
-            make bootstrap
+          command: make bootstrap
       - save_cache:
           paths:
             - ~/pixel/static
@@ -31,16 +30,13 @@ jobs:
           - frontend-deps-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
       - run:
           name: Login to DockerHub
-          command: |
-            docker login -u $DOCKER_USER -p $DOCKER_PASS
+          command: docker login -u $DOCKER_USER -p $DOCKER_PASS
       - run:
           name: Build container
-          command: |
-            docker build -t candihub/pixel:$CIRCLE_BRANCH .
+          command: docker build -t candihub/pixel:$CIRCLE_BRANCH .
       - run:
           name: Publish container
-          command: |
-            docker push candihub/pixel:$CIRCLE_BRANCH
+          command: docker push candihub/pixel:$CIRCLE_BRANCH
 
   backend-build-dev:
     working_directory: /app/pixel
@@ -52,8 +48,7 @@ jobs:
             - backend-dev-deps-v1-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
       - run:
           name: Install development dependencies
-          command: |
-            make install-ci
+          command: make install-ci
       - save_cache:
           paths:
             - ~/.local/share/virtualenvs
@@ -69,8 +64,7 @@ jobs:
             - backend-dev-deps-v1-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
       - run:
           name: Lint the code
-          command: |
-            make lint-ci
+          command: make lint-ci
 
   backend-test:
     working_directory: /app/pixel
@@ -109,17 +103,14 @@ jobs:
           command: dockerize -wait tcp://$POSTGRES_HOST:$POSTGRES_PORT -timeout 1m
       - run:
           name: Test the code
-          command: |
-            make test-ci
+          command: make test-ci
       - run:
           name: Create git repository
-          command: |
-            bin/ci --set-git-repo
+          command: bin/ci --set-git-repo
           when: on_success
       - run:
           name: Report code coverage
-          command: |
-            make coverage-ci
+          command: make coverage-ci
 
 workflows:
   version: 2
