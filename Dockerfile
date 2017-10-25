@@ -28,8 +28,6 @@ RUN mkdir -p /usr/local/etc/gunicorn
 COPY docker/usr/local/etc/gunicorn/pixel.py /usr/local/etc/gunicorn/pixel.py
 RUN su app -c "mkdir run"
 
-EXPOSE 80
-
 USER app
 
 # docker run commands within enabled pipenv
