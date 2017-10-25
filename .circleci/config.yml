@@ -95,6 +95,8 @@ jobs:
             - backend-dev-deps-v1-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
       - run:
           name: Test the code
+          # NB: we need to wait for the postgresl database to be created before
+          # running tests
           command: |
             sleep 10
             make test-ci
