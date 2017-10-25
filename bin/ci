@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+
+function usage() {
+    declare script_name="$0"
+
+    echo "$script_name [options]"
+    echo
+    echo "Options:"
+    echo "  -h|--help      : Display this help message"
+    echo "  --set-git-repo : Setup git repository from raw sources"
+    echo
+
+    exit 1
+}
+
+function set_git_repo() {
+    echo "Setting up git repository from $CIRCLE_REPOSITORY_URL/$CIRCLE_BRANCH"
+
+    git init
+    git remote add origin $CIRCLE_REPOSITORY_URL
+    mkdir $HOME/.ssh
+    ssh-keyscan -t rsa github.com >> $HOME/.ssh/known_hosts
+    git fetch
+    git reset origin/$CIRCLE_BRANCH
+    git checkout origin/$CIRCLE_BRANCH
+}
+
+function main() {
+  declare program="$0"
+
+  while [[ "$#" -ge "1" ]]
+  do
+      local key="$1"
+      shift
+
+      case "$key" in
+          --set-git-repo)
+              set_git_repo
+              ;;
+          -h|--help|help)
+              usage "$program"
+              exit 0
+              ;;
+          *)
+              echo "Unknown option: $key"
+              exit 1
+      esac
+  done
+}
+
+main "$@"
