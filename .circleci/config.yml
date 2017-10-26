@@ -30,13 +30,13 @@ jobs:
           - frontend-deps-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
       - run:
           name: Login to DockerHub
-          command: docker login -u $DOCKER_USER -p $DOCKER_PASS
+          command: docker login -u "$DOCKER_USER" -p "$DOCKER_PASS"
       - run:
           name: Build container
-          command: docker build -t candihub/pixel:$CIRCLE_BRANCH .
+          command: docker build -t candihub/pixel:"$CIRCLE_BRANCH" .
       - run:
           name: Publish container
-          command: docker push candihub/pixel:$CIRCLE_BRANCH
+          command: docker push candihub/pixel:"$CIRCLE_BRANCH"
 
   backend-build-dev:
     working_directory: /app/pixel
@@ -91,8 +91,8 @@ jobs:
       - run:
           name: Add $HOME/bin to the PATH
           command: |
-            mkdir $HOME/bin
-            echo "export PATH=$HOME/bin:$PATH" >> $BASH_ENV
+            mkdir "$HOME"/bin
+            echo "export PATH=$HOME/bin:$PATH" >> "$BASH_ENV"
       - run:
           name: Install dockerize
           command: bin/ci --install-dockerize
@@ -100,7 +100,7 @@ jobs:
           # NB: we need to wait for the postgresl database to be created before
           # running tests
           name: Wait for db
-          command: dockerize -wait tcp://$POSTGRES_HOST:$POSTGRES_PORT -timeout 1m
+          command: dockerize -wait tcp://"$POSTGRES_HOST":"$POSTGRES_PORT" -timeout 1m
       - run:
           name: Test the code
           command: make test-ci
