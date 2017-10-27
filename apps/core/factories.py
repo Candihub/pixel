@@ -1,5 +1,6 @@
 from factory import Faker, Iterator, SubFactory
 from factory.django import DjangoModelFactory
+from django.utils.timezone import get_default_timezone
 
 from apps.data.factories import EntryFactory, RepositoryFactory
 from . import models
@@ -53,13 +54,13 @@ class OmicsUnitFactory(DjangoModelFactory):
 
 class PixelerFactory(DjangoModelFactory):
 
-    date_joined = Faker('date_time_this_decade')
+    date_joined = Faker('date_time_this_decade', tzinfo=get_default_timezone())
     email = Faker('email')
     first_name = Faker('first_name')
     is_active = Faker('pybool')
     is_staff = Faker('pybool')
     is_superuser = Faker('pybool')
-    last_login = Faker('date_time_this_decade')
+    last_login = Faker('date_time_this_decade', tzinfo=get_default_timezone())
     last_name = Faker("last_name")
     password = Faker("password")
     username = Faker("user_name")
