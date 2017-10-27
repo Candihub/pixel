@@ -1,0 +1,16 @@
+.DS_Store
+.circleci
+.coverage
+.dockerignore
+.git
+.gitignore
+Dockerfile
+assets
+docs
+env.d
+node_modules
+db.sqlite3
+docker-compose.*
+package.json
+yarn.lock
+*.md

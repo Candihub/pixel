@@ -1,28 +1,31 @@
 [[source]]
+
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
 
+
 [packages]
 
-django = "*"
-"django-configurations" = "*"
-"django-mptt" = "*"
-"django-tagulous" = "*"
-
-
+Django = "*"
+django-configurations = "*"
+django-mptt = "*"
+django-tagulous = "*"
+django-extensions = "*"
+gunicorn = "*"
+"psycopg2" = "*"
 
 
 [dev-packages]
 
 pytest = "*"
-"pytest-django" = "*"
-"pytest-cov" = "*"
+pytest-django = "*"
+pytest-cov = "*"
 "flake8" = "*"
 coveralls = "*"
-"django-extensions" = "*"
-"factory-boy" = "*"
+factory_boy = "*"
 
 
 [requires]
+
 python_version = "3.6"

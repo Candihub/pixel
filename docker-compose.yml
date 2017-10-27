@@ -1,0 +1,19 @@
+version: '2.1'
+
+services:
+  db:
+    image: postgres
+    env_file: env.d/development
+  web:
+    build:
+      context: .
+      args:
+        IS_NOT_PRODUCTION: "true"
+    env_file: env.d/development
+    command: ./manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app/pixel
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db

@@ -8,11 +8,20 @@ NODEMON  = $(YARN_RUN) nodemon
 POSTCSS  = $(YARN_RUN) postcss
 SASS     = $(YARN_RUN) node-sass
 
+# Docker
+COMPOSE              = docker-compose -f docker-compose.yml -p pixel-dev
+COMPOSE_RUN          = $(COMPOSE) run --rm
+COMPOSE_RUN_WEB      = $(COMPOSE_RUN) web
+MANAGE               = $(COMPOSE_RUN_WEB) ./manage.py
+COMPOSE_TEST         = docker-compose -f docker-compose.test.yml -p pixel-test
+COMPOSE_TEST_RUN     = $(COMPOSE_TEST) run --rm
+COMPOSE_TEST_RUN_WEB = $(COMPOSE_TEST_RUN) web
+
 default: help
 
-bootstrap: ## install the project dependencies
-	@if [ -z "$$CI" ] || [ -n "$$CI_BUILD_BACKEND" ]; then pipenv install -d; fi
-	@if [ -z "$$CI" ] || [ -n "$$CI_BUILD_FRONTEND" ]; then yarn install -D; fi
+bootstrap: ## install development dependencies
+	@if [ -z "$$CI" ] || [ -n "$$CI_BUILD_BACKEND" ]; then $(COMPOSE) build web; ${MAKE} migrate-db; fi
+	@if [ -z "$$CI" ] || [ -n "$$CI_BUILD_FRONTEND" ]; then yarn install -D; ${MAKE} build-css; fi
 .PHONY: bootstrap
 
 watch-css: ## continuously build CSS
@@ -25,27 +34,43 @@ build-css: ## build CSS with Sass, Autoprefixer, etc.
 .PHONY: build-css
 
 migrate-db:  ## perform database migrations
-	pipenv run python manage.py migrate
+	@$(MANAGE) migrate
 .PHONY: migrate-db
 
 run-server: ## start the development server
-	pipenv run python manage.py runserver
+	@$(COMPOSE) up
 .PHONY: run-server
+
+stop-server: ## stop the development server
+	@$(COMPOSE) stop
+.PHONY: stop-server
 
 dev: ; ${MAKE} -j2 watch-css run-server ## start the dev environment
 .PHONY: dev
 
 test:  ## run the test suite
-	pipenv run pytest
+	@$(COMPOSE_TEST_RUN_WEB) pytest
 .PHONY: test
 
-coverage:  ## publish coverage statistics
+test-ci:  ## run the test suite (CI context)
+	pipenv run pytest
+.PHONY: test-ci
+
+coverage-ci:  ## publish coverage statistics (CI context)
 	pipenv run coveralls
-.PHONY: coverage
+.PHONY: coverage-ci
 
 lint:  ## lint the code
-	pipenv run flake8
+	@$(COMPOSE_RUN_WEB) flake8
 .PHONY: lint
+
+lint-ci:  ## lint the code (CI context)
+	pipenv run flake8
+.PHONY: lint-ci
+
+install-ci:  ## install development dependencies (CI context)
+	pipenv install -d
+.PHONY: install-ci
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

@@ -1,7 +1,7 @@
 version: 2
 jobs:
 
-  build_frontend:
+  frontend-build:
     working_directory: ~/pixel
     docker:
       - image: circleci/node:8
@@ -13,101 +13,120 @@ jobs:
           keys:
           - frontend-deps-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
       - run:
-          name: Install dependencies
-          command: |
-            make bootstrap
-      - run:
-          name: Build styles
-          command: |
-            make build-css
+          name: Install dependencies & build styles
+          command: make bootstrap
       - save_cache:
           paths:
             - ~/pixel/static
             - ~/pixel/node_modules
           key: frontend-deps-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
 
-  build_backend:
-    working_directory: ~/pixel
-    docker:
-      - image: circleci/python:3.6.1
-        environment:
-          PIPENV_VENV_IN_PROJECT: 1
-          CI_BUILD_BACKEND: 1
+  backend-build:
+    machine: true
     steps:
       - checkout
       - restore_cache:
           keys:
-          - backend-deps-v3-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-      # In user mode, Pipenv is installed to $HOME/.local/bin
+          - frontend-deps-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
       - run:
-          name: Add Pipenv to the PATH
-          command: |
-            echo "export PATH=~/.local/bin:$PATH" >> $BASH_ENV
+          name: Login to DockerHub
+          command: docker login -u "$DOCKER_USER" -p "$DOCKER_PASS"
       - run:
-          name: Install dependencies
-          command: |
-            pip3 install --user pipenv
-            make bootstrap
+          name: Build container
+          command: docker build -t candihub/pixel:"$CIRCLE_BRANCH" .
+      - run:
+          name: Publish container
+          command: docker push candihub/pixel:"$CIRCLE_BRANCH"
+
+  backend-build-dev:
+    working_directory: /app/pixel
+    docker:
+      - image: candihub/pixel:$CIRCLE_BRANCH
+    steps:
+      - restore_cache:
+          keys:
+            - backend-dev-deps-v1-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+      - run:
+          name: Install development dependencies
+          command: make install-ci
       - save_cache:
           paths:
-            - ~/.local
-            - ~/pixel/.venv
-          key: backend-deps-v3-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+            - ~/.local/share/virtualenvs
+          key: backend-dev-deps-v1-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
 
-  lint_backend:
-    working_directory: ~/pixel
+  backend-lint:
+    working_directory: /app/pixel
     docker:
-      - image: circleci/python:3.6.1
-        environment:
-          PIPENV_VENV_IN_PROJECT: 1
+      - image: candihub/pixel:$CIRCLE_BRANCH
     steps:
-      - checkout
       - restore_cache:
           keys:
-          - backend-deps-v3-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-      - run:
-          name: Add Pipenv & installed tools to the PATH
-          command: |
-            echo "export PATH=~/.local/bin:~/pixel/.venv/bin:$PATH" >> $BASH_ENV
+            - backend-dev-deps-v1-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
       - run:
           name: Lint the code
-          command: make lint
+          command: make lint-ci
 
-  test_backend:
-    working_directory: ~/pixel
+  backend-test:
+    working_directory: /app/pixel
     docker:
-      - image: circleci/python:3.6.1
+      - image: candihub/pixel:$CIRCLE_BRANCH
         environment:
-          PIPENV_VENV_IN_PROJECT: 1
+          DJANGO_SETTINGS_MODULE: pixel.settings
+          DJANGO_CONFIGURATION: Test
+          DJANGO_SECRET_KEY: ThisIsAnExampleKeyForTestingPurposeOnly
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_DB: pixel
+          POSTGRES_USER: pixel
+          POSTGRES_PASSWORD: pixel42
+      - image: postgres:9.6
+        environment:
+          POSTGRES_DB: pixel
+          POSTGRES_USER: pixel
+          POSTGRES_PASSWORD: pixel42
     steps:
-      - checkout
       - restore_cache:
           keys:
-          - backend-deps-v3-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+            - backend-dev-deps-v1-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
       - run:
-          name: Add Pipenv & installed tools to the PATH
+          name: Add $HOME/bin to the PATH
           command: |
-            echo "export PATH=~/.local/bin:~/pixel/.venv/bin:$PATH" >> $BASH_ENV
+            mkdir "$HOME"/bin
+            echo "export PATH=$HOME/bin:$PATH" >> "$BASH_ENV"
+      - run:
+          name: Install dockerize
+          command: bin/ci --install-dockerize
+      - run:
+          # NB: we need to wait for the postgresl database to be created before
+          # running tests
+          name: Wait for db
+          command: dockerize -wait tcp://"$POSTGRES_HOST":"$POSTGRES_PORT" -timeout 1m
       - run:
           name: Test the code
-          command: |
-            make test
+          command: make test-ci
+      - run:
+          name: Create git repository
+          command: bin/ci --set-git-repo
+          when: on_success
       - run:
           name: Report code coverage
-          command: |
-            make coverage
-          when: on_success
+          command: make coverage-ci
 
 workflows:
   version: 2
 
   pixel:
     jobs:
-      - build_backend
-      - build_frontend
-      - lint_backend:
+      - frontend-build
+      - backend-build:
           requires:
-            - build_backend
-      - test_backend:
+            - frontend-build
+      - backend-build-dev:
           requires:
-            - build_backend
+            - backend-build
+      - backend-lint:
+          requires:
+            - backend-build-dev
+      - backend-test:
+          requires:
+            - backend-build-dev
