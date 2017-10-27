@@ -9,6 +9,7 @@ function usage() {
     echo "  -h|--help           : Display this help message"
     echo "  --set-git-repo      : Setup git repository from raw sources"
     echo "  --install-dockerize : Install dockerize tool"
+    echo "  --get-docker-tag    : Output docker tag given ci branch name"
     echo
 
     exit 1
@@ -36,6 +37,22 @@ function install_dockerize() {
     rm "$archive"
 }
 
+function get_docker_tag() {
+    local tag="$CIRCLE_BRANCH"
+
+    if [ "$tag" == "master" ]
+    then
+        tag="latest"
+    fi
+
+    if [ "$CIRCLE_TAG" != "" ]
+    then
+        tag="$CIRCLE_TAG"
+    fi
+
+    echo "$tag"
+}
+
 function main() {
   declare program="$0"
 
@@ -50,6 +67,9 @@ function main() {
               ;;
           --install-dockerize)
               install_dockerize
+              ;;
+          --get-docker-tag)
+              get_docker_tag
               ;;
           -h|--help|help)
               usage "$program"
