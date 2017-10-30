@@ -33,10 +33,23 @@ jobs:
           command: docker login -u "$DOCKER_USER" -p "$DOCKER_PASS"
       - run:
           name: Build container
-          command: docker build -t candihub/pixel:"$CIRCLE_BRANCH" .
+          command: docker build -t "candihub/pixel:$CIRCLE_BRANCH" .
       - run:
           name: Publish container
-          command: docker push candihub/pixel:"$CIRCLE_BRANCH"
+          command: docker push "candihub/pixel:$CIRCLE_BRANCH"
+
+  docker-tag:
+    machine: true
+    steps:
+      - run:
+          name: Login to DockerHub
+          command: docker login -u "$DOCKER_USER" -p "$DOCKER_PASS"
+      - run:
+          name: Tag container
+          command: docker tag "candihub/pixel:$CIRCLE_BRANCH" "candihub/pixel:$(bin/ci --get-docker-tag)"
+      - run:
+          name: Publish tagged container
+          command: docker push "candihub/pixel:$(bin/ci --get-docker-tag)"
 
   backend-build-dev:
     working_directory: /app/pixel
@@ -130,3 +143,12 @@ workflows:
       - backend-test:
           requires:
             - backend-build-dev
+      - docker-tag:
+          requires:
+            - backend-test
+            - backend-lint
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              only: master
