@@ -1,6 +1,8 @@
 # assets
 CSS_DIR           = static/css
-SASS_INCLUDE_PATH = node_modules/foundation-sites/scss/
+FONTS_DIR         = static/fonts
+FOUNDATION_PATH = node_modules/foundation-sites
+FA_PATH = node_modules/font-awesome
 
 # Node
 YARN_RUN = yarn
@@ -44,7 +46,13 @@ watch-css: ## continuously build CSS
 .PHONY: watch-css
 
 build-css: ## build CSS with Sass, Autoprefixer, etc.
-	@$(SASS) --output-style compressed --include-path $(SASS_INCLUDE_PATH) assets/scss/main.scss $(CSS_DIR)/main.css
+	@mkdir -p static/fonts
+	@cp -f $(FA_PATH)/fonts/* $(FONTS_DIR)/
+	@$(SASS) --output-style compressed \
+		--include-path $(FOUNDATION_PATH)/scss/ \
+		--include-path $(FA_PATH)/scss/ \
+		assets/scss/main.scss \
+		$(CSS_DIR)/main.css
 	@$(POSTCSS) $(CSS_DIR)/*.css -r --use autoprefixer
 .PHONY: build-css
 
