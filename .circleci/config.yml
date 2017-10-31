@@ -61,11 +61,6 @@ jobs:
           keys:
             - frontend-deps-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
       - run:
-          name: Install docker-compose
-          command: |
-            curl -L --fail https://github.com/docker/compose/releases/download/1.16.1/run.sh -o $HOME/bin/docker-compose
-            chmod +x $HOME/bin/docker-compose
-      - run:
           name: Lint the code
           command: make lint
       - run:
