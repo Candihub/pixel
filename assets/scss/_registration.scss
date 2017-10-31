@@ -1,0 +1,17 @@
+.registration {
+  &.login {
+    .login-form-wrapper {
+      @include xy-grid-container(300px);
+      border-radius: $global-radius;
+      // background-color: rgba($primary-color, 0.8);
+
+      form {
+        label {
+          // color: $white;
+        }
+      }
+    }
+  }
+
+  &.logged-out {}
+}

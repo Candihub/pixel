@@ -20,8 +20,24 @@
       </div>
       <div class="navigation-links">
         <ul class="links">
+          {% if request.user.is_authenticated %}
+          <li class="pixeler">
+            {% trans "Logged as:" %} {{ request.user.username }}
+          </li>
+          {% if request.user.is_staff %}
           <li>
-            <a class="action login" href="#">{% trans "Login" %}</a>
+            <a class="admin" href="{% url 'admin:index' %}">{% trans "admin" %}</a>
+          </li>
+          {% endif %}
+          {% endif %}
+          <li>
+            {% if not request.user.is_authenticated %}
+              <a class="action login" href="{% url 'login' %}">{% trans "Login" %}</a>
+            {% else %}
+              <a class="logout" href="{% url 'logout' %}">
+                logout
+              </a>
+            {% endif %}
           </li>
         </ul>
       </div>

@@ -8,6 +8,7 @@
 $global-flexbox: true;
 
 @include foundation-button;
+@include foundation-forms;
 @include foundation-global-styles;
 @include foundation-menu;
 @include foundation-top-bar;
@@ -18,3 +19,4 @@ $global-flexbox: true;
 @import 'commons';
 @import 'layout';
 @import 'http';
+@import 'registration';

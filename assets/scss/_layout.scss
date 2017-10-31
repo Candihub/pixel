@@ -20,6 +20,12 @@
 
       .links {
         @include menu-base;
+
+        li {
+          &.pixeler {
+            padding: 0.4rem 0.7rem;
+          }
+        }
       }
     }
   }
