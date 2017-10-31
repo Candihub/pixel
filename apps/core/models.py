@@ -417,3 +417,7 @@ class Pixeler(AbstractUser):
         default=uuid.uuid4,
         editable=False,
     )
+
+    class Meta:
+        verbose_name = _("Pixeler")
+        verbose_name_plural = _("Pixelers")
