@@ -2,12 +2,17 @@
 CSS_DIR           = static/css
 SASS_INCLUDE_PATH = node_modules/foundation-sites/scss/
 
-# docker-compose
-COMPOSE              = docker-compose -f docker-compose.yml -p pixel-dev
+# Node
+YARN_RUN = yarn
+NODEMON  = $(YARN_RUN) nodemon
+POSTCSS  = $(YARN_RUN) postcss
+SASS     = $(YARN_RUN) node-sass
+
+# Docker
+COMPOSE              = bin/compose
 COMPOSE_RUN          = $(COMPOSE) run --rm
 COMPOSE_RUN_WEB      = $(COMPOSE_RUN) web
-COMPOSE_RUN_NODE     = $(COMPOSE_RUN) node
-MANAGE               = $(COMPOSE_RUN_WEB) ./manage.py
+MANAGE               = bin/manage
 COMPOSE_TEST         = docker-compose -f docker-compose.test.yml -p pixel-test
 COMPOSE_TEST_RUN     = $(COMPOSE_TEST) run --rm
 COMPOSE_TEST_RUN_WEB = $(COMPOSE_TEST_RUN) web
@@ -47,13 +52,21 @@ migrate-db:  ## perform database migrations
 	@$(MANAGE) migrate
 .PHONY: migrate-db
 
+logs: ## get development logs
+	@$(COMPOSE) logs -f
+.PHONY: logs
+
 run-server: ## start the development server
-	@$(COMPOSE) up
+	@$(COMPOSE) up -d
 .PHONY: run-server
 
 stop-server: ## stop the development server
 	@$(COMPOSE) stop
 .PHONY: stop-server
+
+restart-server: ## re-start the development server
+	@$(COMPOSE) restart web
+.PHONY: restart-server
 
 dev: ; ${MAKE} -j2 watch-css run-server ## start the dev environment
 .PHONY: dev
