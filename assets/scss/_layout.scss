@@ -5,6 +5,7 @@
 
   .main-navigation {
     @include top-bar-container;
+    background-color: $header-background;
     margin-bottom: 1rem;
 
     .logo {
@@ -23,7 +24,9 @@
     }
   }
 
-  .page-header {}
+  .page-header {
+    text-align: center;
+  }
 
   .page-content {
     text-align: center;

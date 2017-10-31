@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Error 404" %}{% endblock %}
+{% block body_class %}{{ block.super }} http 404{% endblock %}
+
+{% block header %}
+<h1>{% trans "Not found" %}</h1>
+{% endblock %}
+
+{% block content %}
+<p>
+    {% trans "We are sorry, but the page you were trying to display does not exist." %}
+</p>
+{% endblock %}

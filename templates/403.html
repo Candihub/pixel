@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Error 403" %}{% endblock %}
+{% block body_class %}{{ block.super }} http 403{% endblock %}
+
+{% block header %}
+<h1>{% trans "Forbidden" %}</h1>
+{% endblock %}
+
+{% block content %}
+<p>
+    {% trans "We are sorry, but your request was forbidden by the server." %}
+</p>
+{% endblock %}
