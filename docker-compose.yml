@@ -17,3 +17,9 @@ services:
       - "8000:8000"
     depends_on:
       - db
+  node:
+    image: node:8
+    user: node
+    working_dir: /home/node/pixel
+    volumes:
+      - .:/home/node/pixel

@@ -1,27 +1,37 @@
-# Assets
+# assets
 CSS_DIR           = static/css
 SASS_INCLUDE_PATH = node_modules/foundation-sites/scss/
 
-# Node
-YARN_RUN = yarn
-NODEMON  = $(YARN_RUN) nodemon
-POSTCSS  = $(YARN_RUN) postcss
-SASS     = $(YARN_RUN) node-sass
-
-# Docker
+# docker-compose
 COMPOSE              = docker-compose -f docker-compose.yml -p pixel-dev
 COMPOSE_RUN          = $(COMPOSE) run --rm
 COMPOSE_RUN_WEB      = $(COMPOSE_RUN) web
+COMPOSE_RUN_NODE     = $(COMPOSE_RUN) node
 MANAGE               = $(COMPOSE_RUN_WEB) ./manage.py
 COMPOSE_TEST         = docker-compose -f docker-compose.test.yml -p pixel-test
 COMPOSE_TEST_RUN     = $(COMPOSE_TEST) run --rm
 COMPOSE_TEST_RUN_WEB = $(COMPOSE_TEST_RUN) web
 
+# node
+#
+# $YARN_VERSION environment variable is defined in node container, but hopefully
+# not in user's environment. We use this environment variable definition to
+# automatically switch yarn execution via docker-compose or from the container.
+# This trick is required to run the 'watch-css' rule via docker-compose.
+ifeq "$(YARN_VERSION)" ""
+	YARN_RUN = $(COMPOSE_RUN_NODE) yarn
+else
+	YARN_RUN = yarn
+endif
+NODEMON  = $(YARN_RUN) nodemon
+POSTCSS  = $(YARN_RUN) postcss
+SASS     = $(YARN_RUN) node-sass
+
 default: help
 
 bootstrap: ## install development dependencies
 	@if [ -z "$$CI" ] || [ -n "$$CI_BUILD_BACKEND" ]; then $(COMPOSE) build web; ${MAKE} migrate-db; fi
-	@if [ -z "$$CI" ] || [ -n "$$CI_BUILD_FRONTEND" ]; then yarn install -D; ${MAKE} build-css; fi
+	@if [ -z "$$CI" ] || [ -n "$$CI_BUILD_FRONTEND" ]; then $(YARN_RUN) install -D; ${MAKE} build-css; fi
 .PHONY: bootstrap
 
 watch-css: ## continuously build CSS
