@@ -7,13 +7,14 @@ name = "pypi"
 
 [packages]
 
-Django = "*"
+django = "*"
 django-configurations = "*"
 django-mptt = "*"
 django-tagulous = "*"
 django-extensions = "*"
 gunicorn = "*"
 "psycopg2" = "*"
+openpyxl = "*"
 
 
 [dev-packages]
@@ -23,7 +24,7 @@ pytest-django = "*"
 pytest-cov = "*"
 "flake8" = "*"
 coveralls = "*"
-factory_boy = "*"
+factory-boy = "*"
 
 
 [requires]
