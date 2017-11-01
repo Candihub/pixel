@@ -105,7 +105,7 @@ cache for further use (see next section).
 ### Production back-end build
 
 This step is of utmost importance: it builds the `candihub/pixel` docker image
-that we will be used in production. Once build, this image is saved and cached
+that we will be used in production. Once built, this image is saved and cached
 for further use (see: _Push to DockerHub_ sub-section).
 
 > Note that we use the front-end job cache in this step to add compiled styles
