@@ -7,8 +7,6 @@
 
 * [Docker 1.12.6+](https://docs.docker.com/)
 * [Docker compose](https://docs.docker.com/compose/)
-* [Node.js 8+](https://nodejs.org/en/)
-* [Yarn 1.2+](https://yarnpkg.com/lang/en/)
 
 ## Quick start
 
@@ -16,16 +14,24 @@
 # Clone the project
 $ git clone git@github.com:Candihub/pixel.git
 $ cd pixel
-# Install project dependencies (production & development)
+# Install front-end and back-end dependencies (production & development)
 $ make bootstrap
 # Create a development database
 $ make migrate-db
-# Run the Django development server:
+# Run the Django development server & css build watcher
 $ make dev
 ```
 
 Open your favourite browser with the following url: http://127.0.0.1:8000 and it
 should work™.
+
+## Build css
+
+Pixel uses sass-based styles. To compile and post-process them, use:
+
+```bash
+$ make build-css
+```
 
 ## Run the tests
 
