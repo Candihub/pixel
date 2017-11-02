@@ -53,24 +53,24 @@ test:  ## run the test suite
 .PHONY: test
 
 test-ci:  ## run the test suite (CI context)
-	pipenv run pytest
+	@$(COMPOSE_TEST_RUN) \
+		-e COVERALLS_REPO_TOKEN=$(COVERALLS_REPO_TOKEN) \
+		-e CI=$(CI) \
+		-e CIRCLECI=$(CIRCLECI) \
+		-e CIRCLE_BRANCH=$(CIRCLE_BRANCH) \
+		-e CIRCLE_BUILD_NUM=$(CIRCLE_BUILD_NUM) \
+		-e CI_PULL_REQUEST=$(CI_PULL_REQUEST) \
+		web \
+		bin/ci --test-with-coverage
 .PHONY: test-ci
 
 coverage-ci:  ## publish coverage statistics (CI context)
-	pipenv run coveralls
+	@$(COMPOSE_TEST_RUN_WEB) coveralls
 .PHONY: coverage-ci
 
 lint:  ## lint the code
-	@$(COMPOSE_RUN_WEB) flake8
+	@$(COMPOSE_TEST_RUN_WEB) flake8
 .PHONY: lint
-
-lint-ci:  ## lint the code (CI context)
-	pipenv run flake8
-.PHONY: lint-ci
-
-install-ci:  ## install development dependencies (CI context)
-	pipenv install -d
-.PHONY: install-ci
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

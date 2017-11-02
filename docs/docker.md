@@ -93,9 +93,8 @@ The continuous integration workflow is composed of five steps:
 
 1. Front-end build
 2. Production back-end build
-3. Development dependencies cache
-4. Code lint
-5. Code test
+3. Code lint & test
+4. Push to DockerHub
 
 ### Front-end build
 
@@ -106,32 +105,27 @@ cache for further use (see next section).
 ### Production back-end build
 
 This step is of utmost importance: it builds the `candihub/pixel` docker image
-that we will use in next jobs (and hopefully in production). Once build, this
-image tagged with the current branch is uploaded to the [Docker hub Pixel's
-repository](https://hub.docker.com/r/candihub/pixel/).
+that we will be used in production. Once built, this image is saved and cached
+for further use (see: _Push to DockerHub_ sub-section).
 
 > Note that we use the front-end job cache in this step to add compiled styles
 to Pixel's docker image.
 
-### Development dependencies cache
+### Code lint & test
 
-As our production build does not include the testing stack (`pytest`, etc.), we
-need an extra step to install and cache them for further use.
+We use Pixel's docker test image to run `flake8` (our code linter), the test
+suite (with `pytest`) and make a coverage report thanks to `coveralls`.
 
-### Code lint
+### Push to DockerHub
 
-We use Pixel's docker production image plus cached development dependencies on
-top of it to run `flake8` (our code linter).
+Once Pixel's front-end and back-end have been successfully built and tested, for
+every workflow run on the `master` branch or a `git` tag, CircleCI will push the
+pixel's production container to its dedicated DockerHub repository:
+[`candihub/pixel`](https://hub.docker.com/r/candihub/pixel/) .
 
-### Code test
-
-Similarly to the code linting step, we use Pixel docker production image plus
-cached development dependencies on top of it to run the test suite.
-
-> nota bene: you will find a waiting loop hack with
-[`dockerize`](https://github.com/jwilder/dockerize) for this job (before running
-`pytest`), this hack is required to ensure that the `postgresql` container is
-running, that the target database has been created and is fully operational.
+A CircleCI workflow on the `master` branch will tag the current docker container
+as `latest`, and, a workflow on a `git` tag will tag the container with the same
+tag name (e.g. `1.0.1`).
 
 ## Continuous delivery
 

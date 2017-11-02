@@ -10,5 +10,7 @@ services:
       args:
         IS_NOT_PRODUCTION: "true"
     env_file: env.d/test
+    volumes:
+      - .git:/app/pixel/.git
     depends_on:
       - db

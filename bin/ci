@@ -7,7 +7,7 @@ function usage() {
     echo
     echo "Options:"
     echo "  -h|--help           : Display this help message"
-    echo "  --set-git-repo      : Setup git repository from raw sources"
+    echo "  --test-with-coverage: Run test and report coverage"
     echo "  --install-dockerize : Install dockerize tool"
     echo "  --get-docker-tag    : Output docker tag given ci branch name"
     echo
@@ -15,16 +15,8 @@ function usage() {
     exit 1
 }
 
-function set_git_repo() {
-    echo "Setting up git repository from $CIRCLE_REPOSITORY_URL/$CIRCLE_BRANCH"
-
-    git init
-    git remote add origin "$CIRCLE_REPOSITORY_URL"
-    mkdir "$HOME"/.ssh
-    ssh-keyscan -t rsa github.com >> "$HOME"/.ssh/known_hosts
-    git fetch
-    git reset origin/"$CIRCLE_BRANCH"
-    git checkout origin/"$CIRCLE_BRANCH"
+function test_with_coverage() {
+  pytest && coveralls
 }
 
 function install_dockerize() {
@@ -62,8 +54,8 @@ function main() {
       shift
 
       case "$key" in
-          --set-git-repo)
-              set_git_repo
+          --test-with-coverage)
+              test_with_coverage
               ;;
           --install-dockerize)
               install_dockerize

@@ -11,7 +11,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-          - frontend-deps-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            - frontend-deps-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
       - run:
           name: Install dependencies & build styles
           command: make bootstrap
@@ -23,107 +23,75 @@ jobs:
 
   backend-build:
     machine: true
+    working_directory: ~/pixel
     steps:
       - checkout
       - restore_cache:
           keys:
-          - frontend-deps-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            - frontend-deps-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          keys:
+            - docker-v1-{{ .Branch }}
       - run:
-          name: Login to DockerHub
-          command: docker login -u "$DOCKER_USER" -p "$DOCKER_PASS"
+          name: Load cached container
+          command: |
+            if [[ -e ~/docker/pixel.tgz ]]
+            then
+              gunzip -c ~/docker/pixel.tgz | docker load
+            fi
       - run:
           name: Build container
-          command: docker build -t "candihub/pixel:$CIRCLE_BRANCH" .
+          command: docker build --pull -t pixel .
       - run:
-          name: Publish container
-          command: docker push "candihub/pixel:$CIRCLE_BRANCH"
+          name: Save container
+          command: |
+            mkdir -p ~/docker
+            docker save pixel | gzip > ~/docker/pixel.tgz
+      - save_cache:
+          paths:
+            - ~/docker
+          key: docker-v1-{{ .Branch }}
 
-  docker-tag:
+  backend-test:
+    machine: true
+    working_directory: ~/pixel
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - frontend-deps-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
+      - run:
+          name: Lint the code
+          command: make lint
+      - run:
+          name: Test the code & report coverage
+          command: |
+            set -x
+            make test-ci
+
+  hub:
     machine: true
     steps:
+      - restore_cache:
+          keys:
+            - docker-v1-{{ .Branch }}
+      - run:
+          name: Load cached container
+          command: gunzip -c ~/docker/pixel.tgz | docker load
       - run:
           name: Login to DockerHub
           command: docker login -u "$DOCKER_USER" -p "$DOCKER_PASS"
       - run:
           name: Tag container
-          command: docker tag "candihub/pixel:$CIRCLE_BRANCH" "candihub/pixel:$(bin/ci --get-docker-tag)"
+          command: |
+            echo "CIRCLE_BRANCH: $CIRCLE_BRANCH"
+            echo "CIRCLE_TAG: $CIRCLE_TAG"
+            echo "Docker tag: $(bin/ci --get-docker-tag)"
+            docker tag pixel "candihub/pixel:$(bin/ci --get-docker-tag)"
       - run:
           name: Publish tagged container
           command: docker push "candihub/pixel:$(bin/ci --get-docker-tag)"
 
-  backend-build-dev:
-    working_directory: /app/pixel
-    docker:
-      - image: candihub/pixel:$CIRCLE_BRANCH
-    steps:
-      - restore_cache:
-          keys:
-            - backend-dev-deps-v1-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-      - run:
-          name: Install development dependencies
-          command: make install-ci
-      - save_cache:
-          paths:
-            - ~/.local/share/virtualenvs
-          key: backend-dev-deps-v1-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-
-  backend-lint:
-    working_directory: /app/pixel
-    docker:
-      - image: candihub/pixel:$CIRCLE_BRANCH
-    steps:
-      - restore_cache:
-          keys:
-            - backend-dev-deps-v1-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-      - run:
-          name: Lint the code
-          command: make lint-ci
-
-  backend-test:
-    working_directory: /app/pixel
-    docker:
-      - image: candihub/pixel:$CIRCLE_BRANCH
-        environment:
-          DJANGO_SETTINGS_MODULE: pixel.settings
-          DJANGO_CONFIGURATION: Test
-          DJANGO_SECRET_KEY: ThisIsAnExampleKeyForTestingPurposeOnly
-          POSTGRES_HOST: localhost
-          POSTGRES_PORT: 5432
-          POSTGRES_DB: pixel
-          POSTGRES_USER: pixel
-          POSTGRES_PASSWORD: pixel42
-      - image: postgres:9.6
-        environment:
-          POSTGRES_DB: pixel
-          POSTGRES_USER: pixel
-          POSTGRES_PASSWORD: pixel42
-    steps:
-      - restore_cache:
-          keys:
-            - backend-dev-deps-v1-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-      - run:
-          name: Add $HOME/bin to the PATH
-          command: |
-            mkdir "$HOME"/bin
-            echo "export PATH=$HOME/bin:$PATH" >> "$BASH_ENV"
-      - run:
-          name: Install dockerize
-          command: bin/ci --install-dockerize
-      - run:
-          # NB: we need to wait for the postgresl database to be created before
-          # running tests
-          name: Wait for db
-          command: dockerize -wait tcp://"$POSTGRES_HOST":"$POSTGRES_PORT" -timeout 1m
-      - run:
-          name: Test the code
-          command: make test-ci
-      - run:
-          name: Create git repository
-          command: bin/ci --set-git-repo
-          when: on_success
-      - run:
-          name: Report code coverage
-          command: make coverage-ci
 
 workflows:
   version: 2
@@ -134,19 +102,12 @@ workflows:
       - backend-build:
           requires:
             - frontend-build
-      - backend-build-dev:
-          requires:
-            - backend-build
-      - backend-lint:
-          requires:
-            - backend-build-dev
       - backend-test:
           requires:
-            - backend-build-dev
-      - docker-tag:
+            - backend-build
+      - hub:
           requires:
             - backend-test
-            - backend-lint
           filters:
             tags:
               only: /.*/
