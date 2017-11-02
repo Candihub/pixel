@@ -82,15 +82,16 @@ jobs:
           name: Login to DockerHub
           command: docker login -u "$DOCKER_USER" -p "$DOCKER_PASS"
       - run:
+          name: Get Docker tag
+          command: echo 'export DOCKER_TAG=$(if [[ -z "$CIRCLE_TAG" ]]; then echo "latest"; else echo "$CIRCLE_TAG"; fi)' >> "$BASH_ENV"
+      - run:
           name: Tag container
           command: |
-            echo "CIRCLE_BRANCH: $CIRCLE_BRANCH"
-            echo "CIRCLE_TAG: $CIRCLE_TAG"
-            echo "Docker tag: $(bin/ci --get-docker-tag)"
-            docker tag pixel "candihub/pixel:$(bin/ci --get-docker-tag)"
+            echo "Docker tag: $DOCKER_TAG"
+            docker tag pixel "candihub/pixel:$DOCKER_TAG"
       - run:
           name: Publish tagged container
-          command: docker push "candihub/pixel:$(bin/ci --get-docker-tag)"
+          command: docker push "candihub/pixel:$DOCKER_TAG"
 
 
 workflows:
