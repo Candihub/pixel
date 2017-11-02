@@ -11,7 +11,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - frontend-deps-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            - frontend-deps-v2-{{ .Branch }}-{{ checksum "yarn.lock" }}
       - run:
           name: Install dependencies & build styles
           command: make bootstrap
@@ -19,7 +19,7 @@ jobs:
           paths:
             - ~/pixel/static
             - ~/pixel/node_modules
-          key: frontend-deps-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          key: frontend-deps-v2-{{ .Branch }}-{{ checksum "yarn.lock" }}
 
   backend-build:
     machine: true
@@ -28,7 +28,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - frontend-deps-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            - frontend-deps-v2-{{ .Branch }}-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
             - docker-v1-{{ .Branch }}
@@ -59,7 +59,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - frontend-deps-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            - frontend-deps-v2-{{ .Branch }}-{{ checksum "yarn.lock" }}
       - run:
           name: Lint the code
           command: make lint
