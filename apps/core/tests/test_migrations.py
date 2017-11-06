@@ -23,7 +23,7 @@ def test_for_missing_migrations(db):
     except SystemExit as e:
         # The exit code will be 1 when there are no missing migrations
         assert str(e) == '1'
-    else:
+    else:  # pragma: no cover
         pytest.fail(
             "There are missing migrations:\n{}".format(output.getvalue())
         )
