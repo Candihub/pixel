@@ -58,6 +58,29 @@ within a docker container, use:
 $ make lint
 ```
 
+## Maintenance commands
+
+Most commands from the `Makefile` can be used as shortcuts to `docker-compose`
+invocations. A list of commonly used commands follows:
+
+* `make migrate-db`: run database migrations
+* `make run-server`: run Django development server
+* `make stop-server`: stop Django development server
+* `make restart-server`: restart `web` container (Django)
+
+If you want more flexibility to run `docker-compose`-based commands, use:
+
+```bash
+$ bin/compose
+# ☝️ an alias for:
+# docker-compose -f docker-compose.yml -p pixel-dev
+
+$ bin/manage
+# ☝️ an alias for:
+# docker-compose -f docker-compose.yml -p pixel-dev \
+#   run --rm web python manage.py
+```
+
 ## Contributing
 
 Please, see the [CONTRIBUTING](CONTRIBUTING.md) file.
