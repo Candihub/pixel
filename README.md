@@ -5,10 +5,18 @@
 
 ## Requirements
 
-* [Docker 1.12.6+](https://docs.docker.com/)
-* [Docker compose](https://docs.docker.com/compose/)
+We use Docker to develop and run Pixel. We invite you to ensure you have
+installed the following requirements before trying to bootstrap the application:
+
+* [Docker 1.12.6+](https://docs.docker.com/engine/installation/)
+* [Docker compose 1.9.0+](https://docs.docker.com/compose/install/)
+
+> We recommend you to follow Docker's official documentations to install
+required docker tools (see links above).
 
 ## Quick start
+
+Have you read the "Requirements" section above?
 
 ```bash
 # Clone the project
