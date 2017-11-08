@@ -94,6 +94,22 @@ class EntryTestCase(TestCase):
         self.assertEqual(entry.repository.id, repository.id)
         self.assertEqual(qs.count(), 1)
 
+    def test_model_representation(self):
+
+        identifier = 'FOO001'
+        description = 'lorem ipsum'
+        url = 'http://foo.com/r/{}'.format(identifier)
+        repository = self.repository
+
+        entry = models.Entry.objects.create(
+            identifier=identifier,
+            description=description,
+            url=url,
+            repository=repository,
+        )
+
+        self.assertEqual(str(entry), identifier)
+
     def test_can_create_entry_without_url(self):
 
         identifier = 'FOO001'

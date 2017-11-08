@@ -75,6 +75,9 @@ class Entry(UUIDModelMixin, models.Model):
         verbose_name = _("Entry")
         verbose_name_plural = _("Entries")
 
+    def __str__(self):
+        return self.identifier
+
     def clean(self):
         """An Entry should have at least an identifier or an url
         """
