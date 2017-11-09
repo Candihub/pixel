@@ -80,7 +80,7 @@ dev: ; ${MAKE} -j2 watch-css run-server ## start the dev environment
 .PHONY: dev
 
 test:  ## run the test suite
-	@$(COMPOSE_TEST_RUN_WEB) pytest
+	@$(COMPOSE_TEST_RUN) -v $(PWD):/app/pixel web pytest
 .PHONY: test
 
 test-ci:  ## run the test suite (CI context)
