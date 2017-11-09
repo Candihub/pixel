@@ -16,14 +16,21 @@ def style_range(ws,
     """
     Apply styles to a range of cells as if they were a single cell.
 
-    Copied from:
-    http://openpyxl.readthedocs.io/en/default/styles.html#styling-merged-cells
+    This snippet has been extracted from
+    `openpyxl documentation <http://openpyxl.readthedocs.io/en/default/styles.html#styling-merged-cells>`_.
 
-    :param ws:  Excel worksheet instance
-    :param range: An excel range to style (e.g. A1:F20)
-    :param border: An openpyxl Border
-    :param fill: An openpyxl PatternFill or GradientFill
-    :param font: An openpyxl Font object
+    Parameters
+    ----------
+    ws :  :obj:`Worksheet`
+        Excel worksheet instance
+    cell_range : str
+        An excel range to style (e.g. A1:F20)
+    border : :obj:`Border`, optional
+        An openpyxl Border
+    fill : :obj:`PatternFill` or :obj:`GradientFill`, optional
+        An openpyxl PatternFill or GradientFill
+    font : :obj:`Font`, optional
+        An openpyxl Font object
     """
 
     top = Border(top=border.top)
@@ -55,7 +62,16 @@ def style_range(ws,
                 c.fill = fill
 
 
-def generate_template(output_file):
+def generate_template(filename):
+    """
+    Generate Pixel XLS template that will be used during the imporation
+    process.
+
+    Parameters
+    ----------
+    filename : str
+        Pixel's XLSX template file name
+    """
 
     wb = Workbook()
     ws = wb.active
@@ -240,4 +256,4 @@ def generate_template(output_file):
     ws.column_dimensions['C'].width = 30
     ws.column_dimensions['D'].width = 30
 
-    wb.save(output_file)
+    wb.save(filename)
