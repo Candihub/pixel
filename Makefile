@@ -79,8 +79,20 @@ restart-server: ## re-start the development server
 dev: ; ${MAKE} -j2 watch-css run-server ## start the dev environment
 .PHONY: dev
 
+down-test: ## cleanup docker test containers
+	@$(COMPOSE_TEST) down
+.PHONY: down-test
+
+down-dev: ## cleanup docker development containers
+	@$(COMPOSE) down
+.PHONY: down-dev
+
+down: ## cleanup docker development containers
+	${MAKE} down-dev && ${MAKE} down-test
+.PHONY: down
+
 test:  ## run the test suite
-	@$(COMPOSE_TEST_RUN_WEB) pytest
+	@$(COMPOSE_TEST_RUN) -v $(PWD):/app/pixel web pytest
 .PHONY: test
 
 test-ci:  ## run the test suite (CI context)
