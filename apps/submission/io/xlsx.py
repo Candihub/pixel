@@ -16,7 +16,7 @@ def style_range(ws,
     """
     Apply styles to a range of cells as if they were a single cell.
 
-    This snippet has been extracted from
+    This snippet has been inspired by
     `openpyxl documentation <http://openpyxl.readthedocs.io/en/default/styles.html#styling-merged-cells>`_.
 
     Parameters
@@ -31,35 +31,35 @@ def style_range(ws,
         An openpyxl PatternFill or GradientFill
     font : :obj:`Font`, optional
         An openpyxl Font object
-    """
+    alignment : :obj:`Alignment`, optional
+        An openpyxl Alignment object
+    """  # noqa
 
     top = Border(top=border.top)
     left = Border(left=border.left)
     right = Border(right=border.right)
     bottom = Border(bottom=border.bottom)
 
-    first_cell = ws[cell_range.split(":")[0]]
-    if alignment:
-        ws.merge_cells(cell_range)
-        first_cell.alignment = alignment
-
     rows = ws[cell_range]
-    if font:
-        first_cell.font = font
-
     for cell in rows[0]:
-        cell.border = cell.border + top
+        cell.border += top
     for cell in rows[-1]:
-        cell.border = cell.border + bottom
+        cell.border += bottom
 
     for row in rows:
-        l = row[0]
-        r = row[-1]
-        l.border = l.border + left
-        r.border = r.border + right
+        left_cell = row[0]
+        right_cell = row[-1]
+        left_cell.border += left
+        right_cell.border += right
         if fill:
-            for c in row:
-                c.fill = fill
+            for cell in row:
+                cell.fill = fill
+        if font:
+            for cell in row:
+                cell.font = font
+        if alignment:
+            for cell in row:
+                cell.alignment = alignment
 
 
 def generate_template(filename):

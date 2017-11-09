@@ -1,9 +1,49 @@
 import pytest
 
 from django.test import TestCase
-from openpyxl import load_workbook
+from openpyxl import Workbook, load_workbook
+from openpyxl.styles import Alignment, Border, Font, PatternFill, Side, colors
 
-from apps.submission.io.xlsx import generate_template
+from apps.submission.io.xlsx import generate_template, style_range
+
+
+def test_style_range():
+
+    wb = Workbook()
+    ws = wb.active
+    start = 1
+    stop = 10
+    column = 'A'
+    cell_range = f'{column}{start}:{column}{stop}'
+
+    # Border
+    dashed_bottom_border = Border(bottom=Side(style='dashed'))
+    style_range(ws, cell_range, border=dashed_bottom_border)
+    cell = f'{column}{start}'
+    assert ws[cell].border.top == dashed_bottom_border.top
+    cell = f'{column}{stop}'
+    assert ws[cell].border.bottom == dashed_bottom_border.bottom
+
+    # Fill
+    red_fill = PatternFill('solid', fgColor=colors.RED)
+    style_range(ws, cell_range, fill=red_fill)
+    for row in range(start, stop + 1):
+        cell = f'{column}{row}'
+        assert ws[cell].fill == red_fill
+
+    # Font
+    blue_font = Font(color=colors.BLUE)
+    style_range(ws, cell_range, font=blue_font)
+    for row in range(start, stop + 1):
+        cell = f'{column}{row}'
+        assert ws[cell].font == blue_font
+
+    # Alignment
+    center_vertical_alignment = Alignment(vertical='center')
+    style_range(ws, cell_range, alignment=center_vertical_alignment)
+    for row in range(start, stop + 1):
+        cell = f'{column}{row}'
+        assert ws[cell].alignment == center_vertical_alignment
 
 
 class PixelIOXLSXTestCase(TestCase):
@@ -20,7 +60,7 @@ class PixelIOXLSXTestCase(TestCase):
     def test_generate_template(self):
 
         pixel_template = self.tmpdir.join('pixel-template.xlsx')
-        generate_template(output_file=pixel_template)
+        generate_template(filename=pixel_template)
 
         wb = load_workbook(pixel_template)
         ws = wb.active
