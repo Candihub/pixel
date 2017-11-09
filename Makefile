@@ -1,13 +1,20 @@
 # assets
 CSS_DIR           = static/css
-SASS_INCLUDE_PATH = node_modules/foundation-sites/scss/
+FONTS_DIR         = static/fonts
+FOUNDATION_PATH = node_modules/foundation-sites
+FA_PATH = node_modules/font-awesome
 
-# docker-compose
-COMPOSE              = docker-compose -f docker-compose.yml -p pixel-dev
+# Node
+YARN_RUN = yarn
+NODEMON  = $(YARN_RUN) nodemon
+POSTCSS  = $(YARN_RUN) postcss
+SASS     = $(YARN_RUN) node-sass
+
+# Docker
+COMPOSE              = bin/compose
 COMPOSE_RUN          = $(COMPOSE) run --rm
 COMPOSE_RUN_WEB      = $(COMPOSE_RUN) web
-COMPOSE_RUN_NODE     = $(COMPOSE_RUN) node
-MANAGE               = $(COMPOSE_RUN_WEB) ./manage.py
+MANAGE               = bin/manage
 COMPOSE_TEST         = docker-compose -f docker-compose.test.yml -p pixel-test
 COMPOSE_TEST_RUN     = $(COMPOSE_TEST) run --rm
 COMPOSE_TEST_RUN_WEB = $(COMPOSE_TEST_RUN) web
@@ -39,7 +46,13 @@ watch-css: ## continuously build CSS
 .PHONY: watch-css
 
 build-css: ## build CSS with Sass, Autoprefixer, etc.
-	@$(SASS) --output-style compressed --include-path $(SASS_INCLUDE_PATH) assets/scss/main.scss $(CSS_DIR)/main.css
+	@mkdir -p static/fonts
+	@cp -f $(FA_PATH)/fonts/* $(FONTS_DIR)/
+	@$(SASS) --output-style compressed \
+		--include-path $(FOUNDATION_PATH)/scss/ \
+		--include-path $(FA_PATH)/scss/ \
+		assets/scss/main.scss \
+		$(CSS_DIR)/main.css
 	@$(POSTCSS) $(CSS_DIR)/*.css -r --use autoprefixer
 .PHONY: build-css
 
@@ -47,13 +60,21 @@ migrate-db:  ## perform database migrations
 	@$(MANAGE) migrate
 .PHONY: migrate-db
 
+logs: ## get development logs
+	@$(COMPOSE) logs -f
+.PHONY: logs
+
 run-server: ## start the development server
-	@$(COMPOSE) up
+	@$(COMPOSE) up -d
 .PHONY: run-server
 
 stop-server: ## stop the development server
 	@$(COMPOSE) stop
 .PHONY: stop-server
+
+restart-server: ## re-start the development server
+	@$(COMPOSE) restart web
+.PHONY: restart-server
 
 dev: ; ${MAKE} -j2 watch-css run-server ## start the dev environment
 .PHONY: dev

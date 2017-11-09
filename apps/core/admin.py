@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
 from mptt.admin import MPTTModelAdmin
 
 from . import models
@@ -77,12 +78,8 @@ class PixelAdmin(admin.ModelAdmin):
 
 
 @admin.register(models.Pixeler)
-class PixelerAdmin(admin.ModelAdmin):
-    list_display = (
-        'username', 'first_name',
-        'last_name', 'email', 'last_login',
-    )
-    list_filter = ('is_superuser', 'is_active', 'is_staff')
+class PixelerAdmin(UserAdmin):
+    pass
 
 
 @admin.register(models.Species)

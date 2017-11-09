@@ -2,12 +2,16 @@
 @import 'colors';
 @import 'settings';
 
+/* -- Font-Awesome -- */
+@import 'font-awesome';
+
 /* -- Foundation -- */
 @import 'foundation';
 
 $global-flexbox: true;
 
 @include foundation-button;
+@include foundation-forms;
 @include foundation-global-styles;
 @include foundation-menu;
 @include foundation-top-bar;
@@ -17,3 +21,5 @@ $global-flexbox: true;
 /* -- Pixel -- */
 @import 'commons';
 @import 'layout';
+@import 'http';
+@import 'registration';

@@ -1,0 +1,10 @@
+.registration {
+  &.login {
+    .login-form-wrapper {
+      @include xy-grid-container(300px);
+      border-radius: $global-radius;
+    }
+  }
+
+  &.logged-out {}
+}
