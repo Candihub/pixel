@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Submit new pixels" %}{% endblock %}
+{% block body_class %}{{ block.super }} submission{% endblock %}
+
+{% block header %}
+<h1>{% trans "Submit new pixels" %}</h1>
+{% endblock %}
+
+{% block content %}
+
+  <ul class="tabs">
+    <li class="tabs-title{% if step == 'download' %} is-active{% endif %}">
+      <a
+        href="{% url 'submission:download' %}"
+        {% if step == 'download' %} aria-selected="true"{% endif %}
+      >
+        {% trans "Download submission template" %}
+      </a>
+    </li>
+    <li class="tabs-title">
+      <a href="#">
+        {% trans "Upload archive" %}
+      </a>
+    </li>
+    <li class="tabs-title">
+      <a href="#">
+        {% trans "Data validation" %}
+      </a>
+    </li>
+    <li class="tabs-title">
+      <a href="#">
+        {% trans "Importation" %}
+      </a>
+    </li>
+  </ul>
+  <div class="tabs-content">
+    {% block step_content %}{% endblock step_content %}
+  </div>
+{% endblock content %}
