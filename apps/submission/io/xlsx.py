@@ -84,6 +84,7 @@ def generate_template(filename):
     comment_fill = PatternFill('solid', fgColor='dbe8d5')
     pixelset_header_fill = PatternFill('solid', fgColor='ffd779')
     long_text_align = Alignment(vertical='center', wrap_text=True)
+    user_data_fill = PatternFill('solid', fgColor='fcffc4')
 
     # Validators
     def get_node_repr(node):
@@ -165,23 +166,29 @@ def generate_template(filename):
 
     ws['A3'] = _("Omics area")
     ws['A3'].font = required_field_font
+    ws['B3'].fill = user_data_fill
     omics_areas_validator.add(ws['B3'])
 
     ws['A4'] = _("Completion date")
     ws['A4'].font = field_font
+    ws['B4'].fill = user_data_fill
 
     ws['A5'] = _("Summary")
     ws['A5'].font = field_font
+    ws['B5'].fill = user_data_fill
 
     ws['A6'] = _("Release date")
     ws['A6'].font = field_font
+    ws['B6'].fill = user_data_fill
 
     ws['A7'] = _("Data source")
     ws['A7'].font = field_font
+    ws['B7'].fill = user_data_fill
     data_source_validator.add(ws['B7'])
 
     ws['A8'] = _("Reference (entry)")
     ws['A8'].font = field_font
+    ws['B8'].fill = user_data_fill
     ws['B8'].comment = Comment(
         _("If this work has been published, we expect a DOI in this cell."),
         _("Pixel's administrator")
@@ -210,15 +217,19 @@ def generate_template(filename):
 
     ws['A12'] = _("Name of secondary data file")
     ws['A12'].font = required_field_font
+    ws['B12'].fill = user_data_fill
 
     ws['A13'] = _("Name of notebook file")
     ws['A13'].font = field_font
+    ws['B13'].fill = user_data_fill
 
     ws['A14'] = _("Description")
     ws['A14'].font = field_font
+    ws['B14'].fill = user_data_fill
 
     ws['A15'] = _("Date of the analysis")
     ws['A15'].font = field_font
+    ws['B15'].fill = user_data_fill
 
     # Pixel datasets
     ws['A17'] = _("Pixel datasets")
@@ -249,6 +260,8 @@ def generate_template(filename):
 
     for row in range(20, 31, 1):
         omics_unit_type_validator.add(ws['B{}'.format(row)])
+        for column in ('A', 'B', 'C', 'D'):
+            ws[f'{column}{row}'].fill = user_data_fill
         strain_validator.add(ws['C{}'.format(row)])
 
     ws.column_dimensions['A'].width = 40

@@ -2,7 +2,9 @@ import pytest
 
 from django.test import TestCase
 from openpyxl import Workbook, load_workbook
-from openpyxl.styles import Alignment, Border, Font, PatternFill, Side, colors
+from openpyxl.styles import (
+    Alignment, Border, Color, Font, PatternFill, Side, colors
+)
 
 from apps.submission.io.xlsx import generate_template, style_range
 
@@ -65,6 +67,7 @@ class PixelIOXLSXTestCase(TestCase):
         wb = load_workbook(pixel_template)
         ws = wb.active
 
+        # fields
         assert ws.title == 'Import information for Pixel'
         assert ws['A1'].value == 'Experiment'
         assert ws['A3'].value == 'Omics area'
@@ -83,3 +86,13 @@ class PixelIOXLSXTestCase(TestCase):
         assert ws['B19'].value == 'Omics Unit type'
         assert ws['C19'].value == 'Strain (Species)'
         assert ws['D19'].value == 'Comment'
+
+        # user data
+        user_data_cells = tuple(
+            f'B{r}' for r in list(range(3, 9)) + list(range(12, 16))
+        ) + tuple(
+            f'{c}{r}' for r in range(20, 31) for c in ('A', 'B', 'C', 'D')
+        )
+        expected_user_data_fg_color = Color('fcffc4')
+        for cell in user_data_cells:
+            assert ws[cell].fill.fgColor == expected_user_data_fg_color
