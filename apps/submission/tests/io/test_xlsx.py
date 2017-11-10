@@ -48,7 +48,7 @@ def test_style_range():
         assert ws[cell].alignment == center_vertical_alignment
 
 
-class PixelIOXLSXTestCase(TestCase):
+class XLSXTemplateTestCase(TestCase):
 
     fixtures = [
         'apps/data/fixtures/initial_data.json',
