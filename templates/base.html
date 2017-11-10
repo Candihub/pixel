@@ -32,19 +32,24 @@
             </a>
           </li>
           {% endif %}
-          {% endif %}
           <li>
-            {% if not request.user.is_authenticated %}
-              <a class="action login" href="{% url 'login' %}">
-                <i class="fa fa-sign-in" aria-hidden="true"></i>
-                {% trans "Login" %}
-              </a>
-            {% else %}
-              <a class="logout" href="{% url 'logout' %}">
-                <i class="fa fa-sign-out" aria-hidden="true"></i>
-              </a>
-            {% endif %}
+            <a class="submit" href="{% url 'submission:download' %}">
+              <i class="fa fa-plus-circle" aria-hidden="true"></i>
+            </a>
           </li>
+          <li>
+            <a class="action logout" href="{% url 'logout' %}">
+              <i class="fa fa-sign-out" aria-hidden="true"></i>
+            </a>
+          </li>
+          {% else %}
+          <li>
+            <a class="action login" href="{% url 'login' %}">
+              <i class="fa fa-sign-in" aria-hidden="true"></i>
+              {% trans "Login" %}
+            </a>
+          </li>
+          {% endif %}
         </ul>
       </div>
     </nav>
