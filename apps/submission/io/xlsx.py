@@ -1,7 +1,7 @@
 from django.utils.translation import ugettext as _
 from openpyxl import Workbook
 from openpyxl.comments import Comment
-from openpyxl.styles import Alignment, Border, Font, PatternFill, colors
+from openpyxl.styles import Alignment, Border, Font, PatternFill
 from openpyxl.worksheet.datavalidation import DataValidation
 
 from apps.core.models import OmicsArea, OmicsUnitType, Strain
