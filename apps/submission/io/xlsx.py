@@ -78,13 +78,14 @@ def generate_template(filename):
     ws.title = _("Import information for Pixel")
 
     # Styles
-    section_title_font = Font(bold=True, size=18, color=colors.RED)
-    field_font = Font(color=colors.BLUE)
-    required_field_font = Font(bold=True, color=colors.BLUE)
-    comment_fill = PatternFill('solid', fgColor='dbe8d5')
-    pixelset_header_fill = PatternFill('solid', fgColor='ffd779')
+    # https://coolors.co/4c5760-c5e8cd-fdffd9-ffd7ad-d1a690
+    section_title_font = Font(bold=True, size=18, color='d1a690')
+    field_font = Font(color='4c5760')
+    required_field_font = Font(bold=True, color='4c5760')
+    comment_fill = PatternFill('solid', fgColor='c5e8cd')
+    pixelset_header_fill = PatternFill('solid', fgColor='ffd7ad')
     long_text_align = Alignment(vertical='center', wrap_text=True)
-    user_data_fill = PatternFill('solid', fgColor='fcffc4')
+    user_data_fill = PatternFill('solid', fgColor='fdffd9')
 
     # Validators
     def get_node_repr(node):

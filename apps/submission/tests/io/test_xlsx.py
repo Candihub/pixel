@@ -93,6 +93,6 @@ class PixelIOXLSXTestCase(TestCase):
         ) + tuple(
             f'{c}{r}' for r in range(20, 31) for c in ('A', 'B', 'C', 'D')
         )
-        expected_user_data_fg_color = Color('fcffc4')
+        expected_user_data_fg_color = Color('fdffd9')
         for cell in user_data_cells:
             assert ws[cell].fill.fgColor == expected_user_data_fg_color
