@@ -30,6 +30,17 @@ RUN su app -c "mkdir run"
 
 USER app
 
+# Create statics and media to serve
+RUN mkdir -p public/media && \
+    mkdir -p public/static
+
+# Use fake Django environment to collectstatic
+ENV DJANGO_SETTINGS_MODULE=pixel.settings \
+    DJANGO_CONFIGURATION=Production \
+    DJANGO_SECRET_KEY=ThisIsAFakeKeyUsedForBuildingPurpose
+
+RUN pipenv run ./manage.py collectstatic -c
+
 # docker run commands within enabled pipenv
 ENTRYPOINT ["pipenv", "run"]
 CMD ["gunicorn", "-c", "/usr/local/etc/gunicorn/pixel.py", "pixel.wsgi:application"]

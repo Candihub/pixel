@@ -1,0 +1,30 @@
+version: '2.1'
+
+services:
+  db:
+    image: postgres:9.6
+    env_file: .env
+  web:
+    image: candihub/pixel:latest
+    env_file: .env
+    volumes:
+      - media:/app/pixel/public/media
+      - static:/app/pixel/public/static
+      - run:/app/pixel/run
+    depends_on:
+      - db
+  proxy:
+    image: nginx
+    volumes:
+      - ./docker/etc/nginx/conf.d/pixel.conf:/etc/nginx/conf.d/default.conf
+    volumes_from:
+      - web
+    ports:
+      - "8901:80"
+    depends_on:
+      - web
+
+volumes:
+  media:
+  run:
+  static:
