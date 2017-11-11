@@ -31,7 +31,7 @@ jobs:
             - frontend-deps-v2-{{ .Branch }}-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
-            - docker-v1-{{ .Branch }}
+            - docker-v2-{{ .Revision }}
       - run:
           name: Load cached container
           command: |
@@ -50,7 +50,7 @@ jobs:
       - save_cache:
           paths:
             - ~/docker
-          key: docker-v1-{{ .Branch }}
+          key: docker-v2-{{ .Revision }}
 
   backend-test:
     machine: true
@@ -74,7 +74,7 @@ jobs:
     steps:
       - restore_cache:
           keys:
-            - docker-v1-{{ .Branch }}
+            - docker-v2-{{ .Revision }}
       - run:
           name: Load cached container
           command: gunzip -c ~/docker/pixel.tgz | docker load
