@@ -41,7 +41,7 @@ jobs:
             fi
       - run:
           name: Build container
-          command: docker build --pull -t pixel .
+          command: docker build --pull --no-cache -t pixel .
       - run:
           name: Save container
           command: |
