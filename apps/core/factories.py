@@ -75,12 +75,9 @@ class PixelerFactory(DjangoModelFactory):
 
 
 class OmicsAreaFactory(DjangoModelFactory):
-    description = Faker('text', max_nb_chars=300)
-    level = Faker('pyint')
-    lft = Faker('pyint')
+
     name = Faker('word')
-    rght = Faker('pyint')
-    tree_id = Faker('pyint')
+    description = Faker('text', max_nb_chars=300)
 
     class Meta:
         model = 'core.OmicsArea'
@@ -88,9 +85,10 @@ class OmicsAreaFactory(DjangoModelFactory):
 
 
 class ExperimentFactory(DjangoModelFactory):
+
     omics_area = SubFactory(OmicsAreaFactory)
-    created_at = Faker('datetime')
     description = Faker('text', max_nb_chars=300)
+    created_at = Faker('datetime')
     released_at = Faker('datetime')
     saved_at = Faker('datetime')
 
@@ -100,12 +98,13 @@ class ExperimentFactory(DjangoModelFactory):
 
 
 class AnalysisFactory(DjangoModelFactory):
-    pixeler = SubFactory(PixelerFactory)
-    created_at = Faker('date')
+
     description = Faker('text', max_nb_chars=300)
+    pixeler = SubFactory(PixelerFactory)
     notebook = Faker('file_path', depth=1, category=None, extension=None)
-    saved_at = Faker('date')
     secondary_data = Faker('file_path', depth=1, category=None, extension=None)
+    created_at = Faker('date')
+    saved_at = Faker('date')
 
     class Meta:
         model = 'core.Analysis'
