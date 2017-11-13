@@ -23,7 +23,7 @@ class GenerateXLSXTemplateView(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
 
-        template_file_name = 'pixel_template.xlsx'
+        template_file_name = 'meta.xlsx'
         template_path = PurePath(mkdtemp(), template_file_name)
         generate_template(template_path)
 
