@@ -10,33 +10,36 @@
 {% endblock %}
 
 {% block content %}
-
-  <ul class="tabs">
-    <li class="tabs-title{% if step == 'download' %} is-active{% endif %}">
+  <ul class="step-tabs">
+    <li class="step-title{% if step == 'download' %} is-active{% endif %}">
       <a
         href="{% url 'submission:download' %}"
         {% if step == 'download' %} aria-selected="true"{% endif %}
       >
-        {% trans "Download submission template" %}
+        <i class="fa fa-file-excel-o" aria-hidden="true"></i>
+        {% trans "Download template" %}
       </a>
     </li>
-    <li class="tabs-title">
+    <li class="step-title">
       <a href="#">
+        <i class="fa fa-upload" aria-hidden="true"></i>
         {% trans "Upload archive" %}
       </a>
     </li>
-    <li class="tabs-title">
+    <li class="step-title">
       <a href="#">
+        <i class="fa fa-check-square-o" aria-hidden="true"></i>
         {% trans "Data validation" %}
       </a>
     </li>
-    <li class="tabs-title">
+    <li class="step-title">
       <a href="#">
+        <i class="fa fa-database" aria-hidden="true"></i>
         {% trans "Importation" %}
       </a>
     </li>
   </ul>
-  <div class="tabs-content">
+  <div class="step-content">
     {% block step_content %}{% endblock step_content %}
   </div>
 {% endblock content %}

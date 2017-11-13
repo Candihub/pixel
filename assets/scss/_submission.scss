@@ -1,6 +1,41 @@
 .submission {
 
-  .download {
-    
+  .step-tabs {
+    @include tabs-container;
+
+    .step-title {
+      @include tabs-title;
+      width: 25%;
+      text-align: center;
+      text-transform: uppercase;
+      font-size: 1.2rem;
+
+      a {
+        i {
+          font-size: 1.2rem;
+          margin-right: 1rem;
+        }
+      }
+
+      &.is-active {
+        background-color: $primary-color;
+        color: $white;
+
+        & > a[aria-selected="true"] {
+          background-color: inherit;
+          color: inherit;
+          font-weight: bolder;
+        }
+      }
+    }
+  }
+
+  .step-content {
+    @include tabs-content;
+    padding: 1rem;
+  }
+
+  &.download {
+
   }
 }

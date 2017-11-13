@@ -31,11 +31,11 @@
   }
 
   .page-header {
-    text-align: center;
+    @include xy-grid-container;
   }
 
   .page-content {
-    text-align: center;
+    @include xy-grid-container;
   }
 
   .page-footer {
