@@ -2,6 +2,7 @@ import os
 from pathlib import PurePath
 from tempfile import mkdtemp
 
+import pytest
 from django.test import TestCase
 from django.urls import reverse
 from django.utils.translation import ugettext as _
@@ -61,6 +62,19 @@ class LoginRequiredTestMixin(object):
             self.assertTemplateUsed(response, self.template)
 
 
+class LoginRequiredMixinTestCase(TestCase):
+
+    def test_declaring_url_attribute_is_mandatory(self):
+
+        class FooViewTestCase(LoginRequiredTestMixin):
+            pass
+
+        foo = FooViewTestCase()
+
+        with pytest.raises(NotImplementedError):
+            foo.test_login_required()
+
+
 class DownloadXLSXTemplateViewTestCase(LoginRequiredTestMixin, TestCase):
 
     url = reverse('submission:download')
@@ -112,10 +126,14 @@ class GenerateXLSXTemplateViewTestCase(LoginRequiredTestMixin, TestCase):
         with open(template_path, 'wb') as template_file:
             template_file.write(response.content)
 
-        # Check file size
-        self.assertEqual(
+        # 7561 <= file size < 7563
+        self.assertGreaterEqual(
             os.stat(template_path).st_size,
-            7562
+            7561
+        )
+        self.assertLess(
+            os.stat(template_path).st_size,
+            7563
         )
 
         # Try to open it as an excel workbook and smoke test it
