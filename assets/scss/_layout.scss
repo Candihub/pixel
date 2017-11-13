@@ -44,7 +44,6 @@
     padding: 1rem;
     background-color: $footer-background;
     font-size: 0.8rem;
-    color: $white;
 
     .copyright {
       @include xy-cell;
@@ -52,6 +51,7 @@
 
       a {
         color: $footer-link-color;
+        text-decoration: underline;
       }
     }
   }
