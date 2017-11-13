@@ -140,11 +140,13 @@ class Development(Base):
 
 
 class Staging(Base):
-    pass
+
+    ALLOWED_HOSTS = ['staging.pixel.candihub.eu', ]
 
 
 class Production(Base):
-    pass
+
+    ALLOWED_HOSTS = ['pixel.candihub.eu', ]
 
 
 class Test(Base):
