@@ -1,9 +1,11 @@
-from factory import Faker, Iterator, SubFactory
+from factory import Faker, Iterator, PostGenerationMethodCall, SubFactory
 from factory.django import DjangoModelFactory
 from django.utils.timezone import get_default_timezone
 
 from apps.data.factories import EntryFactory, RepositoryFactory
 from . import models
+
+PIXELER_PASSWORD = 'SurferRosa1988'
 
 
 class SpeciesFactory(DjangoModelFactory):
@@ -54,16 +56,18 @@ class OmicsUnitFactory(DjangoModelFactory):
 
 class PixelerFactory(DjangoModelFactory):
 
-    date_joined = Faker('date_time_this_decade', tzinfo=get_default_timezone())
+    username = Faker('user_name')
+    password = PostGenerationMethodCall(
+        'set_password', PIXELER_PASSWORD
+    )
     email = Faker('email')
     first_name = Faker('first_name')
+    last_name = Faker('last_name')
     is_active = Faker('pybool')
     is_staff = Faker('pybool')
     is_superuser = Faker('pybool')
+    date_joined = Faker('date_time_this_decade', tzinfo=get_default_timezone())
     last_login = Faker('date_time_this_decade', tzinfo=get_default_timezone())
-    last_name = Faker("last_name")
-    password = Faker("password")
-    username = Faker("user_name")
 
     class Meta:
         model = 'core.Pixeler'
