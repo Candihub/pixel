@@ -35,6 +35,12 @@
     padding: 1rem;
   }
 
+  ul.step-navigation {
+    @include menu-base;
+    @include menu-align(right);
+    @include flex-align(right, middle);
+  }
+
   &.download {
 
   }

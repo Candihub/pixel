@@ -39,7 +39,27 @@
       </a>
     </li>
   </ul>
+
   <div class="step-content">
     {% block step_content %}{% endblock step_content %}
   </div>
+
+  <ul class="step-navigation">
+    {% if previous_step_url %}
+    <li>
+      <a href="{{ previous_step_url }}">
+        {% trans "Previous" %}
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+      </a>
+    </li>
+    {% endif %}
+    {% if next_step_url %}
+    <li>
+      <a href="{{ next_step_url }}">
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+        {% trans "Next" %}
+      </a>
+    </li>
+    {% endif %}
+  </ul>
 {% endblock content %}
