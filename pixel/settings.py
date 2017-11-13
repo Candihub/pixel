@@ -43,6 +43,7 @@ class Base(Configuration):
         # Pixel apps
         'apps.core',
         'apps.data',
+        'apps.submission',
     ]
 
     MIDDLEWARE = [
