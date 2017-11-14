@@ -12,7 +12,12 @@ class DownloadXLSXTemplateView(LoginRequiredMixin, TemplateView):
 
     template_name = 'submission/download_xlsx_template.html'
 
-    def get_context_data(self, **kwargs):
+    def get(self, request, *args, **kwargs):
+        check = True if request.GET.get('check') else False
+        context = self.get_context_data(check=check, **kwargs)
+        return self.render_to_response(context)
+
+    def get_context_data(self, check=False, **kwargs):
         # TODO
         # reverse the upload url
         next_step_url = '#'
@@ -21,7 +26,15 @@ class DownloadXLSXTemplateView(LoginRequiredMixin, TemplateView):
         ctx.update({
             'step': 'download',
             'next_step_url': next_step_url,
+            'check': check,
         })
+
+        meta = self.request.session.get('template')
+        if meta:
+            ctx.update({
+                'version': meta.get('version'),
+                'checksum': meta.get('checksum'),
+            })
         return ctx
 
 
