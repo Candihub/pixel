@@ -1,0 +1,46 @@
+{% extends "submission/base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Download submission template" %}{% endblock %}
+{% block body_class %}{{ block.super }} download{% endblock %}
+
+
+{% block step_content %}
+  <p>
+    {% url 'core:home' as home_url %}
+    {% blocktrans %}
+      To import new datasets in <a href="{{ home_url }}">Pixel</a>, you need to
+      download and fill the latest version of Pixel's <code>meta.xlsx</code>
+      file. This file sums up meta-data attached to your datasets (omics area,
+      species, etc.), and, defines which pixels and analyses files you will want
+      to import.
+    {% endblocktrans %}
+  </p>
+
+  <p>
+    {% blocktrans %}
+      Click the "Download" button below, and then click "Next" to get
+      instructions about dataset archive building and upload.
+    {% endblocktrans %}
+  </p>
+
+  <div class="callout warning">
+    <h5>{% trans "Nota bene" %}</h5>
+
+    <p>
+      {% blocktrans %}
+        If your dataset is related to omics areas, omics units or strains that
+        are not referenced in the latest <code>meta.xlsx</code> file, please
+        contact us to update our template generator.
+      {% endblocktrans %}
+    </p>
+  </div>
+
+  <form action="{% url 'submission:generate_template' %}" method="post">
+    {% csrf_token %}
+    <button type="submit" name="button" class="button">
+      {% trans "Download" %}
+    </button>
+  </form>
+{% endblock step_content %}

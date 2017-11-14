@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Submit new pixels" %}{% endblock %}
+{% block body_class %}{{ block.super }} submission{% endblock %}
+
+{% block header %}
+<h1>{% trans "Submit new pixels" %}</h1>
+{% endblock %}
+
+{% block content %}
+  <ul class="step-tabs">
+    <li class="step-title{% if step == 'download' %} is-active{% endif %}">
+      <a
+        href="{% url 'submission:download' %}"
+        {% if step == 'download' %} aria-selected="true"{% endif %}
+      >
+        <i class="fa fa-file-excel-o" aria-hidden="true"></i>
+        {% trans "Download template" %}
+      </a>
+    </li>
+    <li class="step-title">
+      <a href="#">
+        <i class="fa fa-upload" aria-hidden="true"></i>
+        {% trans "Upload archive" %}
+      </a>
+    </li>
+    <li class="step-title">
+      <a href="#">
+        <i class="fa fa-check-square-o" aria-hidden="true"></i>
+        {% trans "Validate pixels" %}
+      </a>
+    </li>
+    <li class="step-title">
+      <a href="#">
+        <i class="fa fa-database" aria-hidden="true"></i>
+        {% trans "Import pixels" %}
+      </a>
+    </li>
+  </ul>
+
+  <div class="step-content">
+    {% block step_content %}{% endblock step_content %}
+  </div>
+
+  <ul class="step-navigation">
+    {% if previous_step_url %}
+    <li>
+      <a href="{{ previous_step_url }}">
+        {% trans "Previous" %}
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+      </a>
+    </li>
+    {% endif %}
+    {% if next_step_url %}
+    <li>
+      <a href="{{ next_step_url }}">
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+        {% trans "Next" %}
+      </a>
+    </li>
+    {% endif %}
+  </ul>
+{% endblock content %}

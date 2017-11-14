@@ -1,9 +1,11 @@
-from factory import Faker, Iterator, SubFactory
+from factory import Faker, Iterator, PostGenerationMethodCall, SubFactory
 from factory.django import DjangoModelFactory
 from django.utils.timezone import get_default_timezone
 
 from apps.data.factories import EntryFactory, RepositoryFactory
 from . import models
+
+PIXELER_PASSWORD = 'SurferRosa1988'
 
 
 class SpeciesFactory(DjangoModelFactory):
@@ -54,16 +56,18 @@ class OmicsUnitFactory(DjangoModelFactory):
 
 class PixelerFactory(DjangoModelFactory):
 
-    date_joined = Faker('date_time_this_decade', tzinfo=get_default_timezone())
+    username = Faker('user_name')
+    password = PostGenerationMethodCall(
+        'set_password', PIXELER_PASSWORD
+    )
     email = Faker('email')
     first_name = Faker('first_name')
+    last_name = Faker('last_name')
     is_active = Faker('pybool')
     is_staff = Faker('pybool')
     is_superuser = Faker('pybool')
+    date_joined = Faker('date_time_this_decade', tzinfo=get_default_timezone())
     last_login = Faker('date_time_this_decade', tzinfo=get_default_timezone())
-    last_name = Faker("last_name")
-    password = Faker("password")
-    username = Faker("user_name")
 
     class Meta:
         model = 'core.Pixeler'
@@ -71,12 +75,9 @@ class PixelerFactory(DjangoModelFactory):
 
 
 class OmicsAreaFactory(DjangoModelFactory):
-    description = Faker('text', max_nb_chars=300)
-    level = Faker('pyint')
-    lft = Faker('pyint')
+
     name = Faker('word')
-    rght = Faker('pyint')
-    tree_id = Faker('pyint')
+    description = Faker('text', max_nb_chars=300)
 
     class Meta:
         model = 'core.OmicsArea'
@@ -84,9 +85,10 @@ class OmicsAreaFactory(DjangoModelFactory):
 
 
 class ExperimentFactory(DjangoModelFactory):
+
     omics_area = SubFactory(OmicsAreaFactory)
-    created_at = Faker('datetime')
     description = Faker('text', max_nb_chars=300)
+    created_at = Faker('datetime')
     released_at = Faker('datetime')
     saved_at = Faker('datetime')
 
@@ -96,12 +98,13 @@ class ExperimentFactory(DjangoModelFactory):
 
 
 class AnalysisFactory(DjangoModelFactory):
-    pixeler = SubFactory(PixelerFactory)
-    created_at = Faker('date')
+
     description = Faker('text', max_nb_chars=300)
+    pixeler = SubFactory(PixelerFactory)
     notebook = Faker('file_path', depth=1, category=None, extension=None)
-    saved_at = Faker('date')
     secondary_data = Faker('file_path', depth=1, category=None, extension=None)
+    created_at = Faker('date')
+    saved_at = Faker('date')
 
     class Meta:
         model = 'core.Analysis'
