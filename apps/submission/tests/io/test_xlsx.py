@@ -1,12 +1,15 @@
-import pytest
+from pathlib import Path
 
+import pytest
 from django.test import TestCase
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import (
     Alignment, Border, Color, Font, PatternFill, Side, colors
 )
 
-from apps.submission.io.xlsx import generate_template, style_range
+from apps.submission.io.xlsx import (
+    generate_template, sha256_checksum, style_range
+)
 
 
 def test_style_range():
@@ -46,6 +49,17 @@ def test_style_range():
     for row in range(start, stop + 1):
         cell = f'{column}{row}'
         assert ws[cell].alignment == center_vertical_alignment
+
+
+def test_sha256_checksum():
+
+    meta_filename = Path('apps/submission/fixtures/meta.xlsx')
+    checksum = sha256_checksum(meta_filename)
+    expected_checksum = (
+        'd7db1382d72db9bb5611b385d5fc8fde'
+        '7321ff0c1229a012f58e79c610104a48'
+    )
+    assert checksum == expected_checksum
 
 
 class XLSXTemplateTestCase(TestCase):

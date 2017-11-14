@@ -1,3 +1,5 @@
+import hashlib
+
 from django.utils.translation import ugettext as _
 from openpyxl import Workbook
 from openpyxl.comments import Comment
@@ -60,6 +62,30 @@ def style_range(ws,
         if alignment:
             for cell in row:
                 cell.alignment = alignment
+
+
+def sha256_checksum(filename):
+    """
+    Calculate a sha256 checksum for a file
+
+    Parameters
+    ----------
+    filename : str
+        Path to the sha256 checksum target file
+
+    Returns
+    -------
+    checksum : str
+        Target file sha256 checksum (hexdigest)
+    """
+    m = hashlib.sha256()
+    with open(filename, 'rb') as f:
+        while True:
+            chunk = f.read(4096)
+            if not chunk:
+                break
+            m.update(chunk)
+    return m.hexdigest()
 
 
 def generate_template(filename):
