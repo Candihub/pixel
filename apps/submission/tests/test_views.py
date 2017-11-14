@@ -88,6 +88,63 @@ class DownloadXLSXTemplateViewTestCase(LoginRequiredTestMixin, TestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.context.get('step'), 'download')
         self.assertEqual(response.context.get('next_step_url'), '#')
+        self.assertEqual(response.context.get('check'), False)
+
+    def test_context_data_with_check_param(self):
+
+        self.login()
+        url = '{}?check=true'.format(self.url)
+        response = self.client.get(url)
+
+        self.assertEqual(response.context.get('check'), True)
+        self.assertEqual(response.context.get('version'), None)
+        self.assertEqual(response.context.get('checksum'), None)
+
+    def test_context_data_after_download(self):
+
+        self.login()
+
+        download_url = reverse('submission:generate_template')
+        self.client.post(download_url)
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.context.get('check'), False)
+        self.assertEqual(
+            response.context.get('version'),
+            self.client.session['template']['version']
+        )
+        self.assertEqual(
+            response.context.get('checksum'),
+            self.client.session['template']['checksum']
+        )
+        self.assertContains(
+            response,
+            '<a href="?check=true" class="action secondary">',
+        )
+
+    def test_context_data_after_download_with_check_param(self):
+
+        self.login()
+
+        download_url = reverse('submission:generate_template')
+        self.client.post(download_url)
+
+        url = '{}?check=true'.format(self.url)
+        response = self.client.get(url)
+
+        self.assertContains(
+            response,
+            '<code>{}</code>'.format(
+                self.client.session['template']['version']
+            ),
+        )
+        self.assertContains(
+            response,
+            '<code>{}</code>'.format(
+                self.client.session['template']['checksum']
+            ),
+        )
 
 
 class GenerateXLSXTemplateViewTestCase(LoginRequiredTestMixin, TestCase):
