@@ -31,7 +31,13 @@ class GenerateXLSXTemplateView(LoginRequiredMixin, View):
 
         template_file_name = 'meta.xlsx'
         template_path = PurePath(mkdtemp(), template_file_name)
-        generate_template(template_path)
+        checksum, version = generate_template(filename=template_path)
+
+        # Save file checksum in the session
+        request.session['template'] = {
+            'checksum': checksum,
+            'version': version,
+        }
 
         response = HttpResponse(
             content_type=(
@@ -42,7 +48,10 @@ class GenerateXLSXTemplateView(LoginRequiredMixin, View):
             )
         )
         content_disposition = 'attachment; filename="{}"'.format(
-            template_file_name
+            '{}-{}.xlsx'.format(
+                template_path.stem,
+                version[:8]
+            )
         )
         response['Content-Disposition'] = content_disposition
 

@@ -8,7 +8,7 @@ from openpyxl.styles import (
 )
 
 from apps.submission.io.xlsx import (
-    XLSX_CHECKSUM, generate_template, sha256_checksum, style_range
+    generate_template, get_template_version, sha256_checksum, style_range
 )
 
 
@@ -55,7 +55,20 @@ def test_sha256_checksum():
 
     meta_filename = Path('apps/submission/fixtures/meta.xlsx')
     checksum = sha256_checksum(meta_filename)
-    assert checksum == XLSX_CHECKSUM
+    expected = (
+        'd7db1382d72db9bb5611b385d5fc8fde7321ff0c1229a012f58e79c610104a48'
+    )
+    assert checksum == expected
+
+
+def test_get_template_version():
+
+    meta_filename = Path('apps/submission/fixtures/meta.xlsx')
+    version = get_template_version(meta_filename)
+    expected = (
+        '6e13234a02f9225b4ca85e676ff20a4f7f1da0b3a7bf95fadf4c82989f78a249'
+    )
+    assert version == expected
 
 
 class XLSXTemplateTestCase(TestCase):
@@ -72,9 +85,7 @@ class XLSXTemplateTestCase(TestCase):
     def test_generate_template(self):
 
         pixel_template = self.tmpdir.join('pixel-template.xlsx')
-        checksum = generate_template(filename=pixel_template)
-
-        assert checksum == XLSX_CHECKSUM
+        checksum, version = generate_template(filename=pixel_template)
 
         wb = load_workbook(pixel_template)
         ws = wb.active
