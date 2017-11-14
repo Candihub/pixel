@@ -8,6 +8,10 @@ from openpyxl.worksheet.datavalidation import DataValidation
 
 from apps.core.models import OmicsArea, OmicsUnitType, Strain
 
+XLSX_CHECKSUM = (
+    'd7db1382d72db9bb5611b385d5fc8fde7321ff0c1229a012f58e79c610104a48'
+)
+
 
 def style_range(ws,
                 cell_range,
@@ -97,6 +101,11 @@ def generate_template(filename):
     ----------
     filename : str
         Pixel's XLSX template file name
+
+    Returns
+    -------
+    checksum : str
+        Pixel's XLSX template file checksum
     """
 
     wb = Workbook()
@@ -297,3 +306,5 @@ def generate_template(filename):
     ws.column_dimensions['D'].width = 30
 
     wb.save(filename)
+
+    return sha256_checksum(filename)
