@@ -5,5 +5,13 @@ a {
     &.secondary {
       background-color: $secondary-color;
     }
+
+    &.disabled {
+      @include button-disabled;
+
+      &.secondary {
+        background-color: $secondary-color;
+      }
+    }
   }
 }
