@@ -126,14 +126,14 @@ class GenerateXLSXTemplateViewTestCase(LoginRequiredTestMixin, TestCase):
         with open(template_path, 'wb') as template_file:
             template_file.write(response.content)
 
-        # 7561 <= file size < 7563
+        # 7561 <= file size < 7568
         self.assertGreaterEqual(
             os.stat(template_path).st_size,
             7561
         )
         self.assertLess(
             os.stat(template_path).st_size,
-            7563
+            7568
         )
 
         # Try to open it as an excel workbook and smoke test it
