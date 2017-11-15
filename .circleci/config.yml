@@ -103,13 +103,22 @@ workflows:
 
   pixel:
     jobs:
-      - frontend-build
+      - frontend-build:
+          filters:
+            tags:
+              only: /.*/
       - backend-build:
           requires:
             - frontend-build
+          filters:
+            tags:
+              only: /.*/
       - backend-test:
           requires:
             - backend-build
+          filters:
+            tags:
+              only: /.*/
       - hub:
           requires:
             - backend-test
