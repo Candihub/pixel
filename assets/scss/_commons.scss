@@ -1,5 +1,17 @@
 a {
   &.action {
     @include button;
+
+    &.secondary {
+      background-color: $secondary-color;
+    }
+
+    &.disabled {
+      @include button-disabled;
+
+      &.secondary {
+        background-color: $secondary-color;
+      }
+    }
   }
 }

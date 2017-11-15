@@ -1,3 +1,6 @@
+import hashlib
+from zipfile import ZipFile
+
 from django.utils.translation import ugettext as _
 from openpyxl import Workbook
 from openpyxl.comments import Comment
@@ -62,6 +65,51 @@ def style_range(ws,
                 cell.alignment = alignment
 
 
+def sha256_checksum(filename):
+    """
+    Calculate a sha256 checksum for a file
+
+    Parameters
+    ----------
+    filename : str
+        Path to the sha256 checksum target file
+
+    Returns
+    -------
+    checksum : str
+        Target file sha256 checksum (hexdigest)
+    """
+    m = hashlib.sha256()
+    with open(filename, 'rb') as f:
+        while True:
+            chunk = f.read(4096)
+            if not chunk:
+                break
+            m.update(chunk)
+    return m.hexdigest()
+
+
+def get_template_version(xlsx_filename):
+    """
+    Calculate template version based on CRC-32 of xlsx zip archive files
+
+    Parameters
+    ----------
+    filename : str
+        Path to the xlsx target file
+
+    Returns
+    -------
+    version : str
+        Target file version (hexdigest)
+    """
+    z = ZipFile(xlsx_filename)
+    m = hashlib.sha256()
+    # Concatenate all files CRCs to calculate a hash
+    m.update(b''.join(bytes(str(zi.CRC), 'utf-8') for zi in z.infolist()))
+    return m.hexdigest()
+
+
 def generate_template(filename):
     """
     Generate Pixel XLS template that will be used during the imporation
@@ -71,6 +119,13 @@ def generate_template(filename):
     ----------
     filename : str
         Pixel's XLSX template file name
+
+    Returns
+    -------
+    checksum : str
+        Pixel's XLSX template file checksum
+    version : str
+        Pixel's XLSX template file version
     """
 
     wb = Workbook()
@@ -271,3 +326,8 @@ def generate_template(filename):
     ws.column_dimensions['D'].width = 30
 
     wb.save(filename)
+
+    return (
+        sha256_checksum(filename),
+        get_template_version(filename)
+    )

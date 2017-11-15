@@ -1,12 +1,15 @@
-import pytest
+from pathlib import Path
 
+import pytest
 from django.test import TestCase
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import (
     Alignment, Border, Color, Font, PatternFill, Side, colors
 )
 
-from apps.submission.io.xlsx import generate_template, style_range
+from apps.submission.io.xlsx import (
+    generate_template, get_template_version, sha256_checksum, style_range
+)
 
 
 def test_style_range():
@@ -48,6 +51,26 @@ def test_style_range():
         assert ws[cell].alignment == center_vertical_alignment
 
 
+def test_sha256_checksum():
+
+    meta_filename = Path('apps/submission/fixtures/meta.xlsx')
+    checksum = sha256_checksum(meta_filename)
+    expected = (
+        'd7db1382d72db9bb5611b385d5fc8fde7321ff0c1229a012f58e79c610104a48'
+    )
+    assert checksum == expected
+
+
+def test_get_template_version():
+
+    meta_filename = Path('apps/submission/fixtures/meta.xlsx')
+    version = get_template_version(meta_filename)
+    expected = (
+        '6e13234a02f9225b4ca85e676ff20a4f7f1da0b3a7bf95fadf4c82989f78a249'
+    )
+    assert version == expected
+
+
 class XLSXTemplateTestCase(TestCase):
 
     fixtures = [
@@ -62,7 +85,7 @@ class XLSXTemplateTestCase(TestCase):
     def test_generate_template(self):
 
         pixel_template = self.tmpdir.join('pixel-template.xlsx')
-        generate_template(filename=pixel_template)
+        checksum, version = generate_template(filename=pixel_template)
 
         wb = load_workbook(pixel_template)
         ws = wb.active

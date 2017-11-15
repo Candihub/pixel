@@ -37,10 +37,41 @@
     </p>
   </div>
 
-  <form action="{% url 'submission:generate_template' %}" method="post">
-    {% csrf_token %}
-    <button type="submit" name="button" class="button">
-      {% trans "Download" %}
-    </button>
-  </form>
+  <div class="actions-wrapper">
+    <form action="{% url 'submission:generate_template' %}" method="post">
+      {% csrf_token %}
+      <button type="submit" name="button" class="button">
+        {% trans "Download" %}
+      </button>
+    </form>
+
+    <div class="checksum">
+      {% if check and checksum %}
+        <table>
+          <tbody>
+            <tr>
+              <th>
+                {% trans "version" %}
+              </th>
+              <td>
+                <code>{{ version }}</code>
+              </td>
+            </tr>
+            <tr>
+              <th>
+                {% trans "checksum" %}
+              </th>
+              <td>
+                <code>{{ checksum }}</code>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      {% else %}
+        <a href="?check=true" class="action secondary">
+          {% trans "Show file checksum" %}
+        </a>
+      {% endif %}
+    </div>
+  </div>
 {% endblock step_content %}

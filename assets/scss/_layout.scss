@@ -1,12 +1,11 @@
 .base-layout {
   @include xy-grid($direction: 'vertical', $wrap: 'false');;
-  justify-content: space-between;
+  // justify-content: space-between;
   min-height: 100vh;
 
   .main-navigation {
     @include top-bar-container;
     background-color: $header-background;
-    margin-bottom: 1rem;
 
     .logo {
       height: 2rem;
@@ -30,8 +29,41 @@
     }
   }
 
+  .messages-wrapper {
+    .messages {
+
+      .message {
+        @include callout-base;
+        margin-bottom: 0;
+        border-radius: 0;
+        border: 0;
+        text-align: center;
+
+        &.debug {}
+        &.info {
+          @include callout-style($secondary-color);
+          border-bottom: 3px solid lighten($secondary-color, 50%);
+        }
+        &.warning {
+          @include callout-style($warning-color);
+          border-bottom: 3px solid $warning-color;
+        }
+        &.success {
+          @include callout-style($success-color);
+          border-bottom: 3px solid $success-color;
+        }
+        &.error {
+          @include callout-style($alert-color);
+          border-bottom: 3px solid $alert-color;
+        }
+      }
+    }
+  }
+
   .page-header {
     @include xy-grid-container;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
   }
 
   .page-content {
