@@ -302,6 +302,39 @@ class OmicsUnitTestCase(TestCase):
         self.assertEqual(qs.count(), 1)
 
 
+class PixelSetTestCase(TestCase):
+
+    def test_can_create_pixel_set(self):
+
+        analysis = factories.AnalysisFactory()
+        pixels_file_path = '/foo/bar/lol'
+        pixel_set = factories.PixelSetFactory(
+            analysis=analysis,
+            pixels_file=pixels_file_path
+        )
+
+        self.assertEqual(pixel_set.analysis.id, analysis.id)
+        self.assertEqual(pixel_set.pixels_file, pixels_file_path)
+
+    def test_pixelset_upload_to(self):
+
+        pixeler = factories.PixelerFactory()
+        analysis = factories.AnalysisFactory(pixeler=pixeler)
+        pixel_set = factories.PixelSetFactory(analysis=analysis)
+
+        upload_path = models.PixelSet.pixelset_upload_to(
+            pixel_set,
+            'misc.csv'
+        )
+        expected = '{}/{}/pixelsets/{}'.format(
+            pixel_set.analysis.pixeler.id,
+            pixel_set.analysis.id,
+            pixel_set.id
+        )
+
+        self.assertEqual(upload_path, expected)
+
+
 class PixelTestCase(TestCase):
 
     def setUp(self):
