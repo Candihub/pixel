@@ -54,6 +54,19 @@
       </div>
     </nav>
 
+    {% block messages_wrapper %}
+    <div class="messages-wrapper">
+      <div class="messages">
+        {% for message in messages %}
+        <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+          {{ message }}
+        </div>
+        {% endfor %}
+        {% block messages %}{% endblock messages %}
+      </div>
+    </div>
+    {% endblock messages_wrapper %}
+
     <header class="page-header">
       {% block header %}{% endblock %}
     </header>
