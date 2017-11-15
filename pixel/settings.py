@@ -39,6 +39,7 @@ class Base(Configuration):
         'mptt',
         'tagulous',
         'django_extensions',
+        'viewflow',
 
         # Pixel apps
         'apps.core',
