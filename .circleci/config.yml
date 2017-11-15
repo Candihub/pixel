@@ -41,7 +41,11 @@ jobs:
             fi
       - run:
           name: Build container
-          command: docker build --pull --no-cache -t pixel .
+          command: |
+            docker build --pull --no-cache -t pixel \
+                --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
+                --build-arg VCS_REF=`git rev-parse --short HEAD` \
+                --build-arg VERSION=`cat VERSION` .
       - run:
           name: Save container
           command: |
