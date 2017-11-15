@@ -111,13 +111,23 @@ class AnalysisFactory(DjangoModelFactory):
         django_get_or_create = ('secondary_data', 'pixeler',)
 
 
+class PixelSetFactory(DjangoModelFactory):
+
+    pixels_file = Faker('file_path', depth=1, category=None, extension=None)
+    description = Faker('text', max_nb_chars=300)
+    analysis = SubFactory(AnalysisFactory)
+
+    class Meta:
+        model = 'core.PixelSet'
+
+
 class PixelFactory(DjangoModelFactory):
 
     value = Faker('pyfloat')
     quality_score = Faker('pyfloat', left_digits=0)
     omics_unit = SubFactory(OmicsUnitFactory)
-    analysis = SubFactory(AnalysisFactory)
+    pixel_set = SubFactory(PixelSetFactory)
 
     class Meta:
         model = 'core.Pixel'
-        django_get_or_create = ('value', 'omics_unit', 'analysis')
+        django_get_or_create = ('value', 'omics_unit', 'pixel_set')

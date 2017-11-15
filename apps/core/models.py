@@ -196,6 +196,41 @@ class OmicsUnit(UUIDModelMixin, models.Model):
                 )
 
 
+class PixelSet(UUIDModelMixin, models.Model):
+    """A pixelset is a collection of pixels for an analysis
+    """
+
+    def pixelset_upload_to(instance, filename):
+        return '{}/{}/pixelsets/{}'.format(
+            instance.analysis.pixeler.id,
+            instance.analysis.id,
+            instance.id
+        )
+
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+
+    pixels_file = models.FileField(
+        _("Pixels file"),
+        upload_to=pixelset_upload_to,
+    )
+
+    description = models.TextField(
+        _("Description"),
+        blank=True,
+    )
+
+    analysis = models.ForeignKey(
+        'Analysis',
+        on_delete=models.CASCADE,
+        related_name='pixelsets',
+        related_query_name='pixelset',
+    )
+
+
 class Pixel(UUIDModelMixin, models.Model):
     """A pixel is the smallest measurement unit for an Omics study
     """
@@ -224,8 +259,8 @@ class Pixel(UUIDModelMixin, models.Model):
         related_query_name='pixel',
     )
 
-    analysis = models.ForeignKey(
-        'Analysis',
+    pixel_set = models.ForeignKey(
+        'PixelSet',
         on_delete=models.CASCADE,
         related_name='pixels',
         related_query_name='pixel',

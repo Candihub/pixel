@@ -4,7 +4,7 @@ from django.db import IntegrityError, transaction
 from django.test import TestCase
 
 from apps.data.factories import EntryFactory, RepositoryFactory
-from .. import models
+from .. import models, factories
 
 
 class SpeciesTestCase(TestCase):
@@ -341,6 +341,11 @@ class PixelTestCase(TestCase):
         )
         self.analysis.experiments.add(experiment)
 
+        # Pixel set
+        self.pixel_set = factories.PixelSetFactory(
+            analysis=self.analysis
+        )
+
     def test_can_create_pixel(self):
 
         qs = models.Pixel.objects.all()
@@ -352,13 +357,13 @@ class PixelTestCase(TestCase):
             value=value,
             quality_score=quality_score,
             omics_unit=self.omics_unit,
-            analysis=self.analysis,
+            pixel_set=self.pixel_set,
         )
 
         self.assertEqual(pixel.value, value)
         self.assertEqual(pixel.quality_score, quality_score)
         self.assertEqual(pixel.omics_unit.id, self.omics_unit.id)
-        self.assertEqual(pixel.analysis.id, self.analysis.id)
+        self.assertEqual(pixel.pixel_set.id, self.pixel_set.id)
 
         self.assertEqual(qs.count(), 1)
 
