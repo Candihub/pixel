@@ -100,6 +100,41 @@ class DownloadXLSXTemplateViewTestCase(LoginRequiredTestMixin, TestCase):
         self.assertEqual(response.context.get('version'), None)
         self.assertEqual(response.context.get('checksum'), None)
 
+    def test_context_data_with_check_param_but_no_prior_download(self):
+
+        self.login()
+        url = '{}?check=true'.format(self.url)
+        response = self.client.get(url)
+
+        self.assertContains(
+            response,
+            """
+                <div class="message warning">
+                Download the meta.xlsx template first. Then you will be able
+                to display its checksum.
+                </div>
+            """,
+            html=True
+        )
+        self.assertContains(
+            response,
+            '<a href="?check=true" class="action secondary">',
+        )
+        self.assertNotContains(
+            response,
+            """
+            <div class="checksum">
+            <table>
+              <tbody>
+                <tr>
+                  <th>
+                    version
+                  </th>
+                  <td>
+            """,
+            html=True
+        )
+
     def test_context_data_after_download(self):
 
         self.login()
