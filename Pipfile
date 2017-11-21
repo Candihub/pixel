@@ -26,6 +26,7 @@ pytest-cov = "*"
 "flake8" = "*"
 coveralls = "*"
 factory-boy = "*"
+django-debug-toolbar = "*"
 
 
 [requires]
