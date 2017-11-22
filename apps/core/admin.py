@@ -62,6 +62,16 @@ class OmicsUnitTypeAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(models.PixelSet)
+class PixelSetAdmin(admin.ModelAdmin):
+    list_display = (
+        'get_short_uuid', 'description', 'analysis'
+    )
+    list_filter = (
+        'analysis__experiments__omics_area',
+    )
+
+
 @admin.register(models.Pixel)
 class PixelAdmin(admin.ModelAdmin):
     list_display = (
@@ -69,11 +79,11 @@ class PixelAdmin(admin.ModelAdmin):
         'get_analysis_description',
     )
     list_filter = (
-        'omics_unit__type', 'analysis__experiments__omics_area'
+        'omics_unit__type', 'pixel_set__analysis__experiments__omics_area'
     )
 
     def get_analysis_description(self, obj):
-        return obj.analysis.description
+        return obj.pixel_set.analysis.description
     get_analysis_description.short_description = 'Analysis'
 
 

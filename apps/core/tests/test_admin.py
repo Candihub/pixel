@@ -75,5 +75,5 @@ class PixelAdminTestCase(TestCase):
     def test_get_analysis_description(self):
         self.assertEqual(
             self.Pixel_admin.get_analysis_description(self.Pixel),
-            self.Pixel.analysis.description
+            self.Pixel.pixel_set.analysis.description
         )

@@ -4,7 +4,7 @@ from django.db import IntegrityError, transaction
 from django.test import TestCase
 
 from apps.data.factories import EntryFactory, RepositoryFactory
-from .. import models
+from .. import models, factories
 
 
 class SpeciesTestCase(TestCase):
@@ -302,6 +302,39 @@ class OmicsUnitTestCase(TestCase):
         self.assertEqual(qs.count(), 1)
 
 
+class PixelSetTestCase(TestCase):
+
+    def test_can_create_pixel_set(self):
+
+        analysis = factories.AnalysisFactory()
+        pixels_file_path = '/foo/bar/lol'
+        pixel_set = factories.PixelSetFactory(
+            analysis=analysis,
+            pixels_file=pixels_file_path
+        )
+
+        self.assertEqual(pixel_set.analysis.id, analysis.id)
+        self.assertEqual(pixel_set.pixels_file, pixels_file_path)
+
+    def test_pixelset_upload_to(self):
+
+        pixeler = factories.PixelerFactory()
+        analysis = factories.AnalysisFactory(pixeler=pixeler)
+        pixel_set = factories.PixelSetFactory(analysis=analysis)
+
+        upload_path = models.PixelSet.pixelset_upload_to(
+            pixel_set,
+            'misc.csv'
+        )
+        expected = '{}/{}/pixelsets/{}'.format(
+            pixel_set.analysis.pixeler.id,
+            pixel_set.analysis.id,
+            pixel_set.id
+        )
+
+        self.assertEqual(upload_path, expected)
+
+
 class PixelTestCase(TestCase):
 
     def setUp(self):
@@ -341,6 +374,11 @@ class PixelTestCase(TestCase):
         )
         self.analysis.experiments.add(experiment)
 
+        # Pixel set
+        self.pixel_set = factories.PixelSetFactory(
+            analysis=self.analysis
+        )
+
     def test_can_create_pixel(self):
 
         qs = models.Pixel.objects.all()
@@ -352,13 +390,13 @@ class PixelTestCase(TestCase):
             value=value,
             quality_score=quality_score,
             omics_unit=self.omics_unit,
-            analysis=self.analysis,
+            pixel_set=self.pixel_set,
         )
 
         self.assertEqual(pixel.value, value)
         self.assertEqual(pixel.quality_score, quality_score)
         self.assertEqual(pixel.omics_unit.id, self.omics_unit.id)
-        self.assertEqual(pixel.analysis.id, self.analysis.id)
+        self.assertEqual(pixel.pixel_set.id, self.pixel_set.id)
 
         self.assertEqual(qs.count(), 1)
 
