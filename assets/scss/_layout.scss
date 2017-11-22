@@ -1,6 +1,5 @@
 .base-layout {
   @include xy-grid($direction: 'vertical', $wrap: 'false');;
-  // justify-content: space-between;
   min-height: 100vh;
 
   .main-navigation {
@@ -62,12 +61,15 @@
 
   .page-header {
     @include xy-grid-container;
+    width: 100%;
     margin-top: 1rem;
     margin-bottom: 2rem;
   }
 
   .page-content {
     @include xy-grid-container;
+    flex: 1;
+    width: 100%;
   }
 
   .page-footer {
