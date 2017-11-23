@@ -68,7 +68,7 @@
 
     .step-title {
       @include tabs-title;
-      width: 25%;
+      width: 20%;
       text-align: center;
       text-transform: uppercase;
       font-size: 1.2rem;
@@ -76,7 +76,7 @@
       a {
         i {
           font-size: 1.2rem;
-          margin-right: 1rem;
+          margin-right: 0.7rem;
         }
       }
 

@@ -1,55 +1,48 @@
 {% extends "submission/base.html" %}
+
 {% load i18n viewflow %}
 
-{% block content %}
-<div class="left-panel">
-  <div class="card">
-    <div class="card-content">
-      <div class="card-title">{{ process.summary }}</div>
-      <table class="table bordered highlight">
-        <thead>
-          <th>{% trans '#' %}</th>
-          <th>{% trans 'Description' %}</th>
-          <th>{% trans 'Owner' %}</th>
-          <th class="hide-on-small-only">{% trans 'Started' %}</th>
-          <th class="hide-on-small-only">{% trans 'Finished' %}</th>
-          <th>{% trans 'Status' %}</th>
-        </thead>
-        <tbody>
-          {% for task in task_list %}
-          <tr>
-            <td>
-              {% flowurl task user=request.user as task_url %}
-              {% if task_url %}
-              <a href="{{ task_url }}">
-                {{ task.process.id }}/{{ task.id }}
-              </a>
-              {% else %}
-              {{ task.process.id }}/{{ task.id }}
-              {% endif %}
-            </td>
-            <td>
-              {% if task_url %}
-              <a href="{{ task_url }}">
-                {{ task.summary|default:task.flow_task }}
-              </a>
-              {% else %}
-              {{ task.summary|default:task.flow_task }}
-              {% endif %}
-            </td>
-            <td>{{ task.owner|default:"" }}</td>
-            <td class="hide-on-small-only">{{ task.created }}</td>
-            <td class="hide-on-small-only">{{ task.finished|default:"" }}</td>
-            <td>{{ task.get_status_display }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    <div class="card-action right-align">
-      <a class="btn-flat black-text {% if process.status != 'NEW' %}disabled{% endif %}"
-      href="{% flowurl process 'action_cancel' %}">{% trans 'Cancel' %}</a>
-    </div>
-  </div>
-</div>
+{% block title %}{% trans "Submission details" %} — #{{ process.id }}{% endblock %}
+{% block body_class %}{{ block.super }} detail{% endblock %}
+
+{% block header %}
+<h1>
+  {{ process.label }}
+  <span class="subheader">
+    (submission #{{ process.id }})
+  </span>
+</h1>
 {% endblock %}
+
+{% block step_list %}
+  {% include "submission/partials/step-tabs.html" with tasks=task_list %}
+{% endblock step_list %}
+
+{% block step_content %}
+  {% if not process.imported %}
+  <div class="disclaimer">
+    <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+    <h4>{% trans "Pixels not imported" %}</h4>
+    {% blocktrans %}
+      This submission has not been fully achieved. You need to click on the task
+      names above to pursue your submission.
+    {% endblocktrans %}
+  </div>
+  {% endif %}
+
+  <table>
+    <tbody>
+      <tr>
+        <th>{% trans "Archive" %}</th>
+        <td>{{ process.archive|default:'N/A' }}</td>
+      </tr>
+    </tbody>
+  </table>
+{% endblock step_content %}
+
+{% block step_navigation %}
+  <a href="{% url 'submission:index' %}">
+    <i class="fa fa-angle-double-left" aria-hidden="true"></i>
+    {% trans "back to submissions" %}
+  </a>
+{% endblock step_navigation %}

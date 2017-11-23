@@ -16,9 +16,11 @@ class DownloadXLSXTemplateView(UpdateProcessView):
     def get_context_data(self, **kwargs):
 
         check = True if self.request.GET.get('check') else False
+        process = self.get_object()
 
         ctx = super().get_context_data(**kwargs)
         ctx.update({
+            'task_list': process.task_set.all().order_by('created'),
             'step': 'download',
             'check': check,
         })

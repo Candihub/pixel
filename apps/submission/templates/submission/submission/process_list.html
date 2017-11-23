@@ -5,6 +5,9 @@
 {% block title %}{% trans "Submissions" %}{% endblock %}
 {% block body_class %}{{ block.super }} list{% endblock %}
 
+{% block header %}
+<h1>{% trans "Submissions" %}</h1>
+{% endblock %}
 
 {% block content %}
   <div class="new">
@@ -45,8 +48,12 @@
             </a>
           </td>
           <td class="actions">
-            <a href="#" class="action disabled" title="{% trans "Remove this process" %}">
-              <i class="fa fa-trash" aria-hidden="true"></i>
+            <a
+              href="{% url 'submission:detail' process.pk %}"
+              class="action secondary" 
+              title="{% trans "Checkout submission details" %}"
+            >
+              <i class="fa fa-info-circle" aria-hidden="true"></i>
             </a>
           </td>
         </tr>
