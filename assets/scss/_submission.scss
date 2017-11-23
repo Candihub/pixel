@@ -52,6 +52,17 @@
     }
   }
 
+  &.start {
+    .form-wrapper {
+      @include xy-grid;
+      @include flex-align($x: left);
+
+      form {
+        @include xy-cell($size: 50%);
+      }
+    }
+  }
+
   .step-tabs {
     @include tabs-container;
 

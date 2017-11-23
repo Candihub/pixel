@@ -5,14 +5,23 @@
 {% block title %}{% trans "Start a new submission" %}{% endblock %}
 {% block body_class %}{{ block.super }} start{% endblock %}
 
+{% block header %}
+<h1>{% trans "New submission" %}</h1>
+{% endblock %}
 
 {% block content %}
-  <div class="actions-wrapper">
+  <div class="form-wrapper">
     <form action="" method="post">
       {% csrf_token %}
       {% include "foundation/form.html" %}
-       {{ activation.management_form }}
-      <button type="submit" name="_start" class="button">{% trans "Start" %}</button>
+      {{ activation.management_form }}
+      <button
+        type="submit"
+        name="_start"
+        class="button"
+      >
+        {% trans "Start" %}
+      </button>
     </form>
   </div>
 {% endblock content %}
