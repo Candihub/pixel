@@ -2,32 +2,24 @@ from pathlib import PurePath
 from tempfile import mkdtemp
 
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
 from django.utils.translation import ugettext as _
-from django.views.generic import TemplateView, View
+from viewflow.flow.views import UpdateProcessView
 
 from .io.xlsx import generate_template
 
 
-class DownloadXLSXTemplateView(LoginRequiredMixin, TemplateView):
+class DownloadXLSXTemplateView(UpdateProcessView):
 
     template_name = 'submission/download_xlsx_template.html'
 
-    def get(self, request, *args, **kwargs):
-        check = True if request.GET.get('check') else False
-        context = self.get_context_data(check=check, **kwargs)
-        return self.render_to_response(context)
+    def get_context_data(self, **kwargs):
 
-    def get_context_data(self, check=False, **kwargs):
-        # TODO
-        # reverse the upload url
-        next_step_url = '#'
+        check = True if self.request.GET.get('check') else False
 
         ctx = super().get_context_data(**kwargs)
         ctx.update({
             'step': 'download',
-            'next_step_url': next_step_url,
             'check': check,
         })
 
@@ -49,14 +41,17 @@ class DownloadXLSXTemplateView(LoginRequiredMixin, TemplateView):
 
         return ctx
 
-
-class GenerateXLSXTemplateView(LoginRequiredMixin, View):
-
     def post(self, request, *args, **kwargs):
 
         template_file_name = 'meta.xlsx'
         template_path = PurePath(mkdtemp(), template_file_name)
         checksum, version = generate_template(filename=template_path)
+
+        # Update process
+        process = self.get_object()
+        process.downloaded = True
+        process.save()
+        self.activation_done()
 
         # Save file checksum in the session
         request.session['template'] = {

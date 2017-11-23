@@ -2,18 +2,18 @@
 
 {% load i18n %}
 
-{% block title %}{% trans "Submit new pixels" %}{% endblock %}
+{% block title %}{% trans "Pixels submission" %}{% endblock %}
 {% block body_class %}{{ block.super }} submission{% endblock %}
 
 {% block header %}
-<h1>{% trans "Submit new pixels" %}</h1>
+<h1>{% trans "Pixels submission" %}</h1>
 {% endblock %}
 
 {% block content %}
   <ul class="step-tabs">
     <li class="step-title{% if step == 'download' %} is-active{% endif %}">
       <a
-        href="{% url 'submission:download' %}"
+        href="#"
         {% if step == 'download' %} aria-selected="true"{% endif %}
       >
         <i class="fa fa-file-excel-o" aria-hidden="true"></i>

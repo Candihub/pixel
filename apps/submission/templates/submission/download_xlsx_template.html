@@ -38,8 +38,9 @@
   </div>
 
   <div class="actions-wrapper">
-    <form action="{% url 'submission:generate_template' %}" method="post">
+    <form method="post">
       {% csrf_token %}
+      {{ activation.management_form }}
       <button type="submit" name="button" class="button">
         {% trans "Download" %}
       </button>

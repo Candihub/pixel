@@ -1,16 +1,12 @@
-from django.conf.urls import url
+from django.conf.urls import include, url
+from viewflow.flow.viewset import FlowViewSet
 
-from . import views
+from . import flows
+
 
 urlpatterns = [
     url(
-        r'^download/$',
-        views.DownloadXLSXTemplateView.as_view(),
-        name='download'
-    ),
-    url(
-        r'^download/template$',
-        views.GenerateXLSXTemplateView.as_view(),
-        name='generate_template'
+        r'^',
+        include(FlowViewSet(flows.SubmissionFlow).urls),
     ),
 ]
