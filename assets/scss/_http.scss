@@ -1,10 +1,22 @@
 .http {
-
   background: #222;
   color: $white;
 
-  &.400 {}
-  &.403 {}
-  &.404 {}
-  &.500 {}
+  .page-footer {
+    color: $body-font-color;
+
+    a {
+      color: $footer-link-color;
+    }
+  }
+
+  &.bad-request {}
+
+  &.forbidden {
+    background: $alert-color;
+  }
+
+  &.not-found {}
+
+  &.server-error {}
 }
