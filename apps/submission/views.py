@@ -1,9 +1,7 @@
 from pathlib import PurePath
 from tempfile import mkdtemp
 
-from django.contrib import messages
 from django.http import HttpResponse
-from django.utils.translation import ugettext as _
 from viewflow.flow.views import UpdateProcessView
 
 from .io.xlsx import generate_template
@@ -15,31 +13,12 @@ class DownloadXLSXTemplateView(UpdateProcessView):
 
     def get_context_data(self, **kwargs):
 
-        check = True if self.request.GET.get('check') else False
         process = self.get_object()
 
         ctx = super().get_context_data(**kwargs)
         ctx.update({
             'task_list': process.task_set.all().order_by('created'),
-            'step': 'download',
-            'check': check,
         })
-
-        meta = self.request.session.get('template')
-        if meta:
-            ctx.update({
-                'version': meta.get('version'),
-                'checksum': meta.get('checksum'),
-            })
-
-        if check and not meta:
-            messages.warning(
-                self.request,
-                _(
-                    "Download the meta.xlsx template first. "
-                    "Then you will be able to display its checksum."
-                )
-            )
 
         return ctx
 
@@ -49,17 +28,12 @@ class DownloadXLSXTemplateView(UpdateProcessView):
         template_path = PurePath(mkdtemp(), template_file_name)
         checksum, version = generate_template(filename=template_path)
 
-        # Update process
         process = self.get_object()
         process.downloaded = True
+        process.template_checksum = checksum
+        process.template_version = version
         process.save()
         self.activation_done()
-
-        # Save file checksum in the session
-        request.session['template'] = {
-            'checksum': checksum,
-            'version': version,
-        }
 
         response = HttpResponse(
             content_type=(

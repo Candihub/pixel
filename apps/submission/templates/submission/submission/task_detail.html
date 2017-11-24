@@ -15,7 +15,7 @@
 {% endblock %}
 
 {% block step_content %}
-<table class="task detail start">
+<table class="task detail">
   <body>
     <tr>
       <th>
@@ -41,6 +41,7 @@
         {{ activation.task.status }}
       </td>
     </tr>
+    {% block step_details %}{% endblock step_details %}
   </body>
 </table>
 {% endblock step_content %}

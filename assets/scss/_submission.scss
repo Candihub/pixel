@@ -104,25 +104,21 @@
     @include flex-align(right, middle);
   }
 
+  table.task.detail {
+    tbody {
+      tr {
+        th {
+          text-align: left;
+        }
+      }
+    }
+  }
+
   &.download {
     .actions-wrapper {
       @include xy-grid($direction: horizontal, $wrap: false);
 
       form {}
-
-      .checksum {
-        padding-left: 1rem;
-
-        table {
-          th {
-            text-align: right;
-          }
-          td {
-            padding-left: 1rem;
-          }
-        }
-      }
-
     }
   }
 }

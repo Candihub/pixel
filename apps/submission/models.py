@@ -25,6 +25,20 @@ class SubmissionProcess(Process):
         upload_to=archive_upload_to,
     )
 
+    template_checksum = models.CharField(
+        _("Template checksum"),
+        help_text=_("Downloaded XLSX template checksum"),
+        max_length=64,
+        blank=True,
+    )
+
+    template_version = models.CharField(
+        _("Template version"),
+        help_text=_("Downloaded XLSX template version"),
+        max_length=64,
+        blank=True,
+    )
+
     downloaded = models.BooleanField(default=False)
 
     uploaded = models.BooleanField(default=False)
