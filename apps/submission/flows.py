@@ -34,6 +34,3 @@ class SubmissionFlow(Flow):
     )
 
     end = flow.End()
-
-    def send_hello_world_request(self, activation):
-        print(activation.process.label)
