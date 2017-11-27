@@ -1,0 +1,15 @@
+{% extends "submission/submission/task_detail.html" %}
+
+{% load i18n %}
+
+{% block step_details %}
+<tr>
+  <th>{% trans "Submitted archive" %}</th>
+  <td>
+    <a href="{{ activation.process.archive.url }}">
+      <i class="fa fa-download" aria-hidden="true"></i>
+      Download
+    </a>
+  </td>
+</tr>
+{% endblock step_details %}
