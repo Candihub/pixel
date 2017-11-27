@@ -1,0 +1,48 @@
+{% extends "submission/base.html" %}
+
+{% load i18n viewflow %}
+
+{% block title %}{% trans "Submission details" %} — #{{ process.id }}{% endblock %}
+{% block body_class %}{{ block.super }} detail{% endblock %}
+
+{% block header %}
+<h1>
+  {{ process.label }}
+  <span class="subheader">
+    (submission #{{ process.id }})
+  </span>
+</h1>
+{% endblock %}
+
+{% block step_list %}
+  {% include "submission/partials/step-tabs.html" with tasks=task_list %}
+{% endblock step_list %}
+
+{% block step_content %}
+  {% if not process.imported %}
+  <div class="disclaimer">
+    <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+    <h4>{% trans "Pixels not imported" %}</h4>
+    {% blocktrans %}
+      This submission has not been fully achieved. You need to click on the task
+      names above to pursue your submission.
+    {% endblocktrans %}
+  </div>
+  {% endif %}
+
+  <table>
+    <tbody>
+      <tr>
+        <th>{% trans "Archive" %}</th>
+        <td>{{ process.archive|default:'N/A' }}</td>
+      </tr>
+    </tbody>
+  </table>
+{% endblock step_content %}
+
+{% block step_navigation %}
+  <a href="{% url 'submission:index' %}">
+    <i class="fa fa-angle-double-left" aria-hidden="true"></i>
+    {% trans "back to submissions" %}
+  </a>
+{% endblock step_navigation %}

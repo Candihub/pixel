@@ -1,50 +1,33 @@
 {% extends "base.html" %}
 
-{% load i18n %}
+{% load i18n viewflow %}
 
-{% block title %}{% trans "Submit new pixels" %}{% endblock %}
+{% block title %}{% trans "Pixels submission" %}{% endblock %}
 {% block body_class %}{{ block.super }} submission{% endblock %}
 
 {% block header %}
-<h1>{% trans "Submit new pixels" %}</h1>
+<h1>
+  {% trans "Pixel submission" %}
+  {% if process %}
+  #{{ process.id }}
+  {% else %}
+  #{{ activation.process.id }}
+  {% endif %}
+</h1>
 {% endblock %}
 
 {% block content %}
-  <ul class="step-tabs">
-    <li class="step-title{% if step == 'download' %} is-active{% endif %}">
-      <a
-        href="{% url 'submission:download' %}"
-        {% if step == 'download' %} aria-selected="true"{% endif %}
-      >
-        <i class="fa fa-file-excel-o" aria-hidden="true"></i>
-        {% trans "Download template" %}
-      </a>
-    </li>
-    <li class="step-title">
-      <a href="#">
-        <i class="fa fa-upload" aria-hidden="true"></i>
-        {% trans "Upload archive" %}
-      </a>
-    </li>
-    <li class="step-title">
-      <a href="#">
-        <i class="fa fa-check-square-o" aria-hidden="true"></i>
-        {% trans "Validate pixels" %}
-      </a>
-    </li>
-    <li class="step-title">
-      <a href="#">
-        <i class="fa fa-database" aria-hidden="true"></i>
-        {% trans "Import pixels" %}
-      </a>
-    </li>
-  </ul>
+  {% block step_list %}
+    {% include "submission/partials/step-tabs.html" with tasks=activation.process.task_set.all.reverse %}
+  {% endblock %}
 
   <div class="step-content">
     {% block step_content %}{% endblock step_content %}
   </div>
 
+  {% block step_navigation %}
   <ul class="step-navigation">
+
     {% if previous_step_url %}
     <li>
       <a href="{{ previous_step_url }}">
@@ -62,4 +45,5 @@
     </li>
     {% endif %}
   </ul>
+  {% endblock %}
 {% endblock content %}

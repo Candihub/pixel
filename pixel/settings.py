@@ -39,6 +39,7 @@ class Base(Configuration):
         'mptt',
         'tagulous',
         'django_extensions',
+        'viewflow',
 
         # Pixel apps
         'apps.core',
@@ -138,6 +139,18 @@ class Base(Configuration):
 class Development(Base):
 
     DEBUG = True
+
+    INSTALLED_APPS = Base.INSTALLED_APPS + [
+        'debug_toolbar',
+    ]
+
+    MIDDLEWARE = Base.MIDDLEWARE + [
+        'debug_toolbar.middleware.DebugToolbarMiddleware',
+    ]
+
+    DEBUG_TOOLBAR_CONFIG = {
+        "SHOW_TOOLBAR_CALLBACK": lambda request: True,
+    }
 
 
 class Staging(Base):

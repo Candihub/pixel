@@ -15,3 +15,24 @@ a {
     }
   }
 }
+
+h1 {
+  span.subheader {
+    font-size: 2rem;
+  }
+}
+
+.disclaimer {
+  @include callout($warning-color);
+
+  i.fa {
+    float: left;
+    padding: 0 1rem 1rem 0;
+    font-size: 3rem;
+    color: rgba($warning-color, 0.6);
+  }
+}
+
+.empty {
+  font-style: italic;
+}

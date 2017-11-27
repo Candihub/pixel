@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block title %}{% trans "Error 500" %}{% endblock %}
-{% block body_class %}{{ block.super }} http 500{% endblock %}
+{% block body_class %}{{ block.super }} http server-error{% endblock %}
 
 {% block header %}
 <h1>{% trans "Server Error" %}</h1>

@@ -1,6 +1,11 @@
-from django.test import TestCase
-from django.test.utils import isolate_apps
+import pytest
 
+from django.test import TestCase, override_settings
+from django.test.utils import isolate_apps
+from django.urls import reverse, reverse_lazy
+from django.utils.translation import ugettext as _
+
+from apps.core.factories import PIXELER_PASSWORD, PixelerFactory
 from apps.core.tests.mixins.models import ModelWithStandardID, ModelWithUUID
 
 
@@ -32,3 +37,79 @@ class UUIDModelMixinTestCase(TestCase):
         expected = m.id.hex[:7]
 
         self.assertEqual(str(m), expected)
+
+
+class LoginRequiredTestMixin(object):
+    """
+    A mixin to test views with the login_required decorator.
+
+    Nota bene: you must at least define an url property
+    """
+
+    method = 'get'
+    template = None
+    url = None
+
+    def setUp(self):
+        """Create simple user (not staff nor superuser)"""
+        self.simple_user = PixelerFactory(
+            is_active=True,
+            is_staff=False,
+            is_superuser=False,
+        )
+
+    def login(self):
+        """User login shortcut"""
+        return self.client.login(
+            username=self.simple_user.username,
+            password=PIXELER_PASSWORD,
+        )
+
+    def test_login_required(self):
+
+        if self.url is None:
+            raise NotImplementedError(
+                _(
+                    "You should define an url when your TestCase inherits from"
+                    " the LoginRequiredTestCase"
+                )
+            )
+
+        # User is not logged in, she should be redirected to the login form
+        response = self.client.get(self.url)
+        expected_url = '{}?next={}'.format(reverse('login'), self.url)
+        self.assertRedirects(response, expected_url)
+
+        # Log an active user in and then test we are not redirected
+        self.assertTrue(self.login())
+
+        response = eval('self.client.{}(self.url)'.format(self.method))
+        self.assertEqual(response.status_code, 200)
+
+        if self.template is not None:
+            self.assertTemplateUsed(response, self.template)
+
+
+@isolate_apps('apps.core.tests.mixins')
+class LoginRequiredTestMixinTestCase(TestCase):
+
+    def test_declaring_url_attribute_is_mandatory(self):
+
+        class FooViewTestCase(LoginRequiredTestMixin):
+            pass
+
+        foo = FooViewTestCase()
+
+        with pytest.raises(NotImplementedError):
+            foo.test_login_required()
+
+
+class FooViewWithLoginRequiredTestMixinTestCase(LoginRequiredTestMixin,
+                                                TestCase):
+
+    template = 'base.html'
+    url = reverse_lazy('foo')
+
+    @override_settings(ROOT_URLCONF='apps.core.tests.mixins.urls')
+    def test_login_required(self):
+        super().test_login_required()

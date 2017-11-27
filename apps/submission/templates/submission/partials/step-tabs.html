@@ -1,0 +1,20 @@
+{% load i18n viewflow %}
+
+<ul class="step-tabs">
+  {% for task in tasks %}
+  {% flowurl task user=request.user as task_url %}
+  <li class="step-title{% if task == activation.task %} is-active{% endif %}">
+    <a
+      href="{{ task_url }}"
+      {% if task == activation.task %} aria-selected="true"{% endif %}
+    >
+      {% if task.finished %}
+      <i class="fa fa-check-circle" aria-hidden="true"></i>
+      {% elif task.created %}
+      <i class="fa fa-pause-circle" aria-hidden="true"></i>
+      {% endif %}
+      {{ task.flow_task }}
+    </a>
+  </li>
+  {% endfor %}
+</ul>

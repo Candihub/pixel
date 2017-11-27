@@ -1,14 +1,11 @@
-from django.conf import settings
 from django.conf.urls import include, url
-from django.contrib import admin
 from django.contrib.auth import urls as auth_urls
+
+from . import views
 
 
 urlpatterns = [
-    url(
-        r'^admin/',
-        include(admin.site.urls)
-    ),
+    # URLs/Views required for testing
     url(
         r'^accounts/',
         include(auth_urls)
@@ -21,11 +18,10 @@ urlpatterns = [
         r'^submission/',
         include('apps.submission.urls', namespace='submission')
     ),
+    # Test app views
+    url(
+        r'^foo$',
+        views.FooView.as_view(),
+        name='foo'
+    ),
 ]
-
-if settings.DEBUG:
-    import debug_toolbar  # noqa
-
-    urlpatterns = [
-        url(r'^__debug__/', include(debug_toolbar.urls)),
-    ] + urlpatterns

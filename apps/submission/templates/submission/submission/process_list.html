@@ -1,0 +1,70 @@
+{% extends "submission/base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Submissions" %}{% endblock %}
+{% block body_class %}{{ block.super }} list{% endblock %}
+
+{% block header %}
+<h1>{% trans "Submissions" %}</h1>
+{% endblock %}
+
+{% block content %}
+  <div class="new">
+    <div class="info">
+      {% blocktrans %}
+        Start importing a new dataset in a few steps by clicking the button
+        below. You will be guided at each step of the importation workflow,
+        but if you get lost, read our documentation or contact us.
+      {% endblocktrans %}
+    </div>
+    <div class="start">
+      <a href="{% url 'submission:start' %}" class="action">
+        <i class="fa fa-plus-circle" aria-hidden="true"></i>
+        {% trans "Import a new dataset" %}
+      </a>
+    </div>
+  </div>
+
+  <h3>{% trans "History" %}</h3>
+
+  <table class="process-list">
+    <thead>
+      <tr>
+        <th>{% trans "Date" %}</th>
+        <th>{% trans "Label" %}</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for process in process_list %}
+        <tr class="process">
+          <td class="created-at">
+            {{ process.created }}
+          </td>
+          <td class="label">
+            <a href="{% url 'submission:detail' process.pk %}">
+              {{ process.label }}
+            </a>
+          </td>
+          <td class="actions">
+            <a
+              href="{% url 'submission:detail' process.pk %}"
+              class="action secondary" 
+              title="{% trans "Checkout submission details" %}"
+            >
+              <i class="fa fa-info-circle" aria-hidden="true"></i>
+            </a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="3" class="empty">
+            {% trans "No dataset has been submitted yet." %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock content %}

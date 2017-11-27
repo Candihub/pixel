@@ -1,11 +1,74 @@
 .submission {
 
+  &.list {
+    .new {
+      @include callout($info-color);
+      @include xy-grid;
+      margin-bottom: 3rem;
+
+      .info,
+      .start {
+        @include xy-cell($size: 50%);
+      }
+
+      .start {
+        @include flex;
+        @include flex-align($x: center, $y: middle);
+
+        a.action {
+          margin: 0;
+        }
+      }
+    }
+
+    .process-list {
+      @include table($stripe: none);
+      @include table-hover;
+
+      thead {
+        th:last-child {
+          text-align:right;
+        }
+      }
+
+      tbody {
+        .process {
+          .created-at {
+            width: 20%;
+          }
+
+          .label {}
+
+          .actions {
+            width: 15%;
+            text-align: right;
+
+            a.action {
+              margin-bottom: 0;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  &.start {
+    .form-wrapper {
+      @include xy-grid;
+      @include flex-align($x: left);
+
+      form {
+        @include xy-cell($size: 50%);
+      }
+    }
+  }
+
   .step-tabs {
     @include tabs-container;
 
     .step-title {
       @include tabs-title;
-      width: 25%;
+      width: 20%;
       text-align: center;
       text-transform: uppercase;
       font-size: 1.2rem;
@@ -13,7 +76,7 @@
       a {
         i {
           font-size: 1.2rem;
-          margin-right: 1rem;
+          margin-right: 0.7rem;
         }
       }
 
@@ -41,25 +104,21 @@
     @include flex-align(right, middle);
   }
 
+  table.task.detail {
+    tbody {
+      tr {
+        th {
+          text-align: left;
+        }
+      }
+    }
+  }
+
   &.download {
     .actions-wrapper {
       @include xy-grid($direction: horizontal, $wrap: false);
 
       form {}
-
-      .checksum {
-        padding-left: 1rem;
-
-        table {
-          th {
-            text-align: right;
-          }
-          td {
-            padding-left: 1rem;
-          }
-        }
-      }
-
     }
   }
 }

@@ -1,0 +1,54 @@
+{% extends "submission/base.html" %}
+
+{% load i18n viewflow %}
+
+{% block title %}{% trans "Submission details" %} — #{{ process.id }}{% endblock %}
+{% block body_class %}{{ block.super }} detail{% endblock %}
+
+{% block header %}
+<h1>
+  {{ activation.task.summary|default:activation.task.flow_task }}
+  <span class="subheader">
+    (submission #{{ activation.process.id }})
+  </span>
+</h1>
+{% endblock %}
+
+{% block step_content %}
+<table class="task detail">
+  <tbody>
+    <tr>
+      <th>
+        {% trans "Created at" %}
+      </th>
+      <td>
+        {{ activation.task.created }}
+      </td>
+    </tr>
+    <tr>
+      <th>
+        {% trans "Owner" %}
+      </th>
+      <td>
+        {{ activation.task.owner|default:"N/A" }}
+      </td>
+    </tr>
+    <tr>
+      <th>
+        {% trans "Status" %}
+      </th>
+      <td>
+        {{ activation.task.status }}
+      </td>
+    </tr>
+    {% block step_details %}{% endblock step_details %}
+  </tbody>
+</table>
+{% endblock step_content %}
+
+{% block step_navigation %}
+<a href="{% flowurl activation.process 'detail' %}">
+  <i class="fa fa-angle-double-left" aria-hidden="true"></i>
+  {% trans "back to submission" %}
+</a>
+{% endblock %}

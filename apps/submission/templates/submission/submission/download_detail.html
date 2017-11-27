@@ -1,0 +1,14 @@
+{% extends "submission/submission/task_detail.html" %}
+
+{% load i18n %}
+
+{% block step_details %}
+<tr>
+  <th>{% trans "Template checksum" %}</th>
+  <td>{{ activation.process.template_checksum }}</td>
+</tr>
+<tr>
+  <th>{% trans "Template version" %}</th>
+  <td>{{ activation.process.template_version }}</td>
+</tr>
+{% endblock step_details %}
