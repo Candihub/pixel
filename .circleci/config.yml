@@ -15,6 +15,9 @@ jobs:
       - run:
           name: Install dependencies & build styles
           command: make bootstrap
+      - run:
+          name: Checksum compiled styles
+          command: sha256sum static/css/main.css
       - save_cache:
           paths:
             - ~/pixel/node_modules
@@ -32,6 +35,9 @@ jobs:
       - restore_cache:
           keys:
             - frontend-statics-v1-{{ .Revision }}
+      - run:
+          name: Check built styles
+          command: sha256sum static/css/main.css
       - restore_cache:
           keys:
             - docker-v2-{{ .Revision }}
@@ -49,6 +55,11 @@ jobs:
                 --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
                 --build-arg VCS_REF=`git rev-parse --short HEAD` \
                 --build-arg VERSION=`cat VERSION` .
+      - run:
+          name: Check embedded styles
+          command: |
+            docker run --rm pixel cat static/css/main.css > /tmp/main.css
+            sha256sum /tmp/main.css
       - run:
           name: Save container
           command: |
