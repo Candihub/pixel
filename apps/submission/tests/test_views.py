@@ -1,4 +1,4 @@
-from pathlib import PurePath
+from pathlib import Path, PurePath
 from tempfile import mkdtemp
 
 from django.test import TestCase
@@ -165,3 +165,95 @@ class DownloadXLSXTemplateViewTestCase(TestCase):
         wb = load_workbook(template_path)
         ws = wb.active
         self.assertEqual(ws.title, 'Import information for Pixel')
+
+
+class UploadArchiveViewTestCase(TestCase):
+
+    template = 'submission/upload_archive.html'
+
+    def setUp(self):
+
+        self.user = PixelerFactory(
+            is_active=True,
+            is_staff=True,
+            is_superuser=True,
+        )
+        self.client.login(
+            username=self.user.username,
+            password=PIXELER_PASSWORD,
+        )
+        self.client.post(
+            reverse('submission:start'),
+            data={
+                'label': 'Candida datasest 0001',
+                '_viewflow_activation-started': '2000-01-01',
+            },
+            follow=True,
+        )
+
+        self.process = SubmissionProcess.objects.get()
+        task = self.process.task_set.first()
+        params = {
+            'process_pk': self.process.pk,
+            'task_pk': task.pk,
+        }
+        download_url = reverse('submission:download', kwargs=params)
+        self.client.post(
+            download_url,
+            data={
+                '_viewflow_activation-started': '2000-01-01',
+            }
+        )
+
+        self.task = self.process.task_set.first()
+        params.update({'task_pk': self.task.pk})
+        self.url = reverse('submission:upload', kwargs=params)
+
+        self.archive = Path('apps/submission/fixtures/dataset-0001.zip')
+
+    def test_get(self):
+
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, self.template)
+
+    def test_post_redirection(self):
+
+        with self.archive.open('rb') as archive_file:
+            response = self.client.post(
+                self.url,
+                data={
+                    '_viewflow_activation-started': '2000-01-01',
+                    'archive': archive_file,
+                }
+            )
+        self.assertEqual(response.status_code, 302)
+
+    def test_uploaded_archive(self):
+
+        with self.archive.open('rb') as archive_file:
+            response = self.client.post(
+                self.url,
+                data={
+                    '_viewflow_activation-started': '2000-01-01',
+                    'archive': archive_file,
+                },
+                follow=True,
+            )
+
+        self.assertEqual(response.status_code, 200)
+
+        # File name
+        process = SubmissionProcess.objects.get()
+        expected_name = '{}/submissions/{}/{}'.format(
+            process.created_by.id,
+            process.id,
+            self.archive.name
+        )
+        self.assertEqual(process.archive.name, expected_name)
+
+        # File size
+        self.assertEqual(
+            process.archive.size,
+            self.archive.stat().st_size
+        )
