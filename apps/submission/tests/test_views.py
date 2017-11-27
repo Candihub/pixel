@@ -5,124 +5,112 @@ from django.test import TestCase
 from django.urls import reverse
 from openpyxl import load_workbook
 
+from apps.core.factories import PIXELER_PASSWORD, PixelerFactory
 from apps.submission.io.xlsx import (
     sha256_checksum, generate_template, get_template_version
 )
+from apps.submission.models import SubmissionProcess
+
+
+class StartViewTestCase(TestCase):
+
+    url = reverse('submission:start')
+    template = 'submission/submission/start.html'
+
+    def setUp(self):
+
+        self.user = PixelerFactory(
+            is_active=True,
+            is_staff=True,
+            is_superuser=True,
+        )
+        self.client.login(
+            username=self.user.username,
+            password=PIXELER_PASSWORD,
+        )
+
+    def test_get_start_view(self):
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, self.template)
+
+    def test_create_new_process(self):
+
+        label = 'Candida datasest 0001'
+        response = self.client.post(
+            self.url,
+            data={
+                'label': label,
+                '_viewflow_activation-started': '2000-01-01',
+            }
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+        response = self.client.post(
+            self.url,
+            data={
+                'label': label,
+                '_viewflow_activation-started': '2000-01-01',
+            },
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+
+        expected_template = 'submission/submission/process_detail.html'
+        self.assertTemplateUsed(response, expected_template)
 
 
 class DownloadXLSXTemplateViewTestCase(TestCase):
 
-    url = reverse('submission:download')
     template = 'submission/download_xlsx_template.html'
 
-    def test_context_data(self):
+    def setUp(self):
 
-        self.login()
-        response = self.client.get(self.url)
-        self.assertEqual(response.context.get('step'), 'download')
-        self.assertEqual(response.context.get('next_step_url'), '#')
-        self.assertEqual(response.context.get('check'), False)
-
-    def test_context_data_with_check_param(self):
-
-        self.login()
-        url = '{}?check=true'.format(self.url)
-        response = self.client.get(url)
-
-        self.assertEqual(response.context.get('check'), True)
-        self.assertEqual(response.context.get('version'), None)
-        self.assertEqual(response.context.get('checksum'), None)
-
-    def test_context_data_with_check_param_but_no_prior_download(self):
-
-        self.login()
-        url = '{}?check=true'.format(self.url)
-        response = self.client.get(url)
-
-        self.assertContains(
-            response,
-            """
-                <div class="message warning">
-                Download the meta.xlsx template first. Then you will be able
-                to display its checksum.
-                </div>
-            """,
-            html=True
+        self.user = PixelerFactory(
+            is_active=True,
+            is_staff=True,
+            is_superuser=True,
         )
-        self.assertContains(
-            response,
-            '<a href="?check=true" class="action secondary">',
+        self.client.login(
+            username=self.user.username,
+            password=PIXELER_PASSWORD,
         )
-        self.assertNotContains(
-            response,
-            """
-            <div class="checksum">
-            <table>
-              <tbody>
-                <tr>
-                  <th>
-                    version
-                  </th>
-                  <td>
-            """,
-            html=True
+        self.client.post(
+            reverse('submission:start'),
+            data={
+                'label': 'Candida datasest 0001',
+                '_viewflow_activation-started': '2000-01-01',
+            },
+            follow=True,
         )
 
-    def test_context_data_after_download(self):
+        self.process = SubmissionProcess.objects.get()
+        self.task = self.process.task_set.first()
+        params = {
+            'process_pk': self.process.pk,
+            'task_pk': self.task.pk,
+        }
+        self.url = reverse('submission:download', kwargs=params)
 
-        self.login()
-
-        download_url = reverse('submission:generate_template')
-        self.client.post(download_url)
+    def test_get(self):
 
         response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, self.template)
 
-        self.assertEqual(response.context.get('check'), False)
-        self.assertEqual(
-            response.context.get('version'),
-            self.client.session['template']['version']
+    def test_get_context_data(self):
+
+        response = self.client.get(self.url)
+        self.assertListEqual(
+            list(response.context.get('task_list')),
+            list(self.process.task_set.all().order_by('created'))
         )
-        self.assertEqual(
-            response.context.get('checksum'),
-            self.client.session['template']['checksum']
-        )
-        self.assertContains(
-            response,
-            '<a href="?check=true" class="action secondary">',
-        )
-
-    def test_context_data_after_download_with_check_param(self):
-
-        self.login()
-
-        download_url = reverse('submission:generate_template')
-        self.client.post(download_url)
-
-        url = '{}?check=true'.format(self.url)
-        response = self.client.get(url)
-
-        self.assertContains(
-            response,
-            '<code>{}</code>'.format(
-                self.client.session['template']['version']
-            ),
-        )
-        self.assertContains(
-            response,
-            '<code>{}</code>'.format(
-                self.client.session['template']['checksum']
-            ),
-        )
-
-
-class GenerateXLSXTemplateViewTestCase(TestCase):
-
-    method = 'post'
-    url = reverse('submission:generate_template')
 
     def test_post(self):
 
-        self.login()
         response = self.client.post(self.url)
         self.assertEqual(response.status_code, 200)
 
@@ -152,8 +140,8 @@ class GenerateXLSXTemplateViewTestCase(TestCase):
 
     def test_generated_file(self):
 
-        self.login()
         response = self.client.post(self.url)
+        process = SubmissionProcess.objects.get()
 
         # Write generated file
         template_file_name = 'meta.xlsx'
@@ -162,15 +150,14 @@ class GenerateXLSXTemplateViewTestCase(TestCase):
             template_file.write(response.content)
 
         expected_checksum = sha256_checksum(template_path)
-        expected_version = get_template_version(template_path)
-
         self.assertEqual(
-            self.client.session['template']['checksum'],
+            process.template_checksum,
             expected_checksum
         )
 
+        expected_version = get_template_version(template_path)
         self.assertEqual(
-            self.client.session['template']['version'],
+            process.template_version,
             expected_version
         )
 
