@@ -110,3 +110,6 @@ node_modules/
 # Styles
 static/css/main.css
 static/fonts/*
+
+# Media
+public/media
