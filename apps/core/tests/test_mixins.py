@@ -1,8 +1,8 @@
 import pytest
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.test.utils import isolate_apps
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils.translation import ugettext as _
 
 from apps.core.factories import PIXELER_PASSWORD, PixelerFactory
@@ -90,7 +90,8 @@ class LoginRequiredTestMixin(object):
             self.assertTemplateUsed(response, self.template)
 
 
-class LoginRequiredMixinTestCase(TestCase):
+@isolate_apps('apps.core.tests.mixins')
+class LoginRequiredTestMixinTestCase(TestCase):
 
     def test_declaring_url_attribute_is_mandatory(self):
 
@@ -101,3 +102,14 @@ class LoginRequiredMixinTestCase(TestCase):
 
         with pytest.raises(NotImplementedError):
             foo.test_login_required()
+
+
+class FooViewWithLoginRequiredTestMixinTestCase(LoginRequiredTestMixin,
+                                                TestCase):
+
+    template = 'base.html'
+    url = reverse_lazy('foo')
+
+    @override_settings(ROOT_URLCONF='apps.core.tests.mixins.urls')
+    def test_login_required(self):
+        super().test_login_required()
