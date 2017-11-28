@@ -12,3 +12,7 @@ class MetaFileRequiredError(ArchiveError):
 
 class MetaFileFormatError(ArchiveError):
     pass
+
+
+class MetaFileParsingError(ArchiveError):
+    pass

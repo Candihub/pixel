@@ -7,8 +7,11 @@ from openpyxl.styles import (
     Alignment, Border, Color, Font, PatternFill, Side, colors
 )
 
+from apps.core.models import OmicsArea, OmicsUnitType, Strain
+from apps.data.models import Repository
 from apps.submission.io.xlsx import (
-    generate_template, get_template_version, sha256_checksum, style_range
+    generate_template, get_template_version, parse_template, sha256_checksum,
+    style_range
 )
 
 
@@ -119,3 +122,92 @@ class XLSXTemplateTestCase(TestCase):
         expected_user_data_fg_color = Color('fdffd9')
         for cell in user_data_cells:
             assert ws[cell].fill.fgColor == expected_user_data_fg_color
+
+
+class ParseXLSXTemplateTestCase(TestCase):
+
+    fixtures = [
+        'apps/data/fixtures/initial_data.json',
+        'apps/core/fixtures/initial_data.json',
+    ]
+
+    def test_parse_template(self):
+
+        meta_path = Path('apps/submission/fixtures/dataset-0001/meta.xlsx')
+        meta = parse_template(meta_path)
+
+        expected = OmicsArea.objects.get(name='Label free')
+        assert meta['experiment']['omics_area'] == expected
+
+        expected = 2015
+        assert meta['experiment']['completion_date'] == expected
+
+        expected = (
+            'In these experiments, mass spectrometry analyses were performed '
+            'in yeast Candida glabrata. Proteins were extracted using FASP '
+            'protocol (by Camille Garcia from the platform proteomics@IJM). '
+            'Technical and biolocal replicates were done in order to evaluate '
+            'the variability associated to each type of data reproduction. '
+            'Protein abundances were obtained with PROGENESIS software, '
+            'following the standard procedure of the proteomics platform (in '
+            '2015). Note that cell were submitted to an alkaline stress (1mL '
+            'TRIS base), to observe modifications in protein abundances.'
+        )
+        assert meta['experiment']['summary'] == expected
+
+        expected = 2017
+        assert meta['experiment']['release_date'] == expected
+
+        expected = Repository.objects.get(name='PARTNERS')
+        assert meta['experiment']['repository'] == expected
+
+        expected = 'Camadro laboratory'
+        assert meta['experiment']['entry'] == expected
+
+        expected = Path(
+            'apps/submission/fixtures/dataset-0001/'
+            '1503002-protein-measurements-PD2.1.csv'
+        )
+        assert meta['analysis']['secondary_data_path'] == expected
+
+        expected = Path('apps/submission/fixtures/dataset-0001/NoteBook.R')
+        assert meta['analysis']['notebook_path'] == expected
+
+        expected = (
+            'Protein abundances obtained in two cell growth conditions '
+            '(alkaline pH or standard) were compared, in order to identify '
+            'differentially expressed proteins. LIMMA method was applied with '
+            'default parameters, in order to calculate p-values.'
+        )
+        assert meta['analysis']['description'] == expected
+
+        expected = 2017
+        assert meta['analysis']['date'] == expected
+
+        expected = Path('apps/submission/fixtures/dataset-0001/Pixel_C10.txt')
+        assert meta['datasets'][0][0] == expected
+
+        protein = OmicsUnitType.objects.get(name='protein')
+        assert meta['datasets'][0][1] == protein
+
+        deltaHTU = Strain.objects.get(name='deltaHTU')
+        assert meta['datasets'][0][2] == deltaHTU
+
+        expected = (
+            'This set of Pixel correspond to a time point T10 (10 minutes) '
+            'after TRIS base addition in the cell growth media.'
+        )
+        assert meta['datasets'][0][3] == expected
+
+        expected = Path('apps/submission/fixtures/dataset-0001/Pixel_C60.txt')
+        assert meta['datasets'][1][0] == expected
+
+        assert meta['datasets'][1][1] == protein
+
+        assert meta['datasets'][1][2] == deltaHTU
+
+        expected = (
+            'This set of Pixel correspond to a time point T10 (10 minutes) '
+            'after TRIS base addition in the cell growth media.'
+        )
+        assert meta['datasets'][1][3] == expected
