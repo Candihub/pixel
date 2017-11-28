@@ -2,6 +2,7 @@ from pathlib import PurePath
 from tempfile import mkdtemp
 
 from django.http import HttpResponse
+from django.shortcuts import redirect
 from viewflow.flow.views import UpdateProcessView
 
 from .io.xlsx import generate_template
@@ -55,3 +56,18 @@ class DownloadXLSXTemplateView(UpdateProcessView):
             response.write(template.read())
 
         return response
+
+
+class UploadArchiveView(UpdateProcessView):
+
+    template_name = 'submission/upload_archive.html'
+    fields = ['archive', ]
+
+    def form_valid(self, form):
+
+        process = form.save(commit=False)
+        process.uploaded = True
+        process.save()
+        self.activation_done()
+
+        return redirect(self.get_success_url())

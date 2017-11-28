@@ -33,8 +33,17 @@
   <table>
     <tbody>
       <tr>
-        <th>{% trans "Archive" %}</th>
-        <td>{{ process.archive|default:'N/A' }}</td>
+        <th>{% trans "Submitted archive" %}</th>
+        <td>
+          {% if process.archive %}
+            <a href="{{ process.archive.url }}">
+              <i class="fa fa-download" aria-hidden="true"></i>
+              Download
+            </a>
+          {% else %}
+            {% trans "N/A" %}
+          {% endif %}
+        </td>
       </tr>
     </tbody>
   </table>

@@ -1,0 +1,20 @@
+{% extends "submission/base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Upload archive" %}{% endblock %}
+{% block body_class %}{{ block.super }} upload{% endblock %}
+
+
+{% block step_content %}
+  <div class="actions-wrapper">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {% include "foundation/form.html" %}
+      {{ activation.management_form }}
+      <button type="submit" name="button" class="button">
+        {% trans "Submit" %}
+      </button>
+    </form>
+  </div>
+{% endblock step_content %}
