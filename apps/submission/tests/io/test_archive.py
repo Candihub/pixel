@@ -60,8 +60,9 @@ class PixelArchiveTestCase(TestCase):
         archive._extract()
         self.assertIsNotNone(archive.cwd)
 
+        z = ZipFile(self.valid_archive_path)
         expected_files = [
-            archive.cwd / f for f in ZipFile(self.valid_archive_path).namelist()
+            archive.cwd / f for f in z.namelist()
         ]
         self.assertEqual(
             set(archive.files),
