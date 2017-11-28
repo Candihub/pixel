@@ -22,7 +22,7 @@
         <ul class="links">
           {% if request.user.is_authenticated %}
           <li class="pixeler">
-            <i class="fa fa-user-circle" aria-hidden="true"></i>
+            <img src="{{ request.user.gravatar_url }}"  width="20px">
             {{ request.user.username }}
           </li>
           {% if request.user.is_staff %}
