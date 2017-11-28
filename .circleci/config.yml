@@ -58,8 +58,7 @@ jobs:
       - run:
           name: Check embedded styles
           command: |
-            docker run --rm pixel cat static/css/main.css > /tmp/main.css
-            sha256sum /tmp/main.css
+            docker run --rm pixel cat public/static/css/main.css | sha256sum
       - run:
           name: Save container
           command: |
@@ -107,6 +106,10 @@ jobs:
           command: |
             echo "Docker tag: $DOCKER_TAG"
             docker tag pixel "candihub/pixel:$DOCKER_TAG"
+      - run:
+          name: Double check embedded styles
+          command: |
+            docker run --rm "candihub/pixel:$DOCKER_TAG" cat public/static/css/main.css | sha256sum
       - run:
           name: Publish tagged container
           command: docker push "candihub/pixel:$DOCKER_TAG"
