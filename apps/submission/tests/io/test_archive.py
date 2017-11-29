@@ -8,7 +8,7 @@ from django.test import TestCase
 
 from apps.core.models import OmicsArea, OmicsUnitType, Strain
 from apps.data.models import Repository
-from apps.submission.io.archive import META_FILENAME
+from apps.submission.io.archive import META_FILENAME, PixelArchive
 from ... import exceptions
 
 

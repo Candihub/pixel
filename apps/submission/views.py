@@ -1,11 +1,10 @@
-from pathlib import Path, PurePath
+from pathlib import PurePath
 from tempfile import mkdtemp
 
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from viewflow.flow.views import UpdateProcessView
 
-from .io.archive import PixelArchive
 from .io.xlsx import generate_template
 
 
