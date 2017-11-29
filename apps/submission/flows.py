@@ -55,7 +55,15 @@ class SubmissionFlow(Flow):
         this.upload
     )
 
-    meta = flow.Handler(this.parse_meta).Next(this.validation)
+    meta = flow.Handler(this.parse_meta).Next(this.check_meta)
+
+    check_meta = flow.If(
+        lambda activation: activation.process.meta is not None
+    ).Then(
+        this.validation
+    ).Else(
+        this.upload
+    )
 
     validation = flow.View(
         views.ArchiveValidationView,
