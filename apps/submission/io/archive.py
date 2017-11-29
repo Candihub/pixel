@@ -4,6 +4,7 @@ from zipfile import ZipFile, is_zipfile
 
 from django.utils.translation import ugettext as _
 
+from apps.submission.io.xlsx import parse_template
 from .. import exceptions
 
 META_FILENAME = 'meta.xlsx'
@@ -26,6 +27,7 @@ class PixelArchive(object):
         self.archive_path = archive_path
         self.cwd = None
         self.meta = None
+        self.meta_path = None
         self.files = []
 
     def _extract(self, force=False):
@@ -43,7 +45,7 @@ class PixelArchive(object):
 
         for f in self.files:
             if f.name == META_FILENAME:
-                self.meta = f
+                self.meta_path = f
                 break
 
     def validate(self):
@@ -51,7 +53,12 @@ class PixelArchive(object):
         self._extract()
         self._set_meta()
 
-        if self.meta is None:
+        if self.meta_path is None:
             raise exceptions.MetaFileRequiredError(
                 _("The required meta.xlsx file is missing in your archive")
             )
+
+    def parse_meta(self):
+
+        self.validate()
+        self.meta = parse_template(self.meta_path)
