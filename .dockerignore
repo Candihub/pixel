@@ -15,6 +15,7 @@ assets
 docs
 env.d
 node_modules
+public
 db.sqlite3
 docker-compose.*
 package.json
