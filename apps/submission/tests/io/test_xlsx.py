@@ -1,3 +1,4 @@
+import datetime
 from pathlib import Path
 
 import pytest
@@ -139,7 +140,7 @@ class ParseXLSXTemplateTestCase(TestCase):
         expected = OmicsArea.objects.get(name='Label free')
         assert meta['experiment']['omics_area'] == expected
 
-        expected = 2015
+        expected = datetime.date(year=2015, month=1, day=1)
         assert meta['experiment']['completion_date'] == expected
 
         expected = (
@@ -155,7 +156,7 @@ class ParseXLSXTemplateTestCase(TestCase):
         )
         assert meta['experiment']['summary'] == expected
 
-        expected = 2017
+        expected = datetime.date(year=2017, month=1, day=1)
         assert meta['experiment']['release_date'] == expected
 
         expected = Repository.objects.get(name='PARTNERS')
@@ -181,7 +182,7 @@ class ParseXLSXTemplateTestCase(TestCase):
         )
         assert meta['analysis']['description'] == expected
 
-        expected = 2017
+        expected = datetime.date(year=2017, month=1, day=1)
         assert meta['analysis']['date'] == expected
 
         expected = Path('apps/submission/fixtures/dataset-0001/Pixel_C10.txt')

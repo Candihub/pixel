@@ -1,3 +1,4 @@
+import datetime
 import hashlib
 import re
 from pathlib import Path
@@ -379,9 +380,21 @@ def parse_template(meta_path):
     meta['experiment']['omics_area'] = qs.get()
 
     # Misc
-    meta['experiment']['completion_date'] = ws['B4'].value
+    try:
+        completion_date = datetime.date(year=ws['B4'].value, month=1, day=1)
+    except TypeError:
+        raise exceptions.MetaFileParsingError(
+            _("Completion date should be a single integer, e.g. 2017")
+        )
+    meta['experiment']['completion_date'] = completion_date
     meta['experiment']['summary'] = ws['B5'].value.strip()
-    meta['experiment']['release_date'] = ws['B6'].value
+    try:
+        release_date = datetime.date(year=ws['B6'].value, month=1, day=1)
+    except TypeError:
+        raise exceptions.MetaFileParsingError(
+            _("Experiment release date should be a single integer, e.g. 2017")
+        )
+    meta['experiment']['release_date'] = release_date
 
     # Repository & Entry
     data_source = ws['B7'].value.strip()
@@ -430,7 +443,14 @@ def parse_template(meta_path):
 
     # Misc
     meta['analysis']['description'] = ws['B14'].value.strip()
-    meta['analysis']['date'] = ws['B15'].value
+
+    try:
+        analysis_date = datetime.date(year=ws['B15'].value, month=1, day=1)
+    except TypeError:
+        raise exceptions.MetaFileParsingError(
+            _("Analysis date should be a single integer, e.g. 2017")
+        )
+    meta['analysis']['date'] = analysis_date
 
     # -- Pixels
     for row in range(20, 31, 1):
