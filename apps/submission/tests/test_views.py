@@ -77,12 +77,24 @@ class UploadTestMixin(DownloadTestMixin):
         self.archive = Path('apps/submission/fixtures/dataset-0001.zip')
 
 
+class ValidateTestMixin(UploadTestMixin):
+
+    def setUp(self):
+
+        super().setUp()
+
+        self.task = self.process.task_set.first()
+        params = {
+            'process_pk': self.process.pk,
+            'task_pk': self.task.pk,
+        }
+        self.url = reverse('submission:validation', kwargs=params)
+
 
 class StartViewTestCase(StartTestMixin, TestCase):
 
     url = reverse('submission:start')
     template = 'submission/submission/start.html'
-
 
     def test_get_start_view(self):
 
@@ -248,3 +260,43 @@ class UploadArchiveViewTestCase(UploadTestMixin, TestCase):
             process.archive.size,
             self.archive.stat().st_size
         )
+
+
+class ArchiveValidationViewTestCase(ValidateTestMixin, TestCase):
+
+    template = 'submission/validation.html'
+    fixtures = [
+        'apps/data/fixtures/initial_data.json',
+        'apps/core/fixtures/initial_data.json',
+    ]
+
+    def test_get(self):
+
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, self.template)
+
+    def test_post_redirection(self):
+
+        response = self.client.post(
+            self.url,
+            data={
+                '_viewflow_activation-started': '2000-01-01',
+                'validate': True,
+            }
+        )
+        self.assertEqual(response.status_code, 302)
+
+    def test_validation(self):
+
+        response = self.client.post(
+            self.url,
+            data={
+                '_viewflow_activation-started': '2000-01-01',
+                'validated': True,
+            },
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        process = SubmissionProcess.objects.get()
+        self.assertTrue(process.validated)
