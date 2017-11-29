@@ -10,13 +10,13 @@
   <div class="actions-wrapper">
 
     {% include 'submission/partials/meta.html' with meta=submissionprocess.meta %}
-    
+
     <form method="post" enctype="multipart/form-data">
       {% csrf_token %}
       {% include "foundation/form.html" %}
       {{ activation.management_form }}
       <button type="submit" name="button" class="button">
-        {% trans "Validate" %}
+        {% trans "Next" %}
       </button>
     </form>
   </div>
