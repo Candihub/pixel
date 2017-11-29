@@ -4,6 +4,7 @@ from django.db import models
 from django.utils.translation import ugettext as _
 from viewflow.models import Process
 
+
 class SubmissionProcess(Process):
 
     def archive_upload_to(instance, filename):
@@ -52,6 +53,10 @@ class SubmissionProcess(Process):
 
     uploaded = models.BooleanField(default=False)
 
-    validated = models.BooleanField(default=False)
+    validated = models.BooleanField(
+        _("Is validated?"),
+        help_text=_("Check this to validate parsed metadata"),
+        default=False
+    )
 
     imported = models.BooleanField(default=False)
