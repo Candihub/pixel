@@ -1,3 +1,5 @@
+from django.contrib.postgres.fields import JSONField
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 from django.utils.translation import ugettext as _
 from viewflow.models import Process
@@ -39,10 +41,22 @@ class SubmissionProcess(Process):
         blank=True,
     )
 
+    meta = JSONField(
+        _("Meta"),
+        encoder=DjangoJSONEncoder,
+        help_text=_("Submitted archive meta.xlsx parsed data"),
+        null=True,
+        blank=True,
+    )
+
     downloaded = models.BooleanField(default=False)
 
     uploaded = models.BooleanField(default=False)
 
-    validated = models.BooleanField(default=False)
+    validated = models.BooleanField(
+        _("Is validated?"),
+        help_text=_("Check this to validate parsed metadata"),
+        default=False
+    )
 
     imported = models.BooleanField(default=False)

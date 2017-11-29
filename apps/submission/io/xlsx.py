@@ -1,13 +1,18 @@
+import datetime
 import hashlib
+import re
+from pathlib import Path
 from zipfile import ZipFile
 
 from django.utils.translation import ugettext as _
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
 from openpyxl.comments import Comment
 from openpyxl.styles import Alignment, Border, Font, PatternFill
 from openpyxl.worksheet.datavalidation import DataValidation
 
 from apps.core.models import OmicsArea, OmicsUnitType, Strain
+from apps.data.models import Repository
+from .. import exceptions
 
 
 def style_range(ws,
@@ -331,3 +336,189 @@ def generate_template(filename):
         sha256_checksum(filename),
         get_template_version(filename)
     )
+
+
+def parse_template(meta_path, serialized=False):
+
+    wb = load_workbook(meta_path)
+    ws = wb.active
+
+    meta = {
+        'experiment': {
+            'omics_area': None,
+            'completion_date': None,
+            'summary': None,
+            'release_date': None,
+            'repository': None,
+            'entry': None,
+        },
+        'analysis': {
+            'secondary_data_path': None,
+            'notebook_path': None,
+            'description': None,
+            'date': None,
+        },
+        'datasets': [
+            # [path, omics_unit_type, strain, comment]
+        ]
+    }
+
+    # -- Experiment
+    # Omics area
+    omics_area = ws['B3'].value.lstrip('—').strip()
+    if not len(omics_area):
+        raise exceptions.MetaFileParsingError(
+            _("An omics area is required (B3)")
+        )
+    qs = OmicsArea.objects.filter(name=omics_area)
+    if qs.count() != 1:
+        raise exceptions.MetaFileParsingError(
+            _("Selected omics area {} does not exists yet").format(
+                omics_area
+            )
+        )
+    omics_area = qs.get()
+    if serialized:
+        omics_area = omics_area.name
+    meta['experiment']['omics_area'] = omics_area
+
+    # Misc
+    try:
+        completion_date = datetime.date(year=ws['B4'].value, month=1, day=1)
+    except TypeError:
+        raise exceptions.MetaFileParsingError(
+            _("Completion date should be a single integer, e.g. 2017")
+        )
+    meta['experiment']['completion_date'] = completion_date
+    meta['experiment']['summary'] = ws['B5'].value.strip()
+    try:
+        release_date = datetime.date(year=ws['B6'].value, month=1, day=1)
+    except TypeError:
+        raise exceptions.MetaFileParsingError(
+            _("Experiment release date should be a single integer, e.g. 2017")
+        )
+    meta['experiment']['release_date'] = release_date
+
+    # Repository & Entry
+    data_source = ws['B7'].value.strip()
+    reference = ws['B8'].value.strip()
+    if not len(data_source):
+        raise exceptions.MetaFileParsingError(
+            _("A data source is required (B7)")
+        )
+    if not len(reference):
+        raise exceptions.MetaFileParsingError(
+            _("A reference is required (B8)")
+        )
+    if data_source not in ('Published', 'Unpublished'):
+        raise exceptions.MetaFileParsingError(
+            _("{} is not a valid data source").format(data_source)
+        )
+    if data_source == 'Published':
+        qs = Repository.objects.filter(name='PUBMED')
+    elif data_source == 'Unpublished':
+        qs = Repository.objects.filter(name='PARTNERS')
+    if qs.count() != 1:
+        raise exceptions.MetaFileParsingError(
+            _("Data source has no corresponding repository")
+        )
+    repository = qs.get()
+    if serialized:
+        repository = repository.name
+    meta['experiment']['repository'] = repository
+    meta['experiment']['entry'] = reference
+
+    # -- Analysis
+    # Secondary data
+    secondary_data_path = meta_path.parent / Path(ws['B12'].value)
+    if not secondary_data_path.exists():
+        raise exceptions.MetaFileParsingError(
+            _("Secondary data file {} not found").format(
+                secondary_data_path.name
+            )
+        )
+    if serialized:
+        secondary_data_path = secondary_data_path.name
+    meta['analysis']['secondary_data_path'] = secondary_data_path
+
+    # Notebook
+    notebook_path = meta_path.parent / Path(ws['B13'].value)
+    if not notebook_path.exists():
+        raise exceptions.MetaFileParsingError(
+            _("Notebook file {} not found").format(notebook_path.name)
+        )
+    if serialized:
+        notebook_path = notebook_path.name
+    meta['analysis']['notebook_path'] = notebook_path
+
+    # Misc
+    meta['analysis']['description'] = ws['B14'].value.strip()
+
+    try:
+        analysis_date = datetime.date(year=ws['B15'].value, month=1, day=1)
+    except TypeError:
+        raise exceptions.MetaFileParsingError(
+            _("Analysis date should be a single integer, e.g. 2017")
+        )
+    meta['analysis']['date'] = analysis_date
+
+    # -- Pixels
+    for row in range(20, 31, 1):
+
+        # Skip empty rows
+        cells = ['{}{}'.format(c, row) for c in ('A', 'B', 'C', 'D')]
+        if not all(ws[cell].value for cell in cells):
+            continue
+
+        dataset_path = meta_path.parent / Path(ws['A{}'.format(row)].value)
+        if not dataset_path.exists():
+            raise exceptions.MetaFileParsingError(
+                _("Dataset file {} not found").format(dataset_path.name)
+            )
+        if serialized:
+            dataset_path = dataset_path.name
+
+        omics_unit_type_name = ws['B{}'.format(row)].value
+        qs = OmicsUnitType.objects.filter(name=omics_unit_type_name)
+        if qs.count() != 1:
+            raise exceptions.MetaFileParsingError(
+                _("Unknown OmicsUnit type {}").format(omics_unit_type_name)
+            )
+        omics_unit_type = qs.get()
+        if serialized:
+            omics_unit_type = omics_unit_type.name
+
+        strain_name = ws['C{}'.format(row)].value
+        m = re.match('(.+) \((.+)\)', strain_name)
+        if not m:
+            raise exceptions.MetaFileParsingError(
+                _("Invalid strain/species pattern: {}").format(strain_name)
+            )
+        strain_name, species_name = m.groups()
+        qs = Strain.objects.filter(
+            name=strain_name,
+            species__name=species_name
+        )
+        if qs.count() != 1:
+            raise exceptions.MetaFileParsingError(
+                _("Unknown strain: {} (species: {})").format(
+                    strain_name, species_name
+                )
+            )
+        strain = qs.get()
+        if serialized:
+            strain = strain.name
+
+        comment = ws['D{}'.format(row)].value.strip()
+        if not len(comment):
+            raise exceptions.MetaFileParsingError(
+                _("You need to add a comment for the {} dataset").format(
+                    dataset_path.name
+                )
+            )
+
+        meta['datasets'].append(
+            [dataset_path, omics_unit_type, strain, comment]
+        )
+
+    return meta

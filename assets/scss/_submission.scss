@@ -1,5 +1,58 @@
 .submission {
 
+  .step-tabs {
+    @include tabs-container;
+
+    .step-title {
+      @include tabs-title;
+      width: 20%;
+      text-align: center;
+      text-transform: uppercase;
+      font-size: 1.2rem;
+
+      a {
+        i {
+          font-size: 1.2rem;
+          margin-right: 0.7rem;
+        }
+      }
+
+      &.is-active {
+        background-color: $primary-color;
+        color: $white;
+
+        & > a[aria-selected="true"] {
+          background-color: inherit;
+          color: inherit;
+          font-weight: bolder;
+        }
+      }
+    }
+  }
+
+  .step-content {
+    @include tabs-content;
+    padding: 1rem;
+  }
+
+  ul.step-navigation {
+    @include menu-base;
+    @include menu-align(right);
+    @include flex-align(right, middle);
+  }
+
+  table.task.detail {
+    @include table($stripe:even);
+
+    tbody {
+      tr {
+        th {
+          text-align: left;
+        }
+      }
+    }
+  }
+
   &.list {
     .new {
       @include callout($info-color);
@@ -63,62 +116,23 @@
     }
   }
 
-  .step-tabs {
-    @include tabs-container;
-
-    .step-title {
-      @include tabs-title;
-      width: 20%;
-      text-align: center;
-      text-transform: uppercase;
-      font-size: 1.2rem;
-
-      a {
-        i {
-          font-size: 1.2rem;
-          margin-right: 0.7rem;
-        }
-      }
-
-      &.is-active {
-        background-color: $primary-color;
-        color: $white;
-
-        & > a[aria-selected="true"] {
-          background-color: inherit;
-          color: inherit;
-          font-weight: bolder;
-        }
-      }
-    }
-  }
-
-  .step-content {
-    @include tabs-content;
-    padding: 1rem;
-  }
-
-  ul.step-navigation {
-    @include menu-base;
-    @include menu-align(right);
-    @include flex-align(right, middle);
-  }
-
-  table.task.detail {
-    tbody {
-      tr {
-        th {
-          text-align: left;
-        }
-      }
-    }
-  }
-
   &.download {
     .actions-wrapper {
       @include xy-grid($direction: horizontal, $wrap: false);
 
       form {}
+    }
+  }
+
+  &.validation {
+    table {
+      margin-bottom: 3rem;
+
+      &.meta,
+      &.datasets {
+        @include table($stripe:even);
+        @include table-hover;
+      }
     }
   }
 }

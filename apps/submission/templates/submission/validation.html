@@ -1,0 +1,23 @@
+{% extends "submission/base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Validation" %}{% endblock %}
+{% block body_class %}{{ block.super }} validation{% endblock %}
+
+
+{% block step_content %}
+  <div class="actions-wrapper">
+
+    {% include 'submission/partials/meta.html' with meta=submissionprocess.meta %}
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {% include "foundation/form.html" %}
+      {{ activation.management_form }}
+      <button type="submit" name="button" class="button">
+        {% trans "Next" %}
+      </button>
+    </form>
+  </div>
+{% endblock step_content %}

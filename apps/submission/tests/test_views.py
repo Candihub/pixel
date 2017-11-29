@@ -12,10 +12,7 @@ from apps.submission.io.xlsx import (
 from apps.submission.models import SubmissionProcess
 
 
-class StartViewTestCase(TestCase):
-
-    url = reverse('submission:start')
-    template = 'submission/submission/start.html'
+class StartTestMixin(object):
 
     def setUp(self):
 
@@ -28,6 +25,76 @@ class StartViewTestCase(TestCase):
             username=self.user.username,
             password=PIXELER_PASSWORD,
         )
+
+
+class DownloadTestMixin(StartTestMixin):
+
+    def setUp(self):
+
+        super().setUp()
+
+        self.client.post(
+            reverse('submission:start'),
+            data={
+                'label': 'Candida datasest 0001',
+                '_viewflow_activation-started': '2000-01-01',
+            },
+            follow=True,
+        )
+
+        self.process = SubmissionProcess.objects.get()
+        self.task = self.process.task_set.first()
+        params = {
+            'process_pk': self.process.pk,
+            'task_pk': self.task.pk,
+        }
+        self.url = reverse('submission:download', kwargs=params)
+
+
+class UploadTestMixin(DownloadTestMixin):
+
+    def setUp(self):
+
+        super().setUp()
+
+        task = self.process.task_set.first()
+        params = {
+            'process_pk': self.process.pk,
+            'task_pk': task.pk,
+        }
+        download_url = reverse('submission:download', kwargs=params)
+        self.client.post(
+            download_url,
+            data={
+                '_viewflow_activation-started': '2000-01-01',
+            }
+        )
+
+        self.task = self.process.task_set.first()
+        params.update({'task_pk': self.task.pk})
+        self.url = reverse('submission:upload', kwargs=params)
+
+        self.archive = Path('apps/submission/fixtures/dataset-0001.zip')
+
+
+class ValidateTestMixin(UploadTestMixin):
+
+    def setUp(self):
+
+        super().setUp()
+
+        self.task = self.process.task_set.first()
+        params = {
+            'process_pk': self.process.pk,
+            'task_pk': self.task.pk,
+        }
+        self.url = reverse('submission:validation', kwargs=params)
+
+
+class StartViewTestCase(StartTestMixin, TestCase):
+
+    url = reverse('submission:start')
+    template = 'submission/submission/start.html'
 
     def test_get_start_view(self):
 
@@ -63,37 +130,9 @@ class StartViewTestCase(TestCase):
         self.assertTemplateUsed(response, expected_template)
 
 
-class DownloadXLSXTemplateViewTestCase(TestCase):
+class DownloadXLSXTemplateViewTestCase(DownloadTestMixin, TestCase):
 
     template = 'submission/download_xlsx_template.html'
-
-    def setUp(self):
-
-        self.user = PixelerFactory(
-            is_active=True,
-            is_staff=True,
-            is_superuser=True,
-        )
-        self.client.login(
-            username=self.user.username,
-            password=PIXELER_PASSWORD,
-        )
-        self.client.post(
-            reverse('submission:start'),
-            data={
-                'label': 'Candida datasest 0001',
-                '_viewflow_activation-started': '2000-01-01',
-            },
-            follow=True,
-        )
-
-        self.process = SubmissionProcess.objects.get()
-        self.task = self.process.task_set.first()
-        params = {
-            'process_pk': self.process.pk,
-            'task_pk': self.task.pk,
-        }
-        self.url = reverse('submission:download', kwargs=params)
 
     def test_get(self):
 
@@ -167,49 +206,13 @@ class DownloadXLSXTemplateViewTestCase(TestCase):
         self.assertEqual(ws.title, 'Import information for Pixel')
 
 
-class UploadArchiveViewTestCase(TestCase):
+class UploadArchiveViewTestCase(UploadTestMixin, TestCase):
 
     template = 'submission/upload_archive.html'
-
-    def setUp(self):
-
-        self.user = PixelerFactory(
-            is_active=True,
-            is_staff=True,
-            is_superuser=True,
-        )
-        self.client.login(
-            username=self.user.username,
-            password=PIXELER_PASSWORD,
-        )
-        self.client.post(
-            reverse('submission:start'),
-            data={
-                'label': 'Candida datasest 0001',
-                '_viewflow_activation-started': '2000-01-01',
-            },
-            follow=True,
-        )
-
-        self.process = SubmissionProcess.objects.get()
-        task = self.process.task_set.first()
-        params = {
-            'process_pk': self.process.pk,
-            'task_pk': task.pk,
-        }
-        download_url = reverse('submission:download', kwargs=params)
-        self.client.post(
-            download_url,
-            data={
-                '_viewflow_activation-started': '2000-01-01',
-            }
-        )
-
-        self.task = self.process.task_set.first()
-        params.update({'task_pk': self.task.pk})
-        self.url = reverse('submission:upload', kwargs=params)
-
-        self.archive = Path('apps/submission/fixtures/dataset-0001.zip')
+    fixtures = [
+        'apps/data/fixtures/initial_data.json',
+        'apps/core/fixtures/initial_data.json',
+    ]
 
     def test_get(self):
 
@@ -257,3 +260,43 @@ class UploadArchiveViewTestCase(TestCase):
             process.archive.size,
             self.archive.stat().st_size
         )
+
+
+class ArchiveValidationViewTestCase(ValidateTestMixin, TestCase):
+
+    template = 'submission/validation.html'
+    fixtures = [
+        'apps/data/fixtures/initial_data.json',
+        'apps/core/fixtures/initial_data.json',
+    ]
+
+    def test_get(self):
+
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, self.template)
+
+    def test_post_redirection(self):
+
+        response = self.client.post(
+            self.url,
+            data={
+                '_viewflow_activation-started': '2000-01-01',
+                'validate': True,
+            }
+        )
+        self.assertEqual(response.status_code, 302)
+
+    def test_validation(self):
+
+        response = self.client.post(
+            self.url,
+            data={
+                '_viewflow_activation-started': '2000-01-01',
+                'validated': True,
+            },
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        process = SubmissionProcess.objects.get()
+        self.assertTrue(process.validated)
