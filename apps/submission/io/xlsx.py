@@ -338,7 +338,7 @@ def generate_template(filename):
     )
 
 
-def parse_template(meta_path):
+def parse_template(meta_path, serialized=False):
 
     wb = load_workbook(meta_path)
     ws = wb.active
@@ -377,7 +377,10 @@ def parse_template(meta_path):
                 omics_area
             )
         )
-    meta['experiment']['omics_area'] = qs.get()
+    omics_area = qs.get()
+    if serialized:
+        omics_area = omics_area.name
+    meta['experiment']['omics_area'] = omics_area
 
     # Misc
     try:
@@ -419,7 +422,10 @@ def parse_template(meta_path):
         raise exceptions.MetaFileParsingError(
             _("Data source has no corresponding repository")
         )
-    meta['experiment']['repository'] = qs.get()
+    repository = qs.get()
+    if serialized:
+        repository = repository.name
+    meta['experiment']['repository'] = repository
     meta['experiment']['entry'] = reference
 
     # -- Analysis
@@ -431,6 +437,8 @@ def parse_template(meta_path):
                 secondary_data_path.name
             )
         )
+    if serialized:
+        secondary_data_path = secondary_data_path.name
     meta['analysis']['secondary_data_path'] = secondary_data_path
 
     # Notebook
@@ -439,6 +447,8 @@ def parse_template(meta_path):
         raise exceptions.MetaFileParsingError(
             _("Notebook file {} not found").format(notebook_path.name)
         )
+    if serialized:
+        notebook_path = notebook_path.name
     meta['analysis']['notebook_path'] = notebook_path
 
     # Misc
@@ -465,6 +475,8 @@ def parse_template(meta_path):
             raise exceptions.MetaFileParsingError(
                 _("Dataset file {} not found").format(dataset_path.name)
             )
+        if serialized:
+            dataset_path = dataset_path.name
 
         omics_unit_type_name = ws['B{}'.format(row)].value
         qs = OmicsUnitType.objects.filter(name=omics_unit_type_name)
@@ -473,6 +485,8 @@ def parse_template(meta_path):
                 _("Unknown OmicsUnit type {}").format(omics_unit_type_name)
             )
         omics_unit_type = qs.get()
+        if serialized:
+            omics_unit_type = omics_unit_type.name
 
         strain_name = ws['C{}'.format(row)].value
         m = re.match('(.+) \((.+)\)', strain_name)
@@ -492,6 +506,8 @@ def parse_template(meta_path):
                 )
             )
         strain = qs.get()
+        if serialized:
+            strain = strain.name
 
         comment = ws['D{}'.format(row)].value.strip()
         if not len(comment):

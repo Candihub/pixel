@@ -1,10 +1,11 @@
-from pathlib import PurePath
+from pathlib import Path, PurePath
 from tempfile import mkdtemp
 
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from viewflow.flow.views import UpdateProcessView
 
+from .io.archive import PixelArchive
 from .io.xlsx import generate_template
 
 
@@ -71,3 +72,9 @@ class UploadArchiveView(UpdateProcessView):
         self.activation_done()
 
         return redirect(self.get_success_url())
+
+
+class ArchiveValidationView(UpdateProcessView):
+
+    template_name = 'submission/validation.html'
+    fields = ['validated', ]

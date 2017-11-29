@@ -1,9 +1,13 @@
+from pathlib import Path
+
+from django.conf import settings
 from viewflow import flow
 from viewflow.base import this, Flow
 from viewflow.flow.views import CreateProcessView
 
+from apps.submission.io.archive import PixelArchive
 from .models import SubmissionProcess
-from .views import DownloadXLSXTemplateView, UploadArchiveView
+from . import views
 
 
 class SubmissionFlow(Flow):
@@ -20,7 +24,7 @@ class SubmissionFlow(Flow):
     )
 
     download = flow.View(
-        DownloadXLSXTemplateView,
+        views.DownloadXLSXTemplateView,
     ).Assign(
         this.start.owner
     ).Next(
@@ -36,7 +40,7 @@ class SubmissionFlow(Flow):
     )
 
     upload = flow.View(
-        UploadArchiveView,
+        views.UploadArchiveView,
     ).Assign(
         this.start.owner
     ).Next(
@@ -46,9 +50,39 @@ class SubmissionFlow(Flow):
     check_upload = flow.If(
         lambda activation: activation.process.uploaded
     ).Then(
-        this.end
+        this.meta
     ).Else(
         this.upload
     )
 
+    meta = flow.Handler(this.parse_meta).Next(this.validation)
+
+    validation = flow.View(
+        views.ArchiveValidationView,
+    ).Assign(
+        this.start.owner
+    ).Next(
+        this.check_validation
+    )
+
+    check_validation = flow.If(
+        lambda activation: activation.process.validated
+    ).Then(
+        this.end
+    ).Else(
+        this.validation
+    )
+
     end = flow.End()
+
+    def parse_meta(self, activation):
+
+        archive_path = Path(
+            settings.MEDIA_ROOT
+        ) / Path(
+            activation.process.archive.name
+        )
+        archive = PixelArchive(archive_path)
+        archive.parse_meta(serialized=True)
+        activation.process.meta = archive.meta
+        activation.process.save()

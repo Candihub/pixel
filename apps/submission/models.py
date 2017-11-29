@@ -1,7 +1,8 @@
+from django.contrib.postgres.fields import JSONField
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 from django.utils.translation import ugettext as _
 from viewflow.models import Process
-
 
 class SubmissionProcess(Process):
 
@@ -36,6 +37,14 @@ class SubmissionProcess(Process):
         _("Template version"),
         help_text=_("Downloaded XLSX template version"),
         max_length=64,
+        blank=True,
+    )
+
+    meta = JSONField(
+        _("Meta"),
+        encoder=DjangoJSONEncoder,
+        help_text=_("Submitted archive meta.xlsx parsed data"),
+        null=True,
         blank=True,
     )
 

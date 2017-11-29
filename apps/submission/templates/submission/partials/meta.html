@@ -1,0 +1,90 @@
+{% load i18n %}
+
+<h3>
+  {% trans "Archive metadata" %}
+</h3>
+
+<table class="meta">
+  <tbody>
+    <tr>
+      <th colspan="2">
+        {% trans "Experiment" %}
+      </th>
+    </tr>
+    <tr>
+      <th>{% trans "Omics area" %}</th>
+      <td>{{ meta.experiment.omics_area }}</td>
+    </tr>
+    <tr>
+      <th>{% trans "Completion date" %}</th>
+      <td>{{ meta.experiment.completion_date | slice:":4" }}</td>
+    </tr>
+    <tr>
+      <th>{% trans "Summary" %}</th>
+      <td>{{ meta.experiment.summary }}</td>
+    </tr>
+    <tr>
+      <th>{% trans "Release date" %}</th>
+      <td>{{ meta.experiment.release_date | slice:":4" }}</td>
+    </tr>
+    <tr>
+      <th>{% trans "Repository" %}</th>
+      <td>{{ meta.experiment.repository }}</td>
+    </tr>
+    <tr>
+      <th>{% trans "Entry" %}</th>
+      <td>{{ meta.experiment.entry }}</td>
+    </tr>
+    <tr>
+      <th colspan="2">
+        {% trans "Analysis" %}
+      </th>
+    </tr>
+    <tr>
+      <th>{% trans "Secondary data" %}</th>
+      <td>
+        <code>{{ meta.analysis.secondary_data_path }}</code>
+      </td>
+    </tr>
+    <tr>
+      <th>{% trans "Notebook" %}</th>
+      <td>
+        <code>{{ meta.analysis.notebook_path }}</code>
+      </td>
+    </tr>
+    <tr>
+      <th>{% trans "Description" %}</th>
+      <td>{{ meta.analysis.description }}</td>
+    </tr>
+    <tr>
+      <th>{% trans "Analysis date" %}</th>
+      <td>{{ meta.analysis.date }}</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>
+  {% trans "Pixel dataset(s)" %}
+</h3>
+<table class="datasets">
+  <thead>
+    <tr>
+      <th>{% trans "File" %}</th>
+      <th>{% trans "Omics Unit" %}</th>
+      <th>{% trans "Species" %}</th>
+      <th>{% trans "Comment" %}</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for dataset in meta.datasets %}
+      <tr>
+        <td>
+          <code>{{ dataset.0 }}</code>
+        </td>
+        <td>{{ dataset.1 }}</td>
+        <td>{{ dataset.2 }}</td>
+        <td>{{ dataset.3 }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>

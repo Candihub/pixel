@@ -58,7 +58,7 @@ class PixelArchive(object):
                 _("The required meta.xlsx file is missing in your archive")
             )
 
-    def parse_meta(self):
+    def parse_meta(self, serialized=False):
 
         self.validate()
-        self.meta = parse_template(self.meta_path)
+        self.meta = parse_template(self.meta_path, serialized=serialized)
