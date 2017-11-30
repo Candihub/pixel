@@ -45,6 +45,9 @@ class Base(Configuration):
         'apps.core',
         'apps.data',
         'apps.submission',
+        
+        # Gravatar
+        'django_gravatar',
     ]
 
     MIDDLEWARE = [

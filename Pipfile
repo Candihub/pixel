@@ -15,6 +15,7 @@ django-extensions = "*"
 gunicorn = "*"
 "psycopg2" = "*"
 openpyxl = "*"
+"django-gravatar2" = "*"
 django-viewflow = "*"
 
 

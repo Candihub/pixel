@@ -457,9 +457,3 @@ class Pixeler(AbstractUser):
     class Meta:
         verbose_name = _("Pixeler")
         verbose_name_plural = _("Pixelers")
-
-    def gravatar_url(self):
-        # Get the md5 hash of the email address
-        md5 = hashlib.md5(self.email.encode())
-        digest = md5.hexdigest()
-        return 'http://www.gravatar.com/avatar/{}'.format(digest)
