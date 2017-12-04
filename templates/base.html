@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load static %}
+{% load gravatar %}
 
 <!doctype html>
 <html lang="en">
@@ -22,7 +23,7 @@
         <ul class="links">
           {% if request.user.is_authenticated %}
           <li class="pixeler">
-            <i class="fa fa-user-circle" aria-hidden="true"></i>
+            {% gravatar request.user.email 30 %}
             {{ request.user.username }}
           </li>
           {% if request.user.is_staff %}

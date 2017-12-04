@@ -40,6 +40,7 @@ class Base(Configuration):
         'tagulous',
         'django_extensions',
         'viewflow',
+        'django_gravatar',
 
         # Pixel apps
         'apps.core',
