@@ -4,27 +4,33 @@ services:
   db:
     image: postgres:9.6
     env_file: .env
+
   web:
     image: candihub/pixel:latest
     env_file: .env
     volumes:
       - media:/app/pixel/public/media
-      - static:/app/pixel/public/static
       - run:/app/pixel/run
+      - static:/app/pixel/public/static
     depends_on:
       - db
+
   proxy:
     image: nginx
     volumes:
-      - ./docker/etc/nginx/conf.d/pixel.conf:/etc/nginx/conf.d/default.conf
-    volumes_from:
-      - web
+      - ./docker/etc/nginx/conf.d/pixel.conf:/etc/nginx/conf.d/default.conf:ro
+      - media:/app/pixel/public/media:ro
+      - run:/app/pixel/run:ro
+      - static:/app/pixel/public/static:ro
     ports:
-      - "8901:80"
+      - 8901:80
     depends_on:
       - web
 
 volumes:
   media:
+    name: pixel-staging-media
   run:
+    name: pixel-staging-run
   static:
+    name: pixel-staging-static
