@@ -58,8 +58,17 @@ class PixelArchiveTestCase(TestCase):
         archive = PixelArchive(self.valid_archive_path)
 
         self.assertEqual(archive.archive_path, self.valid_archive_path)
-        self.assertEqual(archive.cwd, None)
-        self.assertListEqual(archive.files, [])
+        self.assertIsNotNone(archive.cwd)
+        z = ZipFile(self.valid_archive_path)
+        expected_files = [
+            archive.cwd / f for f in z.namelist()
+        ]
+        self.assertEqual(
+            set(archive.files),
+            set(expected_files)
+        )
+        for f in archive.files:
+            self.assertTrue(f.exists())
 
     def test_extract(self):
 
@@ -100,27 +109,16 @@ class PixelArchiveTestCase(TestCase):
     def test_set_meta(self):
 
         archive = PixelArchive(self.valid_archive_path)
-
-        archive._set_meta()
-        self.assertIsNone(archive.meta_path)
-
-        archive._extract()
-        archive._set_meta()
         self.assertEqual(
             archive.meta_path.name,
             META_FILENAME
         )
-
-    def test_validate(self):
-
-        archive = PixelArchive(self.no_meta_archive_path)
-
-        with pytest.raises(exceptions.MetaFileRequiredError) as e:
-            archive.validate()
-        self.assertIn(
-            "The required meta.xlsx file is missing in your archive",
-            str(e)
-        )
+        archive.files = [
+            archive.cwd / Path('foo'),
+            archive.cwd / Path('bar'),
+        ]
+        with pytest.raises(exceptions.MetaFileRequiredError):
+            archive._set_meta()
 
     def test_parse_meta(self):
 
