@@ -37,7 +37,12 @@ SASS     = $(YARN_RUN) node-sass
 default: help
 
 bootstrap: ## install development dependencies
-	@if [ -z "$$CI" ] || [ -n "$$CI_BUILD_BACKEND" ]; then $(COMPOSE) build web; ${MAKE} migrate-db; fi
+	@if [ -z "$$CI" ] || [ -n "$$CI_BUILD_BACKEND" ]; then \
+		$(COMPOSE) build web; \
+		echo 'Waiting until database is up'; \
+		sleep 20; \
+		${MAKE} migrate-db; \
+	fi
 	@if [ -z "$$CI" ] || [ -n "$$CI_BUILD_FRONTEND" ]; then $(YARN_RUN) install -D; ${MAKE} build-css; fi
 .PHONY: bootstrap
 
