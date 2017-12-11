@@ -83,6 +83,25 @@ class ValidateTestMixin(UploadTestMixin):
 
         super().setUp()
 
+<<<<<<< HEAD
+=======
+        task = self.process.task_set.first()
+        params = {
+            'process_pk': self.process.pk,
+            'task_pk': task.pk,
+        }
+        upload_url = reverse('submission:upload', kwargs=params)
+        with self.archive.open('rb') as archive_file:
+            self.client.post(
+                upload_url,
+                data={
+                    '_viewflow_activation-started': '2000-01-01',
+                    'archive': archive_file,
+                },
+                follow=True,
+            )
+
+>>>>>>> 3d83b2a... Fix pep8
         self.task = self.process.task_set.first()
         params = {
             'process_pk': self.process.pk,

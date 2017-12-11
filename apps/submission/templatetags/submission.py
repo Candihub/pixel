@@ -32,7 +32,7 @@ def core_tasks(tasks):
     """
     filtered = []
     for task in tasks:
-        name = str(task).lower()
+        name = str(task.flow_task).lower()
         if 'start' in name or \
                 'end' in name or \
                 'check' in name:
