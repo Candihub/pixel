@@ -2,12 +2,22 @@ from pathlib import Path
 
 from django.conf import settings
 from viewflow import flow
+from viewflow.activation import Context
 from viewflow.base import this, Flow
 from viewflow.flow.views import CreateProcessView
+from viewflow.nodes.handler import HandlerActivation
 
 from apps.submission.io.archive import PixelArchive
 from .models import SubmissionProcess
 from . import views
+
+
+class NotPropagatedExceptionHandlerActivation(HandlerActivation):
+
+    def perform(self):
+
+        with Context(propagate_exception=False):
+            super().perform()
 
 
 class SubmissionFlow(Flow):
@@ -55,7 +65,12 @@ class SubmissionFlow(Flow):
         this.upload
     )
 
-    meta = flow.Handler(this.parse_meta).Next(this.check_meta)
+    meta = flow.Handler(
+        this.parse_meta,
+        activation_class=NotPropagatedExceptionHandlerActivation,
+    ).Next(
+        this.check_meta
+    )
 
     check_meta = flow.If(
         lambda activation: activation.process.meta is not None

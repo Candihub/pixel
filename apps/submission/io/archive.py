@@ -30,6 +30,10 @@ class PixelArchive(object):
         self.meta_path = None
         self.files = []
 
+        self._extract()
+        self._set_meta()
+        self.parse_meta()
+
     def _extract(self, force=False):
 
         if self.cwd is not None and not force:
@@ -46,19 +50,12 @@ class PixelArchive(object):
         for f in self.files:
             if f.name == META_FILENAME:
                 self.meta_path = f
-                break
+                return
 
-    def validate(self):
-
-        self._extract()
-        self._set_meta()
-
-        if self.meta_path is None:
-            raise exceptions.MetaFileRequiredError(
-                _("The required meta.xlsx file is missing in your archive")
-            )
+        raise exceptions.MetaFileRequiredError(
+            _("The required meta.xlsx file is missing in your archive")
+        )
 
     def parse_meta(self, serialized=False):
 
-        self.validate()
         self.meta = parse_template(self.meta_path, serialized=serialized)
