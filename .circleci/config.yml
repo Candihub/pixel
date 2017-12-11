@@ -1,6 +1,5 @@
 version: 2
 jobs:
-
   frontend-build:
     working_directory: ~/pixel
     docker:
@@ -114,6 +113,12 @@ jobs:
           name: Publish tagged container
           command: docker push "candihub/pixel:$DOCKER_TAG"
 
+  deploy-to-staging:
+    machine: true
+    steps:
+      - run:
+          name: Run bin/deploy over SSH
+          command: ssh -t pixel@candihub.eu 'cd ~/staging/ && sudo bin/deploy'
 
 workflows:
   version: 2
@@ -142,5 +147,11 @@ workflows:
           filters:
             tags:
               only: /.*/
+            branches:
+              only: master
+      - deploy-to-staging:
+          requires:
+            - hub
+          filters:
             branches:
               only: master
