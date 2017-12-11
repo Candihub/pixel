@@ -8,7 +8,9 @@
       href="{{ task_url }}"
       {% if task == activation.task %} aria-selected="true"{% endif %}
     >
-      {% if task.finished %}
+      {% if task.status == 'ERROR' %}
+      <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+      {% elif task.finished %}
       <i class="fa fa-check-circle" aria-hidden="true"></i>
       {% elif task.created %}
       <i class="fa fa-pause-circle" aria-hidden="true"></i>
