@@ -81,11 +81,11 @@ $ make test
 
 ### `staging`
 
-TODO
+This section is covered in [the deployment documentation](deployment.md).
 
 ### `production`
 
-TODO
+This section is covered in [the deployment documentation](deployment.md).
 
 ## Continuous integration
 
@@ -129,7 +129,7 @@ tag name (e.g. `1.0.1`).
 
 ## Continuous delivery
 
-TODO
+This section is covered in [the deployment documentation](deployment.md).
 
 ## Monitoring
 
