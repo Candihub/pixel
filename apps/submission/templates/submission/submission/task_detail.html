@@ -41,7 +41,7 @@
         {{ activation.task.status }}
       </td>
     </tr>
-    <tr>
+    <tr {% if activation.task.status == 'ERROR' %}class="error"{% endif %}>
       <th>
         {% trans "Comments" %}
       </th>

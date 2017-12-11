@@ -47,6 +47,13 @@
 
     tbody {
       tr {
+        &.error {
+          th,
+          td {
+            background-color: $alert-color;
+            color: $white;
+          }
+        }
         th {
           text-align: left;
           width: 15%;
