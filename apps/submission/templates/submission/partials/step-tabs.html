@@ -1,7 +1,7 @@
-{% load i18n viewflow %}
+{% load i18n viewflow submission %}
 
 <ul class="step-tabs">
-  {% for task in tasks %}
+  {% for task in tasks|hide_check_tasks %}
   {% flowurl task user=request.user as task_url %}
   <li class="step-title{% if task == activation.task %} is-active{% endif %}">
     <a

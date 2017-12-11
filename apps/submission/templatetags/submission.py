@@ -12,3 +12,8 @@ def hide_traceback(value):
     except ValueError:
         return value
     return lines[:idx][0]
+
+
+@register.filter
+def hide_check_tasks(tasks):
+    return [t for t in tasks if 'check' not in str(t).lower()]
