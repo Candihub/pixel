@@ -1,3 +1,5 @@
+import re
+
 from django import template
 from django.template.defaultfilters import stringfilter
 
@@ -33,9 +35,7 @@ def core_tasks(tasks):
     filtered = []
     for task in tasks:
         name = str(task.flow_task).lower()
-        if 'start' in name or \
-                'end' in name or \
-                'check' in name:
+        if re.match('start|end|check', name):
             continue
         filtered.append(task)
     return filtered
