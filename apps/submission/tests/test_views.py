@@ -83,8 +83,6 @@ class ValidateTestMixin(UploadTestMixin):
 
         super().setUp()
 
-<<<<<<< HEAD
-=======
         task = self.process.task_set.first()
         params = {
             'process_pk': self.process.pk,
@@ -101,7 +99,6 @@ class ValidateTestMixin(UploadTestMixin):
                 follow=True,
             )
 
->>>>>>> 3d83b2a... Fix pep8
         self.task = self.process.task_set.first()
         params = {
             'process_pk': self.process.pk,
