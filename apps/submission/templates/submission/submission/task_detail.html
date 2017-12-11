@@ -41,6 +41,14 @@
         {{ activation.task.status }}
       </td>
     </tr>
+    <tr>
+      <th>
+        {% trans "Comments" %}
+      </th>
+      <td>
+        <pre>{{ activation.task.comments }}</pre>
+      </td>
+    </tr>
     {% block step_details %}{% endblock step_details %}
   </tbody>
 </table>
