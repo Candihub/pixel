@@ -15,13 +15,8 @@
       {% csrf_token %}
       {% include "foundation/form.html" %}
       {{ activation.management_form }}
-      <button
-        type="submit"
-        name="_start"
-        class="button"
-      >
-        {% trans "Start" %}
-      </button>
+      <input type="hidden" name="_continue" value="true">
+      <input type="submit" name="_start" value="{% trans "Start" %}" class="button" />
     </form>
   </div>
 {% endblock content %}
