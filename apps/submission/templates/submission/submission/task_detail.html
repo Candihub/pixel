@@ -1,8 +1,8 @@
 {% extends "submission/base.html" %}
 
-{% load i18n viewflow %}
+{% load i18n viewflow submission %}
 
-{% block title %}{% trans "Submission details" %} — #{{ process.id }}{% endblock %}
+{% block title %}{% trans "Submission details" %} — #{{ activation.process.id }}{% endblock %}
 {% block body_class %}{{ block.super }} detail{% endblock %}
 
 {% block header %}
@@ -46,7 +46,11 @@
         {% trans "Comments" %}
       </th>
       <td>
-        <pre>{{ activation.task.comments }}</pre>
+        {% if activation.task.comments %}
+        <pre>{{ activation.task.comments | hide_traceback }}</pre>
+        {% else %}
+        {% trans "N/A" %}
+        {% endif %}
       </td>
     </tr>
     {% block step_details %}{% endblock step_details %}
