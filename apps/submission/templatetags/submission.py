@@ -3,6 +3,7 @@ from django.template.defaultfilters import stringfilter
 
 register = template.Library()
 
+
 @register.filter
 @stringfilter
 def hide_traceback(value):
@@ -20,9 +21,21 @@ def hide_traceback(value):
 
 
 @register.filter
-def hide_check_tasks(tasks):
-    """Remove a task from a task queryset if it's class name starts by 'check'.
+def core_tasks(tasks):
+    """Removes tasks from a task queryset if their class name contains:
+
+    * check
+    * start
+    * end
 
     Returns: a filtered list of tasks
     """
-    return [t for t in tasks if 'check' not in str(t).lower()]
+    filtered = []
+    for task in tasks:
+        name = str(task).lower()
+        if 'start' in name or \
+                'end' in name or \
+                'check' in name:
+            continue
+        filtered.append(task)
+    return filtered
