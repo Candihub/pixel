@@ -4,12 +4,15 @@ from tempfile import mkdtemp
 from django.test import TestCase
 from django.urls import reverse
 from openpyxl import load_workbook
+from viewflow.base import Flow
 
 from apps.core.factories import PIXELER_PASSWORD, PixelerFactory
-from apps.submission.io.xlsx import (
+from ..flows import SubmissionFlow
+from ..io.xlsx import (
     sha256_checksum, generate_template, get_template_version
 )
-from apps.submission.models import SubmissionProcess
+from ..models import SubmissionProcess
+from ..views import NextTaskRedirectView
 
 
 class StartTestMixin(object):
@@ -105,6 +108,137 @@ class ValidateTestMixin(UploadTestMixin):
             'task_pk': self.task.pk,
         }
         self.url = reverse('submission:validation', kwargs=params)
+
+
+class NextTaskRedirectViewTestCase(UploadTestMixin, TestCase):
+
+    def setUp(self):
+
+        super().setUp()
+
+        self.url = reverse(
+            'submission:next_task',
+            kwargs={
+                'process_pk': self.process.pk,
+                'task_pk': self.task.pk,
+            }
+        )
+
+        self.redirection_url = reverse(
+            'submission:upload',
+            kwargs={
+                'process_pk': self.process.pk,
+                'task_pk': self.task.pk,
+            }
+        )
+
+    def test_get_process_tasks(self):
+
+        view = NextTaskRedirectView()
+        user_tasks = view.get_process_tasks(self.process, self.user)
+
+        self.assertEqual(user_tasks.count(), 2)
+
+    def test_get(self):
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 302)
+
+        response = self.client.get(self.url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.redirect_chain,
+            [(self.redirection_url, 302), ]
+        )
+
+    def test_redirect_without_user_tasks(self):
+
+        process = SubmissionProcess.objects.create(flow_class=Flow)
+
+        url = reverse(
+            'submission:next_task',
+            kwargs={
+                'process_pk': process.pk,
+                'task_pk': 20,  # anything should be ok
+            }
+        )
+        expected_redirection_url = reverse(
+            'submission:detail',
+            kwargs={
+                'process_pk': process.pk,
+            }
+        )
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.redirect_chain,
+            [(expected_redirection_url, 302), ]
+        )
+
+    def test_redirect_with_bad_process_task(self):
+
+        url = reverse(
+            'submission:next_task',
+            kwargs={
+                'process_pk': self.process.pk,
+                'task_pk': 2000,
+            }
+        )
+        expected_redirection_url = reverse(
+            'submission:detail',
+            kwargs={
+                'process_pk': self.process.pk,
+            }
+        )
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.redirect_chain,
+            [(expected_redirection_url, 302), ]
+        )
+
+    def test_next_task_from_download(self):
+
+        task = self.process.task_set.get(flow_task=SubmissionFlow.download)
+        url = reverse(
+            'submission:next_task',
+            kwargs={
+                'process_pk': self.process.pk,
+                'task_pk': task.pk,  # download
+            }
+        )
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.redirect_chain,
+            [(self.redirection_url, 302), ]
+        )
+
+    def test_next_task_from_automated_task(self):
+
+        task = self.process.task_set.get(
+            flow_task=SubmissionFlow.check_download
+        )
+        url = reverse(
+            'submission:next_task',
+            kwargs={
+                'process_pk': self.process.pk,
+                'task_pk': task.pk,  # check_download
+            }
+        )
+        expected_redirection_url = reverse(
+            'submission:detail',
+            kwargs={
+                'process_pk': self.process.pk,
+            }
+        )
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.redirect_chain,
+            [(expected_redirection_url, 302), ]
+        )
 
 
 class StartViewTestCase(StartTestMixin, TestCase):
