@@ -1,9 +1,10 @@
+from pathlib import Path
 from django.test import TestCase
 from django.urls import reverse
 
-from .test_views import ValidateTestMixin
+from .test_views import StartTestMixin, ValidateTestMixin
 from ..models import SubmissionProcess
-from ..templatetags.submission import hide_traceback, core_tasks
+from ..templatetags import submission
 
 
 class HideTracebackFilterTestCase(TestCase):
@@ -17,7 +18,7 @@ class HideTracebackFilterTestCase(TestCase):
             '  NameError: name \'a\' is not defined\n'
         )
         expected = 'Unexpected foo error'
-        self.assertEqual(hide_traceback(value), expected)
+        self.assertEqual(submission.hide_traceback(value), expected)
 
     def test_with_more_error_rows(self):
 
@@ -29,7 +30,7 @@ class HideTracebackFilterTestCase(TestCase):
             '  NameError: name \'a\' is not defined\n'
         )
         expected = 'Unexpected foo error\nAnother row'
-        self.assertEqual(hide_traceback(value), expected)
+        self.assertEqual(submission.hide_traceback(value), expected)
 
     def test_without_traceback(self):
 
@@ -39,7 +40,7 @@ class HideTracebackFilterTestCase(TestCase):
             '  File "<stdin>", line 1, in <module>\n'
             '  NameError: name \'a\' is not defined\n'
         )
-        self.assertEqual(hide_traceback(value), value)
+        self.assertEqual(submission.hide_traceback(value), value)
 
 
 class CoreTasksFilterTestCase(ValidateTestMixin, TestCase):
@@ -78,7 +79,101 @@ class CoreTasksFilterTestCase(ValidateTestMixin, TestCase):
             'meta',
             'validation'
         )
+        tasks = tuple(
+            str(t.flow_task).lower() for t in submission.core_tasks(tasks)
+        )
         self.assertEqual(
-            tuple(str(t.flow_task).lower() for t in core_tasks(tasks)),
+            tasks,
             expected
+        )
+
+
+class SubmissionRatioTestCase(StartTestMixin, TestCase):
+
+    fixtures = [
+        'apps/data/fixtures/initial_data.json',
+        'apps/core/fixtures/initial_data.json',
+    ]
+
+    def test_submission_ratio_along_process(self):
+
+        # Start
+        self.client.post(
+            reverse('submission:start'),
+            data={
+                'label': 'Candida datasest 0001',
+                '_viewflow_activation-started': '2000-01-01',
+            },
+            follow=True,
+        )
+        process = SubmissionProcess.objects.get()
+        task = process.task_set.first()
+        self.assertEqual(
+            submission.submission_ratio(process),
+            10
+        )
+
+        # Download
+        url = reverse(
+            'submission:download',
+            kwargs={
+                'process_pk': process.pk,
+                'task_pk': task.pk,
+            }
+        )
+        self.client.post(
+            url,
+            data={
+                '_viewflow_activation-started': '2000-01-01',
+            }
+        )
+        self.assertEqual(
+            submission.submission_ratio(process),
+            30
+        )
+
+        # Upload
+        task = process.task_set.first()
+        archive = Path('apps/submission/fixtures/dataset-0001.zip')
+        url = reverse(
+            'submission:upload',
+            kwargs={
+                'process_pk': process.pk,
+                'task_pk': task.pk,
+            }
+        )
+        with archive.open('rb') as archive_file:
+            self.client.post(
+                url,
+                data={
+                    '_viewflow_activation-started': '2000-01-01',
+                    'archive': archive_file,
+                },
+                follow=True,
+            )
+        self.assertEqual(
+            submission.submission_ratio(process),
+            70
+        )
+
+        # Validate
+        task = process.task_set.first()
+        url = reverse(
+            'submission:validation',
+            kwargs={
+                'process_pk': process.pk,
+                'task_pk': task.pk,
+            }
+        )
+        self.client.post(
+            url,
+            data={
+                '_viewflow_activation-started': '2000-01-01',
+                'validated': True,
+            },
+            follow=True,
+        )
+        self.assertEqual(
+            submission.submission_ratio(process),
+            100
         )
