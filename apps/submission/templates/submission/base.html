@@ -8,11 +8,11 @@
 {% block header %}
 <h1>
   {% trans "Pixel submission" %}
-  {% if process %}
-  #{{ process.id }}
-  {% else %}
-  #{{ activation.process.id }}
-  {% endif %}
+  {% with process=activation.process %}
+  <a href="{% url 'submission:detail' process_pk=process.pk %}">
+    #{{ process.id }}
+  </a>
+  {% endwith %}
 </h1>
 {% endblock %}
 

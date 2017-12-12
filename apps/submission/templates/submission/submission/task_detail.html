@@ -7,10 +7,14 @@
 
 {% block header %}
 <h1>
-  {{ activation.task.summary|default:activation.task.flow_task }}
+  {% with process=activation.process task=activation.task %}
   <span class="subheader">
-    (submission #{{ activation.process.id }})
+    {{ task.summary|default:activation.task.flow_task }}
+    <a href="{% url 'submission:detail' process_pk=process.pk %}">
+      #{{ process.id }}
+    </a> &mdash; {{ task.id }}
   </span>
+  {% endwith %}
 </h1>
 {% endblock %}
 
