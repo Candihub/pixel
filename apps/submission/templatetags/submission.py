@@ -1,7 +1,7 @@
-import re
-
 from django import template
 from django.template.defaultfilters import stringfilter
+
+from ..utils import is_hidden_task
 
 register = template.Library()
 
@@ -34,8 +34,7 @@ def core_tasks(tasks):
     """
     filtered = []
     for task in tasks:
-        name = str(task.flow_task).lower()
-        if re.match('start|end|check', name):
+        if is_hidden_task(str(task.flow_task).lower()):
             continue
         filtered.append(task)
     return filtered
