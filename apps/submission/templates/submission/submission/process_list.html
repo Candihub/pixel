@@ -1,6 +1,6 @@
 {% extends "submission/base.html" %}
 
-{% load i18n %}
+{% load i18n submission %}
 
 {% block title %}{% trans "Submissions" %}{% endblock %}
 {% block body_class %}{{ block.super }} list{% endblock %}
@@ -33,7 +33,9 @@
       <tr>
         <th>{% trans "Date" %}</th>
         <th>{% trans "Label" %}</th>
-        <th></th>
+        <th>{% trans "Owner" %}</th>
+        <th>{% trans "Completion" %}</th>
+        <th>{% trans "Actions" %}</th>
       </tr>
     </thead>
     <tbody>
@@ -47,13 +49,22 @@
               {{ process.label }}
             </a>
           </td>
+          <td class="created-by">
+            {% with owner=process.created_by %}
+            {{ owner.get_full_name|default:owner.username }}
+            {% endwith %}
+          </td>
+          <td class="completion">
+            {% submission_ratio process as submission_ratio %}
+            {{ submission_ratio }}%
+          </td>
           <td class="actions">
             <a
               href="{% url 'submission:detail' process.pk %}"
-              class="action secondary" 
+              class="action secondary"
               title="{% trans "Checkout submission details" %}"
             >
-              <i class="fa fa-info-circle" aria-hidden="true"></i>
+              <i class="fa fa-play-circle" aria-hidden="true"></i>
             </a>
           </td>
         </tr>

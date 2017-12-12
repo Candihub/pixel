@@ -91,8 +91,15 @@
       @include table-hover;
 
       thead {
-        th:last-child {
-          text-align:right;
+        th {
+          &:nth-child(3) {
+            text-align: center; 
+          }
+
+          &:nth-child(4),
+          &:last-child {
+            text-align:right;
+          }
         }
       }
 
@@ -103,6 +110,14 @@
           }
 
           .label {}
+
+          .created-by {
+            text-align: center;
+          }
+
+          .completion {
+            text-align: right;
+          }
 
           .actions {
             width: 15%;
