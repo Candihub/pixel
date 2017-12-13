@@ -1,6 +1,8 @@
 from django import template
 from django.template.defaultfilters import stringfilter
+from viewflow.activation import STATUS
 
+from ..flows import SubmissionFlow
 from ..utils import is_hidden_task
 
 register = template.Library()
@@ -38,3 +40,18 @@ def core_tasks(tasks):
             continue
         filtered.append(task)
     return filtered
+
+
+@register.simple_tag
+def submission_ratio(process):
+    """Calculates achived tasks ratio for a given submission process
+
+    Returns: an integer in [0;100]
+    """
+    total = len(SubmissionFlow()._meta.nodes())
+    done = process.task_set\
+        .filter(status=STATUS.DONE)\
+        .order_by('flow_task')\
+        .distinct('flow_task')\
+        .count()
+    return int(done/total * 100.)

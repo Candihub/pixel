@@ -5,6 +5,16 @@
 {% block title %}{% trans "Validation" %}{% endblock %}
 {% block body_class %}{{ block.super }} validation{% endblock %}
 
+{% block header %}
+<h1>
+  {% trans "New submission validation" %}
+  {% with process=activation.process %}
+  <a href="{% url 'submission:detail' process_pk=process.pk %}">
+    #{{ process.id }}
+  </a>
+  {% endwith %}
+</h1>
+{% endblock %}
 
 {% block step_content %}
   <div class="actions-wrapper">

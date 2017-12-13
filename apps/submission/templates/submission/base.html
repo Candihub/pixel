@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load i18n viewflow %}
+{% load i18n viewflow submission %}
 
 {% block title %}{% trans "Pixels submission" %}{% endblock %}
 {% block body_class %}{{ block.super }} submission{% endblock %}
@@ -8,15 +8,36 @@
 {% block header %}
 <h1>
   {% trans "Pixel submission" %}
-  {% if process %}
-  #{{ process.id }}
-  {% else %}
-  #{{ activation.process.id }}
-  {% endif %}
+  {% with process=activation.process %}
+  <a href="{% url 'submission:detail' process_pk=process.pk %}">
+    #{{ process.id }}
+  </a>
+  {% endwith %}
 </h1>
 {% endblock %}
 
 {% block content %}
+  {% block progress %}
+    {% if process %}
+    {% submission_ratio process as progress %}
+    {% else %}
+    {% submission_ratio activation.process as progress %}
+    {% endif %}
+    <div
+      class="progress"
+      role="progressbar"
+      tabindex="0"
+      aria-valuenow="{{ progress }}"
+      aria-valuemin="0"
+      aria-valuetext="{{ progress }} percent"
+      aria-valuemax="100"
+    >
+      <span class="progress-meter" style="width: {{ progress }}%">
+        <p class="progress-meter-text">{{ progress }}%</p>
+      </span>
+    </div>
+  {% endblock %}
+
   {% block step_list %}
     {% include "submission/partials/step-tabs.html" with tasks=activation.process.task_set.all.reverse %}
   {% endblock %}

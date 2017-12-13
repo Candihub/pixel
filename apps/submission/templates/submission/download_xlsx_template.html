@@ -5,6 +5,16 @@
 {% block title %}{% trans "Download submission template" %}{% endblock %}
 {% block body_class %}{{ block.super }} download{% endblock %}
 
+{% block header %}
+<h1>
+  {% trans "Submission template download" %}
+  {% with process=activation.process %}
+  <a href="{% url 'submission:detail' process_pk=process.pk %}">
+    #{{ process.id }}
+  </a>
+  {% endwith %}
+</h1>
+{% endblock %}
 
 {% block step_content %}
   <p>
