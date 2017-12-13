@@ -14,7 +14,8 @@ class RepositoryAdmin(admin.ModelAdmin):
 
 @admin.register(Entry)
 class EntryAdmin(admin.ModelAdmin):
-    search_fields = ['identifier', 'repository']
+    search_fields = ['identifier', ]
     list_display = (
         'identifier', 'description', 'url'
     )
+    list_filter = ('repository', )
