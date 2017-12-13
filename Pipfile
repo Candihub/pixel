@@ -16,6 +16,7 @@ gunicorn = "*"
 "psycopg2" = "*"
 openpyxl = "*"
 django-viewflow = "*"
+pandas = "*"
 
 
 [dev-packages]

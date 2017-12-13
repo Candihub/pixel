@@ -72,6 +72,10 @@ class Entry(UUIDModelMixin, models.Model):
     )
 
     class Meta:
+        unique_together = (
+            ('identifier', 'repository'),
+            ('url', 'repository'),
+        )
         verbose_name = _("Entry")
         verbose_name_plural = _("Entries")
 
