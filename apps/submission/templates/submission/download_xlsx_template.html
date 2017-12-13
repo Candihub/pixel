@@ -41,9 +41,7 @@
     <form method="post">
       {% csrf_token %}
       {{ activation.management_form }}
-      <button type="submit" name="button" class="button">
-        {% trans "Download" %}
-      </button>
+      <input type="submit" name="_continue" value="{% trans "Download" %}" class="button" />
     </form>
   </div>
 {% endblock step_content %}

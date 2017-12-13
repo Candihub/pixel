@@ -27,23 +27,12 @@
 
   {% block step_navigation %}
   <ul class="step-navigation">
-
-    {% if previous_step_url %}
     <li>
-      <a href="{{ previous_step_url }}">
-        {% trans "Previous" %}
-        <i class="fa fa-chevron-left" aria-hidden="true"></i>
-      </a>
-    </li>
-    {% endif %}
-    {% if next_step_url %}
-    <li>
-      <a href="{{ next_step_url }}">
-        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      <a href="{% url 'submission:next_task' process_pk=activation.process.id task_pk=activation.task.id %}">
         {% trans "Next" %}
+        <i class="fa fa-step-forward" aria-hidden="true"></i>
       </a>
     </li>
-    {% endif %}
   </ul>
   {% endblock %}
 {% endblock content %}

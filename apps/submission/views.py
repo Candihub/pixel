@@ -1,10 +1,66 @@
 from pathlib import PurePath
 from tempfile import mkdtemp
 
+from django.core.urlresolvers import reverse
 from django.http import HttpResponse
+from django.views.generic import RedirectView
+from django.views.generic.detail import SingleObjectMixin
+from viewflow.models import Task
 from viewflow.flow.views import UpdateProcessView
 
 from .io.xlsx import generate_template
+from .models import SubmissionProcess
+from .utils import is_hidden_task
+
+
+class NextTaskRedirectView(SingleObjectMixin,
+                           RedirectView):
+
+    model = SubmissionProcess
+    pk_url_kwarg = 'process_pk'
+
+    def get_process_tasks(self, process, user):
+
+        task_class = process.flow_class.task_class
+        return task_class._default_manager.user_queue(user).filter(
+            process=process
+        )
+
+    def get_redirect_url(self, *args, **kwargs):
+
+        namespace = self.request.resolver_match.namespace
+        process = self.get_object()
+        task_pk = kwargs.get('task_pk')
+        user_tasks = self.get_process_tasks(process, self.request.user)
+
+        default_url = reverse(
+            '{}:detail'.format(namespace),
+            kwargs={'process_pk': process.pk}
+        )
+
+        if not user_tasks.exists():
+            return default_url
+
+        try:
+            task = user_tasks.get(pk=task_pk)
+        except Task.DoesNotExist:
+            return default_url
+
+        def get_next_task(task):
+            if task.leading.count():
+                next_task = task.leading.get()
+                if is_hidden_task(str(next_task.flow_task).lower()):
+                    return get_next_task(next_task)
+                return next_task
+            return task
+
+        next_task = get_next_task(task)
+        return next_task.flow_task.get_task_url(
+            next_task,
+            url_type='guess',
+            user=self.request.user,
+            namespace=namespace
+        )
 
 
 class DownloadXLSXTemplateView(UpdateProcessView):
