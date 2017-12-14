@@ -312,6 +312,10 @@ class Experiment(models.Model):
         to=Tag,
     )
 
+    completed_at = models.DateField(
+        _("Completion date"),
+    )
+
     released_at = models.DateField(
         _("Release date"),
     )
