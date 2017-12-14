@@ -392,6 +392,10 @@ class Analysis(UUIDModelMixin, models.Model):
         to=Tag,
     )
 
+    completed_at = models.DateField(
+        _("Completion date"),
+    )
+
     created_at = models.DateTimeField(
         auto_now_add=True,
         editable=False,
