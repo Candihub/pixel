@@ -32,7 +32,7 @@ class PixelArchive(object):
 
         self._extract()
         self._set_meta()
-        self.parse_meta()
+        self.parse()
 
     def _extract(self, force=False):
 
@@ -56,6 +56,6 @@ class PixelArchive(object):
             _("The required meta.xlsx file is missing in your archive")
         )
 
-    def parse_meta(self, serialized=False):
+    def parse(self, serialized=False):
 
         self.meta = parse_template(self.meta_path, serialized=serialized)

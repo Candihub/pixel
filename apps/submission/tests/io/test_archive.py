@@ -120,10 +120,10 @@ class PixelArchiveTestCase(TestCase):
         with pytest.raises(exceptions.MetaFileRequiredError):
             archive._set_meta()
 
-    def test_parse_meta(self):
+    def test_parse(self):
 
         archive = PixelArchive(self.valid_archive_path)
-        archive.parse_meta()
+        archive.parse()
 
         protein = OmicsUnitType.objects.get(name='protein')
         deltaHTU = Strain.objects.get(name='deltaHTU')
