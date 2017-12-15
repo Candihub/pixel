@@ -89,7 +89,8 @@ class ExperimentFactory(DjangoModelFactory):
     omics_area = SubFactory(OmicsAreaFactory)
     description = Faker('text', max_nb_chars=300)
     created_at = Faker('datetime')
-    released_at = Faker('datetime')
+    completed_at = Faker('date')
+    released_at = Faker('date')
     saved_at = Faker('datetime')
 
     class Meta:
@@ -103,6 +104,7 @@ class AnalysisFactory(DjangoModelFactory):
     pixeler = SubFactory(PixelerFactory)
     notebook = Faker('file_path', depth=1, category=None, extension=None)
     secondary_data = Faker('file_path', depth=1, category=None, extension=None)
+    completed_at = Faker('date')
     created_at = Faker('date')
     saved_at = Faker('date')
 
