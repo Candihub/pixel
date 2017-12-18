@@ -58,11 +58,11 @@ class ChrFeatureParserTestCase(TestCase):
         parser = ChrFeatureParser(self.file_path)
         assert parser.entries == defaults
 
-        parser._to_entries()
+        parser._to_entries(ignore_aliases=True)
         assert parser.entries == defaults
 
         parser.parse()
-        parser._to_entries()
+        parser._to_entries(ignore_aliases=True)
         assert parser.entries != defaults
         assert len(parser.entries['new']) == 10
         assert len(parser.entries['update']) == 0
@@ -103,7 +103,7 @@ class ChrFeatureParserTestCase(TestCase):
 
         parser = ChrFeatureParser(self.file_path)
         parser.parse()
-        parser._to_entries()
+        parser._to_entries(ignore_aliases=True)
 
         assert len(parser.entries['new']) == 9
         assert len(parser.entries['update']) == 1
@@ -132,11 +132,11 @@ class ChrFeatureParserTestCase(TestCase):
 
         repository = RepositoryFactory(name='CGD')
         first_entry = EntryFactory(
-            identifier='CAGL0A00106g',
+            identifier='CAGL0A00759s',
             description='Old description',
             url=(
                 'http://www.candidagenome.org/cgi-bin/locus.pl?dbid='
-                'CAL0000210339'
+                'CAL0137785'
             ),
             repository=repository
         )
@@ -150,5 +150,5 @@ class ChrFeatureParserTestCase(TestCase):
         entry = Entry.objects.get(url=first_entry.url)
         assert entry.id == first_entry.id
         # identifier/description should have been updated
-        assert entry.identifier == 'CAGL0A00105g'
-        assert entry.description == 'Protein of unknown function'
+        assert entry.identifier == first_entry.identifier
+        assert entry.description == 'Centromere, chromosome A'

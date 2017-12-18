@@ -15,7 +15,7 @@ class LoadEntriesCommandTestCase(TestCase):
         self.cgd_file = Path(
             'apps/data/fixtures/'
         ) / Path(
-            'C_glabrata_CBS138_current_chromosomal_feature_100.tab'
+            'C_glabrata_CBS138_current_chromosomal_feature_10.tab'
         )
 
     def test_command(self):
@@ -27,7 +27,7 @@ class LoadEntriesCommandTestCase(TestCase):
 
         self.assertEqual(Entry.objects.count(), 0)
         call_command('load_entries', cgd=self.cgd_file, stdout=output)
-        self.assertEqual(Entry.objects.count(), 100)
+        self.assertEqual(Entry.objects.count(), 10)
 
         expected_output = 'Successfully imported CGD file: {}'.format(
             self.cgd_file
