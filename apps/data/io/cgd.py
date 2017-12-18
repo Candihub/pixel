@@ -66,32 +66,37 @@ class ChrFeatureParser(object):
             skiprows=8
         )
 
-    def _to_entries(self):
+    def _to_entries(self, ignore_aliases):
 
         if self.features is None:
             return
 
         repository, _ = Repository.objects.get_or_create(name='CGD')
         root_url = 'http://www.candidagenome.org/cgi-bin/locus.pl?dbid='
-        known_entries = repository.entries.values_list('url', flat=True)
+        known_entries = repository.entries.values_list('identifier', flat=True)
 
         for idx, feature in self.features.iterrows():
             url = '{}{}'.format(root_url, feature['cgdid'])
-            identifier = feature['name']
-            entry = Entry(
-                identifier=identifier,
-                description=feature['description'],
-                url=url,
-                repository=repository,
-            )
-            if url in known_entries:
-                self.entries['update'].append(entry)
-            else:
-                self.entries['new'].append(entry)
+            aliases = []
 
-    def save(self):
+            if not pandas.isna(feature['aliases']) and not ignore_aliases:
+                aliases = feature['aliases'].split('|')
 
-        self._to_entries()
+            for identifier in (feature['name'], *aliases):
+                entry = Entry(
+                    identifier=identifier,
+                    description=feature['description'],
+                    url=url,
+                    repository=repository,
+                )
+                if identifier in known_entries:
+                    self.entries['update'].append(entry)
+                else:
+                    self.entries['new'].append(entry)
+
+    def save(self, ignore_aliases=True):
+
+        self._to_entries(ignore_aliases=ignore_aliases)
 
         # Create new entries
         Entry.objects.bulk_create(self.entries['new'], batch_size=500)
