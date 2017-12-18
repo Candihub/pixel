@@ -14,10 +14,16 @@ class Command(BaseCommand):
             '--cgd',
             help=_("Load entries from CGD chromosome features (.tab)")
         )
+        parser.add_argument(
+            '--ignore-aliases',
+            action='store_true',
+            help=_("Ignore aliases in omics units/entries")
+        )
 
     def handle(self, *args, **options):
 
         cgd = options.get('cgd', None)
+        ignore_aliases = options.get('ignore_aliases', False)
 
         if cgd is None:
             raise CommandError(
@@ -29,7 +35,7 @@ class Command(BaseCommand):
 
         cgd_parser = ChrFeatureParser(Path(cgd))
         cgd_parser.parse()
-        cgd_parser.save()
+        cgd_parser.save(ignore_aliases=ignore_aliases)
 
         self.stdout.write(
             self.style.SUCCESS(
