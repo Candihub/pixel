@@ -152,3 +152,18 @@ class ChrFeatureParserTestCase(TestCase):
         # identifier/description should have been updated
         assert entry.identifier == first_entry.identifier
         assert entry.description == 'Centromere, chromosome A'
+
+    def test_save_with_aliases(self):
+
+        parser = ChrFeatureParser(self.file_path)
+        parser.parse()
+
+        assert Entry.objects.count() == 0
+
+        parser.save(ignore_aliases=False)
+        assert Entry.objects.count() == 30
+
+        entry = Entry.objects.get(identifier='CAG57670.1')
+        assert entry.url == (
+            'http://www.candidagenome.org/cgi-bin/locus.pl?dbid=CAL0126541'
+        )
