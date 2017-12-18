@@ -98,7 +98,6 @@ class PixelSetParser(object):
         related_entries = Entry.objects.filter(identifier__in=to_create)
 
         if related_entries.count() != len(to_create):
-            ids = list(related_entries.values_list('identifier', flat=True))
             raise PixelSetParserSaveError(
                 _(
                     "Required entries partially exists ({} vs {}). Please "

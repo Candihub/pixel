@@ -3,8 +3,8 @@ from pathlib import Path
 from django.test import TestCase
 
 from apps.core.factories import (
-    AnalysisFactory, OmicsUnitFactory, OmicsUnitTypeFactory, PixelFactory,
-    StrainFactory
+    NOTEBOOK_DEFAULT_PATH, SECONDARY_DATA_DEFAULT_PATH, AnalysisFactory,
+    OmicsUnitFactory, OmicsUnitTypeFactory, PixelFactory, StrainFactory
 )
 from apps.core.models import OmicsUnit, Pixel
 from apps.data.factories import EntryFactory
@@ -14,28 +14,34 @@ from apps.submission.io.pixel import PixelSetParser
 from ...exceptions import PixelSetParserError, PixelSetParserSaveError
 
 
-class PixelTestCase(TestCase):
+class LoadCGDMixin(object):
+
+    def _load_cgd_entries(self):
+
+        cgd_path = Path(
+            'apps/submission/fixtures/'
+        ) / Path(
+            'C_glabrata_CBS138_current_chromosomal_feature_required.tab'
+        )
+        cgd_parser = ChrFeatureParser(cgd_path)
+        cgd_parser.parse()
+        cgd_parser.save(ignore_aliases=False)
+
+
+class PixelTestCase(LoadCGDMixin, TestCase):
 
     def setUp(self):
 
         self.pixelset_path = Path(
             'apps/submission/fixtures/dataset-0001/Pixel_C10.txt'
         )
-        self.cgd_path = Path(
-            'apps/submission/fixtures/'
-        ) / Path(
-            'C_glabrata_CBS138_current_chromosomal_feature_required.tab'
+        self.analysis = AnalysisFactory(
+            secondary_data__from_path=SECONDARY_DATA_DEFAULT_PATH,
+            notebook__from_path=NOTEBOOK_DEFAULT_PATH,
         )
-        self.analysis = AnalysisFactory()
         self.description = "lorem ipsum"
         self.omics_unit_type = OmicsUnitTypeFactory()
         self.strain = StrainFactory()
-
-    def _load_cgd_entries(self):
-
-        cgd_parser = ChrFeatureParser(self.cgd_path)
-        cgd_parser.parse()
-        cgd_parser.save(ignore_aliases=False)
 
     def _create_pixel_from_set(self, pixelset):
         entry = EntryFactory(
