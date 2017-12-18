@@ -16,7 +16,7 @@ class ChrFeatureParserTestCase(TestCase):
         self.file_path = Path(
             'apps/data/fixtures/'
         ) / Path(
-            'C_glabrata_CBS138_current_chromosomal_feature_100.tab'
+            'C_glabrata_CBS138_current_chromosomal_feature_10.tab'
         )
 
     def test_init(self):
@@ -35,7 +35,7 @@ class ChrFeatureParserTestCase(TestCase):
         assert parser.features is None
 
         parser.parse()
-        assert len(parser.features) == 100
+        assert len(parser.features) == 10
 
         first_feature = parser.features.iloc[0]
         assert first_feature['name'] == 'CAGL0A00105g'
@@ -64,7 +64,7 @@ class ChrFeatureParserTestCase(TestCase):
         parser.parse()
         parser._to_entries()
         assert parser.entries != defaults
-        assert len(parser.entries['new']) == 100
+        assert len(parser.entries['new']) == 10
         assert len(parser.entries['update']) == 0
 
         first_new_entry = parser.entries['new'][0]
@@ -92,7 +92,7 @@ class ChrFeatureParserTestCase(TestCase):
 
         repository = RepositoryFactory(name='CGD')
         first_entry = EntryFactory(
-            identifier='CAGL0A00106g',
+            identifier='CAGL0A00105g',
             description='Old description',
             url=(
                 'http://www.candidagenome.org/cgi-bin/locus.pl?dbid='
@@ -105,7 +105,7 @@ class ChrFeatureParserTestCase(TestCase):
         parser.parse()
         parser._to_entries()
 
-        assert len(parser.entries['new']) == 99
+        assert len(parser.entries['new']) == 9
         assert len(parser.entries['update']) == 1
         assert parser.entries['update'][0].identifier == 'CAGL0A00105g'
         assert parser.entries['update'][0].description == (
@@ -121,7 +121,7 @@ class ChrFeatureParserTestCase(TestCase):
         assert Entry.objects.count() == 0
 
         parser.save()
-        assert Entry.objects.count() == 100
+        assert Entry.objects.count() == 10
 
         entry = Entry.objects.get(identifier='CAGL0A00105g')
         assert entry.url == (
@@ -145,7 +145,7 @@ class ChrFeatureParserTestCase(TestCase):
         parser = ChrFeatureParser(self.file_path)
         parser.parse()
         parser.save()
-        assert Entry.objects.count() == 100
+        assert Entry.objects.count() == 10
 
         entry = Entry.objects.get(url=first_entry.url)
         assert entry.id == first_entry.id
