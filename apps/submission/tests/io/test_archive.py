@@ -245,8 +245,6 @@ class PixelArchiveTestCase(LoadCGDMixin, TestCase):
         # Import pixels
         archive.save(pixeler=self.pixeler)
         self.assertEqual(Pixel.objects.count(), 3716)
-        for analysis in Analysis.objects.all():
-            print(analysis.__dict__)
 
         # No new experiment/analysis should have been created
         self.assertEqual(Experiment.objects.count(), 1)
