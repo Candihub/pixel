@@ -2,9 +2,10 @@ from pathlib import Path
 from django.test import TestCase
 from django.urls import reverse
 
-from .test_views import StartTestMixin, ValidateTestMixin
 from ..models import SubmissionProcess
 from ..templatetags import submission
+from .io.test_pixel import LoadCGDMixin
+from .test_views import StartTestMixin, ValidateTestMixin
 
 
 class HideTracebackFilterTestCase(TestCase):
@@ -77,7 +78,8 @@ class CoreTasksFilterTestCase(ValidateTestMixin, TestCase):
             'download',
             'upload',
             'meta',
-            'validation'
+            'validation',
+            'import archive'
         )
         tasks = tuple(
             str(t.flow_task).lower() for t in submission.core_tasks(tasks)
@@ -88,7 +90,7 @@ class CoreTasksFilterTestCase(ValidateTestMixin, TestCase):
         )
 
 
-class SubmissionRatioTestCase(StartTestMixin, TestCase):
+class SubmissionRatioTestCase(StartTestMixin, LoadCGDMixin, TestCase):
 
     fixtures = [
         'apps/data/fixtures/initial_data.json',
@@ -110,7 +112,7 @@ class SubmissionRatioTestCase(StartTestMixin, TestCase):
         task = process.task_set.first()
         self.assertEqual(
             submission.submission_ratio(process),
-            10
+            8
         )
 
         # Download
@@ -129,7 +131,7 @@ class SubmissionRatioTestCase(StartTestMixin, TestCase):
         )
         self.assertEqual(
             submission.submission_ratio(process),
-            30
+            25
         )
 
         # Upload
@@ -153,10 +155,11 @@ class SubmissionRatioTestCase(StartTestMixin, TestCase):
             )
         self.assertEqual(
             submission.submission_ratio(process),
-            70
+            58
         )
 
-        # Validate
+        # Validate & import
+        self._load_cgd_entries()
         task = process.task_set.first()
         url = reverse(
             'submission:validation',

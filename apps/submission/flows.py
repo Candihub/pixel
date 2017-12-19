@@ -91,6 +91,21 @@ class SubmissionFlow(Flow):
     check_validation = flow.If(
         lambda activation: activation.process.validated
     ).Then(
+        this.import_archive
+    ).Else(
+        this.validation
+    )
+
+    import_archive = flow.Handler(
+        this.perform_archive_importation,
+        activation_class=NotPropagatedExceptionHandlerActivation,
+    ).Next(
+        this.check_import
+    )
+
+    check_import = flow.If(
+        lambda activation: activation.process.imported
+    ).Then(
         this.end
     ).Else(
         this.validation
@@ -108,4 +123,17 @@ class SubmissionFlow(Flow):
         archive = PixelArchive(archive_path)
         archive.parse(serialized=True)
         activation.process.meta = archive.meta
+        activation.process.save()
+
+    def perform_archive_importation(self, activation):
+
+        archive_path = Path(
+            settings.MEDIA_ROOT
+        ) / Path(
+            activation.process.archive.name
+        )
+        archive = PixelArchive(archive_path)
+        archive.save(pixeler=activation.process.created_by)
+
+        activation.process.imported = True
         activation.process.save()
