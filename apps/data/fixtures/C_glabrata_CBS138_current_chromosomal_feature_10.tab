@@ -11,8 +11,8 @@ CAGL0A00116g		CAGL0A00110g.2	ORF|Uncharacterized	ChrA_C_glabrata_CBS138	4809	267
 CAGL0A00132g		Novel_proteincoding2	ORF|Uncharacterized	ChrA_C_glabrata_CBS138	11739	12689	W	CAL0000204452		Protein of unknown function	2015-04-13	2015-04-13				N
 CAGL0A00165g		CAGL-IPF3306|CAGL-CDS3760.1|CAG57670.1	ORF|Uncharacterized	ChrA_C_glabrata_CBS138	18876	18037	C	CAL0126541		Protein of unknown function	2010-10-20	2010-10-20				N
 CAGL0A00407g	SCL1	CAGL-IPF3321|CAGL-CDS3967.1|CAG57681.1	ORF|Uncharacterized	ChrA_C_glabrata_CBS138	41556	42320	W	CAL0126727		Alpha 1 subunit of the 20S proteasome	2010-10-20	2010-10-20				N	SCL1
-CAGL0A00473g		CAGL-IPF3326|CAGL-CDS0843.1|CAG57684.1	ORF|Uncharacterized	ChrA_C_glabrata_CBS138	53497	51137	C	CAL0126703		Ortholog(s) have mRNA binding activity	2010-10-20	2010-10-20				N	PUF4
+CAGL0A00473g		CAGL-IPF3326|CAGL-CDS0843.1|CAG57684.1|CAGL-CDS3967.1	ORF|Uncharacterized	ChrA_C_glabrata_CBS138	53497	51137	C	CAL0126703		Ortholog(s) have mRNA binding activity	2010-10-20	2010-10-20				N	PUF4
 CAGL0A00671r	tP(UGG)1	tRNA-Pro (TGG)|tP(TGG)1	tRNA|Uncharacterized	ChrA_C_glabrata_CBS138	71735	71627	C	CAL0126569		tRNA-Pro, predicted by tRNAscan-SE; UGG anticodon	2010-10-20	2010-10-20				N
 CAGL0A00759s	Cen0A		centromere	ChrA_C_glabrata_CBS138	77251	77360	W	CAL0137785		Centromere, chromosome A	2010-10-21	2010-10-21				N
-CAGL0A00869g	EST2	CAGL-IPF3355|CAGL-CDS0684.1|CAG57699.1	ORF|Verified	ChrA_C_glabrata_CBS138	87841	90396	W	CAL0126685		Telomerase catalytic subunit	2010-10-20	2010-10-20				N	EST2
+CAGL0A00869g	EST2	CAGL-IPF3355|CAGL-CDS0684.1|CAG57699.1|CAGL0A00116g	ORF|Verified	ChrA_C_glabrata_CBS138	87841	90396	W	CAL0126685		Telomerase catalytic subunit	2010-10-20	2010-10-20				N	EST2
 CAGL0A02321g	HXT3	CAGL-IPF2970|CAGL-CDS1735.1|CAG57758.1	ORF|Uncharacterized	ChrA_C_glabrata_CBS138	253862	252192	C	CAL0126815		Ortholog(s) have fructose transmembrane transporter activity, glucose transmembrane transporter activity, mannose transmembrane transporter activity and role in fructose import across plasma membrane, glucose import across plasma membrane	2010-10-20	2010-10-20				N	HXT5

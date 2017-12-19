@@ -67,26 +67,33 @@ class ChrFeatureParserTestCase(TestCase):
         assert len(parser.entries['new']) == 10
         assert len(parser.entries['update']) == 0
 
-        first_new_entry = parser.entries['new'][0]
-        assert first_new_entry.identifier == 'CAGL0A00105g'
-        assert first_new_entry.description == 'Protein of unknown function'
-        assert first_new_entry.url == (
+        # Look for duplicates
+        identifiers = [e.identifier for e in parser.entries['new']]
+        assert len(identifiers) == len(set(identifiers))
+        assert 'CAGL0A00105g' in identifiers
+        assert 'CAGL0A02321g' in identifiers
+
+        # Check two entries
+        entry = parser.entries['new'][identifiers.index('CAGL0A00105g')]
+        assert entry.identifier == 'CAGL0A00105g'
+        assert entry.description == 'Protein of unknown function'
+        assert entry.url == (
             'http://www.candidagenome.org/cgi-bin/locus.pl?dbid=CAL0000210339'
         )
-        assert first_new_entry.repository.name == 'CGD'
+        assert entry.repository.name == 'CGD'
 
-        last_new_entry = parser.entries['new'][-1]
-        assert last_new_entry.identifier == 'CAGL0A02321g'
-        assert last_new_entry.description == (
+        entry = parser.entries['new'][identifiers.index('CAGL0A02321g')]
+        assert entry.identifier == 'CAGL0A02321g'
+        assert entry.description == (
             'Ortholog(s) have fructose transmembrane transporter activity, '
             'glucose transmembrane transporter activity, mannose '
             'transmembrane transporter activity and role in fructose import '
             'across plasma membrane, glucose import across plasma membrane'
         )
-        assert last_new_entry.url == (
+        assert entry.url == (
             'http://www.candidagenome.org/cgi-bin/locus.pl?dbid=CAL0126815'
         )
-        assert last_new_entry.repository.name == 'CGD'
+        assert entry.repository.name == 'CGD'
 
     def test__to_entries_with_existing_entries(self):
 
@@ -112,6 +119,15 @@ class ChrFeatureParserTestCase(TestCase):
             'Protein of unknown function'
         )
         assert parser.entries['update'][0].url == first_entry.url
+
+    def test__to_entries_with_aliases(self):
+
+        parser = ChrFeatureParser(self.file_path)
+        parser.parse()
+        parser._to_entries(ignore_aliases=False)
+
+        assert len(parser.entries['new']) == 30
+        assert len(parser.entries['update']) == 0
 
     def test_save(self):
 
