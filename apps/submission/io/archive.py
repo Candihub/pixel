@@ -89,8 +89,8 @@ class PixelArchive(object):
             pixeler=pixeler,
             completed_at=self.meta['analysis']['date'],
         )
-        analysis.secondary_data.name = self.meta['analysis']['secondary_data_path']  # noqa
-        analysis.notebook.name = self.meta['analysis']['notebook_path']
+        analysis.secondary_data.name = self.meta['analysis']['secondary_data_path'].name  # noqa
+        analysis.notebook.name = self.meta['analysis']['notebook_path'].name
         analysis.save()
 
         # Add missing related experiment
