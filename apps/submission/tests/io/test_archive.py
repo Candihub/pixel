@@ -2,6 +2,7 @@ import datetime
 import pytest
 
 from pathlib import Path
+from unittest.mock import MagicMock
 from zipfile import ZipFile
 
 from django.test import TestCase
@@ -15,7 +16,7 @@ from apps.core.models import (
 from apps.data.factories import EntryFactory
 from apps.data.models import Repository
 from apps.submission.io.archive import META_FILENAME, PixelArchive
-from ... import exceptions
+from ... import exceptions, signals
 from .test_pixel import LoadCGDMixin
 
 
@@ -211,6 +212,23 @@ class PixelArchiveTestCase(LoadCGDMixin, TestCase):
         self.assertEqual(Pixel.objects.count(), 3716)
         self.assertEqual(Experiment.objects.count(), 1)
         self.assertEqual(Analysis.objects.count(), 1)
+
+    def test_save_emits_importation_done_signal(self):
+
+        handler = MagicMock()
+        signals.importation_done.connect(handler, sender=PixelArchive)
+
+        archive = PixelArchive(self.valid_archive_path)
+        self._load_cgd_entries()
+        experiment, analysis, pixel_sets = archive.save(pixeler=self.pixeler)
+
+        handler.assert_called_once_with(
+            signal=signals.importation_done,
+            sender=PixelArchive,
+            experiment=experiment,
+            analysis=analysis,
+            pixel_sets=pixel_sets
+        )
 
     def test_save_with_existing_experiment_and_analysis(self):
 

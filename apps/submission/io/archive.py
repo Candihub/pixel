@@ -7,7 +7,7 @@ from django.utils.translation import ugettext as _
 from apps.core.models import Analysis, Experiment
 from apps.data.models import Entry
 from apps.submission.io.xlsx import parse_template
-from .. import exceptions
+from .. import exceptions, signals
 from .pixel import PixelSetParser
 
 META_FILENAME = 'meta.xlsx'
@@ -99,6 +99,7 @@ class PixelArchive(object):
             analysis.experiments.add(experiment)
 
         # -- Pixels
+        pixel_sets = []
         for dataset in self.meta['datasets']:
             pixelset_path, omics_unit_type, strain, description = dataset
             parser = PixelSetParser(
@@ -110,3 +111,14 @@ class PixelArchive(object):
             )
             parser.parse()
             parser.save()
+            pixel_sets.append(parser.pixelset)
+
+        # Spread the word!
+        signals.importation_done.send(
+            sender=self.__class__,
+            experiment=experiment,
+            analysis=analysis,
+            pixel_sets=pixel_sets,
+        )
+
+        return experiment, analysis, pixel_sets
