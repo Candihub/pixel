@@ -106,6 +106,6 @@ class SubmissionFlow(Flow):
             activation.process.archive.name
         )
         archive = PixelArchive(archive_path)
-        archive.parse_meta(serialized=True)
+        archive.parse(serialized=True)
         activation.process.meta = archive.meta
         activation.process.save()

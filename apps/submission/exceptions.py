@@ -16,3 +16,11 @@ class MetaFileFormatError(ArchiveError):
 
 class MetaFileParsingError(ArchiveError):
     pass
+
+
+class PixelSetParserError(Exception):
+    pass
+
+
+class PixelSetParserSaveError(PixelSetParserError):
+    pass

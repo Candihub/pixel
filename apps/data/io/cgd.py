@@ -76,7 +76,10 @@ class ChrFeatureParser(object):
         repository, _ = Repository.objects.get_or_create(name='CGD')
         root_url = 'http://www.candidagenome.org/cgi-bin/locus.pl?dbid='
         known_entries = repository.entries.values_list('identifier', flat=True)
-        entries = dict(update=[], new=[])
+        entries = {
+            'update': [],
+            'new': [],
+        }
 
         for idx, feature in self.features.iterrows():
             url = '{}{}'.format(root_url, feature['cgdid'])

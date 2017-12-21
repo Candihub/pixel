@@ -69,7 +69,15 @@ class PixelAdminTestCase(TestCase):
 
     def setUp(self):
         site = AdminSite()
-        self.Pixel = factories.PixelFactory()
+        analysis = factories.AnalysisFactory(
+            secondary_data__from_path=factories.SECONDARY_DATA_DEFAULT_PATH,
+            notebook__from_path=factories.NOTEBOOK_DEFAULT_PATH,
+        )
+        pixel_set = factories.PixelSetFactory(
+            analysis=analysis,
+            pixels_file__from_path=factories.PIXELS_DEFAULT_PATH,
+        )
+        self.Pixel = factories.PixelFactory(pixel_set=pixel_set)
         self.Pixel_admin = admin.PixelAdmin(models.Pixel, site)
 
     def test_get_analysis_description(self):

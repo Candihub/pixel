@@ -312,6 +312,10 @@ class Experiment(models.Model):
         to=Tag,
     )
 
+    completed_at = models.DateField(
+        _("Completion date"),
+    )
+
     released_at = models.DateField(
         _("Release date"),
     )
@@ -386,6 +390,10 @@ class Analysis(UUIDModelMixin, models.Model):
 
     tags = tgl_models.TagField(
         to=Tag,
+    )
+
+    completed_at = models.DateField(
+        _("Completion date"),
     )
 
     created_at = models.DateTimeField(

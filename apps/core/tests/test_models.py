@@ -306,7 +306,10 @@ class PixelSetTestCase(TestCase):
 
     def test_can_create_pixel_set(self):
 
-        analysis = factories.AnalysisFactory()
+        analysis = factories.AnalysisFactory(
+            secondary_data__from_path=factories.SECONDARY_DATA_DEFAULT_PATH,
+            notebook__from_path=factories.NOTEBOOK_DEFAULT_PATH,
+        )
         pixels_file_path = '/foo/bar/lol'
         pixel_set = factories.PixelSetFactory(
             analysis=analysis,
@@ -319,8 +322,15 @@ class PixelSetTestCase(TestCase):
     def test_pixelset_upload_to(self):
 
         pixeler = factories.PixelerFactory()
-        analysis = factories.AnalysisFactory(pixeler=pixeler)
-        pixel_set = factories.PixelSetFactory(analysis=analysis)
+        analysis = factories.AnalysisFactory(
+            secondary_data__from_path=factories.SECONDARY_DATA_DEFAULT_PATH,
+            notebook__from_path=factories.NOTEBOOK_DEFAULT_PATH,
+            pixeler=pixeler
+        )
+        pixel_set = factories.PixelSetFactory(
+            analysis=analysis,
+            pixels_file__from_path=factories.PIXELS_DEFAULT_PATH,
+        )
 
         upload_path = models.PixelSet.pixelset_upload_to(
             pixel_set,
@@ -361,6 +371,7 @@ class PixelTestCase(TestCase):
         omics_area = models.OmicsArea.objects.create(name='RNAseq')
         experiment = models.Experiment.objects.create(
             omics_area=omics_area,
+            completed_at=datetime.date(1980, 10, 14),
             released_at=datetime.date(1980, 10, 14),
         )
         pixeler = models.Pixeler.objects.create(
@@ -369,14 +380,19 @@ class PixelTestCase(TestCase):
             password='toto,1234!'
         )
         self.analysis = models.Analysis.objects.create(
-            secondary_data='/fake/path/secondary_data',
             pixeler=pixeler,
+            completed_at=datetime.date(1980, 10, 14),
         )
+        self.analysis.secondary_data.name = (
+            factories.SECONDARY_DATA_DEFAULT_PATH
+        )
+        self.analysis.save()
         self.analysis.experiments.add(experiment)
 
         # Pixel set
         self.pixel_set = factories.PixelSetFactory(
-            analysis=self.analysis
+            analysis=self.analysis,
+            pixels_file__from_path=factories.PIXELS_DEFAULT_PATH,
         )
 
     def test_can_create_pixel(self):
@@ -418,6 +434,7 @@ class ExperimentTestCase(TestCase):
             description=description,
             omics_area=self.omics_area,
             released_at=released_at,
+            completed_at=datetime.date(1980, 10, 14),
         )
 
         self.assertEqual(experiment.description, description)
@@ -433,6 +450,7 @@ class ExperimentTestCase(TestCase):
         experiment = models.Experiment.objects.create(
             description='lorem ipsum',
             omics_area=self.omics_area,
+            completed_at=datetime.date(1980, 10, 14),
             released_at=datetime.date(1980, 10, 14),
         )
         entries = [EntryFactory() for e in range(2)]
@@ -445,6 +463,7 @@ class ExperimentTestCase(TestCase):
         experiment = models.Experiment.objects.create(
             description='lorem ipsum',
             omics_area=self.omics_area,
+            completed_at=datetime.date(1980, 10, 14),
             released_at=datetime.date(1980, 10, 14),
         )
 
@@ -460,6 +479,7 @@ class ExperimentTestCase(TestCase):
         experiment = models.Experiment.objects.create(
             description='lorem ipsum',
             omics_area=self.omics_area,
+            completed_at=datetime.date(1980, 10, 14),
             released_at=datetime.date(1980, 10, 14),
         )
 
@@ -489,6 +509,7 @@ class AnalysisTestCase(TestCase):
         omics_area = models.OmicsArea.objects.create(name='RNAseq')
         self.experiment = models.Experiment.objects.create(
             omics_area=omics_area,
+            completed_at=datetime.date(1980, 10, 14),
             released_at=datetime.date(1980, 10, 14),
         )
         self.pixeler = models.Pixeler.objects.create(
@@ -510,6 +531,7 @@ class AnalysisTestCase(TestCase):
             secondary_data=secondary_data,
             notebook=notebook,
             pixeler=self.pixeler,
+            completed_at=datetime.date(1980, 10, 14),
         )
 
         self.assertEqual(analysis.description, description)
@@ -528,6 +550,7 @@ class AnalysisTestCase(TestCase):
             secondary_data='/fake/path/secondary_data',
             notebook='/fake/path/notebook',
             pixeler=self.pixeler,
+            completed_at=datetime.date(1980, 10, 14),
         )
         analysis.experiments.add(self.experiment)
 
@@ -541,6 +564,7 @@ class AnalysisTestCase(TestCase):
             secondary_data='/fake/path/secondary_data',
             notebook='/fake/path/notebook',
             pixeler=self.pixeler,
+            completed_at=datetime.date(1980, 10, 14),
         )
         tags = ['foo technique', 'bar technique']
         analysis.tags = tags
@@ -556,6 +580,7 @@ class AnalysisTestCase(TestCase):
             secondary_data='/fake/path/secondary_data',
             notebook='/fake/path/notebook',
             pixeler=self.pixeler,
+            completed_at=datetime.date(1980, 10, 14),
         )
 
         tags = ['foo/bar/pca', 'foo/bayes']
@@ -582,6 +607,7 @@ class AnalysisTestCase(TestCase):
             description='lorem ipsum',
             secondary_data='/fake/path/secondary_data',
             pixeler=self.pixeler,
+            completed_at=datetime.date(1980, 10, 14),
         )
 
         upload_path = models.Analysis.secondary_data_upload_to(
@@ -600,6 +626,7 @@ class AnalysisTestCase(TestCase):
             description='lorem ipsum',
             secondary_data='/fake/path/secondary_data',
             pixeler=self.pixeler,
+            completed_at=datetime.date(1980, 10, 14),
         )
 
         upload_path = models.Analysis.notebook_upload_to(

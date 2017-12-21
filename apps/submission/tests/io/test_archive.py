@@ -6,13 +6,20 @@ from zipfile import ZipFile
 
 from django.test import TestCase
 
-from apps.core.models import OmicsArea, OmicsUnitType, Strain
+from apps.core.factories import (
+    AnalysisFactory, ExperimentFactory, PixelerFactory
+)
+from apps.core.models import (
+    Analysis, Experiment, OmicsArea, OmicsUnitType, Pixel, Strain
+)
+from apps.data.factories import EntryFactory
 from apps.data.models import Repository
 from apps.submission.io.archive import META_FILENAME, PixelArchive
 from ... import exceptions
+from .test_pixel import LoadCGDMixin
 
 
-class PixelArchiveTestCase(TestCase):
+class PixelArchiveTestCase(LoadCGDMixin, TestCase):
 
     fixtures = [
         'apps/data/fixtures/initial_data.json',
@@ -26,6 +33,11 @@ class PixelArchiveTestCase(TestCase):
         )
         self.no_meta_archive_path = Path(
             'apps/submission/fixtures/dataset-0001-no-meta.zip'
+        )
+        self.pixeler = PixelerFactory(
+            is_active=True,
+            is_staff=True,
+            is_superuser=True,
         )
 
     def test_init_with_no_archive_argument(self):
@@ -120,10 +132,10 @@ class PixelArchiveTestCase(TestCase):
         with pytest.raises(exceptions.MetaFileRequiredError):
             archive._set_meta()
 
-    def test_parse_meta(self):
+    def test_parse(self):
 
         archive = PixelArchive(self.valid_archive_path)
-        archive.parse_meta()
+        archive.parse()
 
         protein = OmicsUnitType.objects.get(name='protein')
         deltaHTU = Strain.objects.get(name='deltaHTU')
@@ -187,3 +199,55 @@ class PixelArchiveTestCase(TestCase):
             ]
         }
         self.assertDictEqual(archive.meta, expected)
+
+    def test_save(self):
+
+        archive = PixelArchive(self.valid_archive_path)
+        archive.parse()
+
+        self.assertEqual(Pixel.objects.count(), 0)
+        self._load_cgd_entries()
+        archive.save(pixeler=self.pixeler)
+        self.assertEqual(Pixel.objects.count(), 3716)
+        self.assertEqual(Experiment.objects.count(), 1)
+        self.assertEqual(Analysis.objects.count(), 1)
+
+    def test_save_with_existing_experiment_and_analysis(self):
+
+        archive = PixelArchive(self.valid_archive_path)
+        archive.parse()
+        self._load_cgd_entries()
+
+        # Create experiment & analysis
+        experiment = ExperimentFactory(
+            description=archive.meta['experiment']['summary'],
+            omics_area=archive.meta['experiment']['omics_area'],
+            completed_at=archive.meta['experiment']['completion_date'],
+            released_at=archive.meta['experiment']['release_date'],
+        )
+        entry = EntryFactory(
+            identifier=archive.meta['experiment']['entry'],
+            repository=archive.meta['experiment']['repository']
+        )
+        experiment.entries.add(entry)
+        analysis = AnalysisFactory(
+            description=archive.meta['analysis']['description'],
+            secondary_data__from_path=archive.meta['analysis']['secondary_data_path'],  # noqa
+            notebook__from_path=archive.meta['analysis']['notebook_path'],
+            pixeler=self.pixeler,
+            completed_at=archive.meta['analysis']['date'],
+        )
+        analysis.experiments.add(experiment)
+
+        self.assertEqual(Experiment.objects.count(), 1)
+        self.assertEqual(Analysis.objects.count(), 1)
+
+        # Import pixels
+        archive.save(pixeler=self.pixeler)
+        self.assertEqual(Pixel.objects.count(), 3716)
+        for analysis in Analysis.objects.all():
+            print(analysis.__dict__)
+
+        # No new experiment/analysis should have been created
+        self.assertEqual(Experiment.objects.count(), 1)
+        self.assertEqual(Analysis.objects.count(), 1)
