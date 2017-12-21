@@ -154,15 +154,45 @@ class Development(Base):
         "SHOW_TOOLBAR_CALLBACK": lambda request: True,
     }
 
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 
 class Staging(Base):
+    """
+    Depends on environment variables that SHOULD be defined (in addition to the
+    base environment variables):
+
+    EMAIL_HOST=smtp.example.org
+    EMAIL_PORT=587
+    EMAIL_HOST_USER=babar
+    EMAIL_HOST_PASSWORD=KingOfTheElephants
+    """
 
     ALLOWED_HOSTS = ['staging.pixel.candihub.eu', ]
 
+    EMAIL_HOST = values.Value(
+        '', environ_name='EMAIL_HOST', environ_prefix=None
+    )
+    EMAIL_PORT = values.IntegerValue(
+        587, environ_name='EMAIL_PORT', environ_prefix=None
+    )
+    EMAIL_HOST_USER = values.Value(
+        '', environ_name='EMAIL_HOST_USER', environ_prefix=None
+    )
+    EMAIL_HOST_PASSWORD = values.Value(
+        '', environ_name='EMAIL_HOST_PASSWORD', environ_prefix=None
+    )
+    EMAIL_USE_TLS = True
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_SUBJECT_PREFIX = '[Pixel/staging] '
+    DEFAULT_FROM_EMAIL = "Pixel Admin <no-reply@pixel.candihub.eu>"
+    SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
-class Production(Base):
+
+class Production(Staging):
 
     ALLOWED_HOSTS = ['pixel.candihub.eu', ]
+    EMAIL_SUBJECT_PREFIX = '[Pixel/production] '
 
 
 class Test(Base):
