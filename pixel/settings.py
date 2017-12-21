@@ -24,6 +24,8 @@ class Base(Configuration):
 
     DEBUG = False
 
+    ADMINS = [('Julien Maupetit', 'julien@tailordev.fr'), ]
+
     ALLOWED_HOSTS = []
 
     # Application definition
