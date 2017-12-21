@@ -27,7 +27,7 @@ pytest-django = "*"
 pytest-cov = "*"
 "flake8" = "*"
 coveralls = "*"
-factory-boy = "*"
+factory_boy = "*"
 django-debug-toolbar = "*"
 
 
