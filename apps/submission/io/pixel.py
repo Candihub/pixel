@@ -75,7 +75,7 @@ class PixelSetParser(object):
             )
 
         self.pixelset, __ = PixelSet.objects.get_or_create(
-            pixels_file__exact=self.pixelset_path,
+            pixels_file__exact=self.pixelset_path.name,
             description=self.description,
             analysis=self.analysis,
         )

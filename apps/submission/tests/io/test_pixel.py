@@ -157,7 +157,7 @@ class PixelTestCase(LoadCGDMixin, TestCase):
         parser._set_pixel_set()
         pixelset = parser.pixelset
         self.assertIsNotNone(pixelset)
-        self.assertEqual(pixelset.pixels_file.name, self.pixelset_path)
+        self.assertEqual(pixelset.pixels_file.name, self.pixelset_path.name)
         self.assertEqual(pixelset.description, self.description)
         self.assertEqual(pixelset.analysis, self.analysis)
 
