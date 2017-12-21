@@ -1,4 +1,5 @@
 from pathlib import Path
+
 from django.test import TestCase
 from django.urls import reverse
 
@@ -158,7 +159,7 @@ class SubmissionRatioTestCase(StartTestMixin, LoadCGDMixin, TestCase):
             58
         )
 
-        # Validate & import
+        # Validate
         self._load_cgd_entries()
         task = process.task_set.first()
         url = reverse(
@@ -178,5 +179,8 @@ class SubmissionRatioTestCase(StartTestMixin, LoadCGDMixin, TestCase):
         )
         self.assertEqual(
             submission.submission_ratio(process),
-            100
+            75
         )
+
+        # TODO
+        # test async import…
