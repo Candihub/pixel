@@ -1,3 +1,5 @@
+import logging
+
 import pandas
 
 from django.utils.translation import ugettext as _
@@ -5,6 +7,8 @@ from django.utils.translation import ugettext as _
 from apps.core.models import OmicsUnit, Pixel, PixelSet
 from apps.data.models import Entry
 from ..exceptions import PixelSetParserError, PixelSetParserSaveError
+
+logger = logging.getLogger(__name__)
 
 
 class PixelSetParser(object):
@@ -31,6 +35,10 @@ class PixelSetParser(object):
     def parse(self, force=False):
 
         if self.pixels is not None and not force:
+            logger.debug(
+                'Aborting because pixels have already been parsed and '
+                'force = False'
+            )
             return
 
         self.pixels = pandas.read_csv(
