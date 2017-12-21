@@ -1,3 +1,5 @@
+import logging
+
 from pathlib import Path
 from tempfile import mkdtemp
 from zipfile import ZipFile, is_zipfile
@@ -10,12 +12,14 @@ from apps.submission.io.xlsx import parse_template
 from .. import exceptions, signals
 from .pixel import PixelSetParser
 
+logger = logging.getLogger(__name__)
 META_FILENAME = 'meta.xlsx'
 
 
 class PixelArchive(object):
 
     def __init__(self, archive_path):
+        logger.debug('New archive: {}'.format(archive_path))
 
         if not Path(archive_path).exists():
             raise FileNotFoundError(
@@ -60,10 +64,12 @@ class PixelArchive(object):
         )
 
     def parse(self, serialized=False):
+        logger.debug('Parsing meta for {}…'.format(self.archive_path))
 
         self.meta = parse_template(self.meta_path, serialized=serialized)
 
     def save(self, pixeler):
+        logger.debug('Saving data for {}…'.format(self.archive_path))
 
         # -- Experiment
         experiment, _ = Experiment.objects.get_or_create(
@@ -114,6 +120,11 @@ class PixelArchive(object):
             pixel_sets.append(parser.pixelset)
 
         # Spread the word!
+        logger.debug(
+            'Sending importation_done signal for {}'.format(
+                self.archive_path
+            )
+        )
         signals.importation_done.send(
             sender=self.__class__,
             experiment=experiment,
@@ -121,4 +132,14 @@ class PixelArchive(object):
             pixel_sets=pixel_sets,
         )
 
+        logger.debug(
+            (
+                'Saved archive data with: experiment:{}, analysis:{}, '
+                'pixel_sets: {}'
+            ).format(
+                experiment,
+                analysis,
+                pixel_sets,
+            )
+        )
         return experiment, analysis, pixel_sets
