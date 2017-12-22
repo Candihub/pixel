@@ -166,6 +166,11 @@ workflows:
           type: approval
           requires:
             - hub
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
       - deploy-to-production:
           requires:
             - approve-deploy-to-production
