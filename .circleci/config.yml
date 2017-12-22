@@ -120,6 +120,13 @@ jobs:
           name: Run bin/deploy over SSH
           command: ssh -t pixel@candihub.eu 'cd ~/staging/ && sudo bin/deploy'
 
+  deploy-to-production:
+    machine: true
+    steps:
+      - run:
+          name: Run bin/deploy over SSH
+          command: ssh -t pixel@candihub.eu 'cd ~/production/ && sudo bin/deploy "$CIRCLE_TAG"'
+
 workflows:
   version: 2
 
@@ -155,3 +162,15 @@ workflows:
           filters:
             branches:
               only: master
+      - approve-deploy-to-production:
+        type: approval
+        requires:
+          - hub
+      - deploy-to-production:
+          requires:
+            - approve-deploy-to-production
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
