@@ -38,7 +38,13 @@ django_admin migrate
 
 ## Continuous delivery in production
 
-TODO: add more content when Circle CI is able to deploy tagged releases.
+The `production` environment, available at https://pixel.candihub.eu/, can be
+deployed on any new tag created, but it is not automatically deployed.
+Circle-CI builds a Docker image (tagged with the Git tag of the release), and
+[asks for
+approval](https://circleci.com/docs/2.0/workflows/#holding-a-workflow-for-a-manual-approval)
+to deploy it to the production server. The script below is executed over SSH
+with the tag as unique argument:
 
 ``` bash
 #!/usr/bin/env bash
