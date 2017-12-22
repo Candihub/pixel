@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.2.0 (2017/12/22)
+
+* Production deployment
+* Staging continuous deployment
+* Add CGD chromosomal features (#104, #108, #109)
+* Add importation workflow (#84, #86, #91, #92, #101, #102, #103, #104)
+* Add PixelSet model (#79)
+* Add checksum to importation template (#75)
+
 ## 1.1.0 (2017/11/15)
 
 This is our very first release. It has not been tagged as `1.0.0` as it should
