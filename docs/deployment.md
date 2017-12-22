@@ -76,6 +76,9 @@ django_admin collectstatic --noinput --clear
 django_admin migrate
 ```
 
+You can see the Circle-CI workflows at:
+https://circleci.com/gh/Candihub/workflows/pixel.
+
 ### Server settings
 
 The `pixel` account is used on the server and does not have any other rights
