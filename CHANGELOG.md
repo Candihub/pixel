@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.1 (2017/12/22)
+
+* Fix command to deploy to production
+
 ## 1.2.0 (2017/12/22)
 
 * Production deployment

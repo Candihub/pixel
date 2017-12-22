@@ -1,6 +1,6 @@
 {
   "name": "pixel",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Integration of smart 'omics' data",
   "repository": "git@github.com:Candihub/pixel.git",
   "author": "CandiHub",
