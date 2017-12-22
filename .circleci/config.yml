@@ -163,9 +163,9 @@ workflows:
             branches:
               only: master
       - approve-deploy-to-production:
-        type: approval
-        requires:
-          - hub
+          type: approval
+          requires:
+            - hub
       - deploy-to-production:
           requires:
             - approve-deploy-to-production
