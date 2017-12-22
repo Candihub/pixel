@@ -125,7 +125,7 @@ jobs:
     steps:
       - run:
           name: Run bin/deploy over SSH
-          command: ssh -t pixel@candihub.eu 'cd ~/production/ && sudo bin/deploy "$CIRCLE_TAG"'
+          command: ssh -t pixel@candihub.eu "cd ~/production/ && sudo bin/deploy \"$CIRCLE_TAG\""
 
 workflows:
   version: 2
