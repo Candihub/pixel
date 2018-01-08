@@ -1,7 +1,7 @@
 from unittest import mock
 
 from django.test import TestCase
-from viewflow import lock
+from viewflow import lock, signals as vf_signals
 from viewflow.activation import STATUS
 from viewflow.base import this
 
@@ -78,6 +78,13 @@ class AsyncActivationHandlerTestCase(TestCase):
             flow_class=AsyncFlow,
             name='task'
         )
+        # Prepare signal receiver
+        self.task_started_signal_called = False
+
+        def handler(sender, **kwargs):
+            self.task_started_signal_called = True
+
+        vf_signals.task_started.connect(handler)
 
         act = AsyncActivationHandler()
         act.initialize(flow_task, TaskStub())
@@ -86,6 +93,30 @@ class AsyncActivationHandlerTestCase(TestCase):
         act.perform()
         self.assertEqual(act.task.status, STATUS.NEW)
         self.assertTrue(AsyncFlow.method_called)
+        self.assertTrue(self.task_started_signal_called)
 
     def test_callback(self):
-        assert False
+
+        AsyncFlow.instance = AsyncFlow()
+        flow_task = self.init_node(
+            AsyncFlow.handler_task,
+            flow_class=AsyncFlow,
+            name='task'
+        )
+
+        # Prepare signal receiver
+        self.task_finished_signal_called = False
+
+        def handler(sender, **kwargs):
+            self.task_finished_signal_called = True
+
+        vf_signals.task_finished.connect(handler)
+
+        act = AsyncActivationHandler()
+        act.initialize(flow_task, TaskStub())
+
+        # execute
+        act.perform()
+        act.callback()
+        self.assertEqual(act.task.status, STATUS.DONE)
+        self.assertTrue(self.task_finished_signal_called)
