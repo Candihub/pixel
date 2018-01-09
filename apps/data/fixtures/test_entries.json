@@ -1,0 +1,101 @@
+[{
+    "pk": "87b156ab-2a49-40b5-9d5b-fca0850ff091",
+    "model": "data.entry",
+    "fields": {
+      "description": "Ortholog(s) have tRNA methyltransferase activity, role in tRNA methylation, wybutosine biosynthetic process and cytosol, nucleus localization",
+      "repository": "14e2910a-3543-449e-b33e-98f4cd2b69fa",
+      "identifier": "CAGL0D06336g",
+      "url": "http://www.candidagenome.org/cgi-bin/locus.pl?dbid=CAL0128177"
+    }
+  },
+  {
+    "pk": "c99b800c-bd64-47bf-a4e1-65931320d05f",
+    "model": "data.entry",
+    "fields": {
+      "url": "http://www.candidagenome.org/cgi-bin/locus.pl?dbid=CAL0129008",
+      "identifier": "CAGL0E00847g",
+      "repository": "14e2910a-3543-449e-b33e-98f4cd2b69fa",
+      "description": "Ortholog(s) have ARF guanyl-nucleotide exchange factor activity and role in ER to Golgi vesicle-mediated transport, autophagosome assembly, cellular response to drug, hyphal growth, intra-Golgi vesicle-mediated transport"
+    }
+  },
+  {
+    "fields": {
+      "url": "http://www.candidagenome.org/cgi-bin/locus.pl?dbid=CAL0131248",
+      "repository": "14e2910a-3543-449e-b33e-98f4cd2b69fa",
+      "identifier": "CAGL0F02695g",
+      "description": "Ortholog(s) have structural constituent of ribosome activity, role in mitochondrial translation and mitochondrial large ribosomal subunit localization"
+    },
+    "model": "data.entry",
+    "pk": "4333a50d-1042-4dc3-9dbb-a765e63b4356"
+  },
+  {
+    "fields": {
+      "identifier": "CAGL0G06666g",
+      "repository": "14e2910a-3543-449e-b33e-98f4cd2b69fa",
+      "description": "Ortholog(s) have DNA replication origin binding, DNA-directed DNA polymerase activity, chromatin binding, single-stranded DNA binding activity",
+      "url": "http://www.candidagenome.org/cgi-bin/locus.pl?dbid=CAL0129530"
+    },
+    "model": "data.entry",
+    "pk": "8314300a-64eb-4bee-be1d-7e2922622fd4"
+  },
+  {
+    "model": "data.entry",
+    "pk": "b77bd399-2d8c-4a44-a11e-9e86eac3f36a",
+    "fields": {
+      "description": "Ortholog(s) have protein serine/threonine kinase activity, ubiquitin binding activity",
+      "repository": "14e2910a-3543-449e-b33e-98f4cd2b69fa",
+      "identifier": "CAGL0H08437g",
+      "url": "http://www.candidagenome.org/cgi-bin/locus.pl?dbid=CAL0131728"
+    }
+  },
+  {
+    "fields": {
+      "repository": "14e2910a-3543-449e-b33e-98f4cd2b69fa",
+      "identifier": "CAGL0J05434g",
+      "description": "Ortholog(s) have role in actin filament bundle assembly, actin filament reorganization, pseudohyphal growth and actin filament bundle, cellular bud neck contractile ring localization",
+      "url": "http://www.candidagenome.org/cgi-bin/locus.pl?dbid=CAL0132950"
+    },
+    "pk": "d6d60d54-074d-4ee1-92d6-1209f0f85fc7",
+    "model": "data.entry"
+  },
+  {
+    "fields": {
+      "url": "http://www.candidagenome.org/cgi-bin/locus.pl?dbid=CAL0133712",
+      "identifier": "CAGL0J10494g",
+      "repository": "14e2910a-3543-449e-b33e-98f4cd2b69fa",
+      "description": "Ortholog(s) have cytoplasm localization"
+    },
+    "pk": "f815228f-aa62-4080-87bf-1b0c1f8c8809",
+    "model": "data.entry"
+  },
+  {
+    "pk": "89fd9c38-cdee-4afb-a5c9-9a925ecfb5a8",
+    "model": "data.entry",
+    "fields": {
+      "description": "Ortholog(s) have histone binding activity",
+      "repository": "14e2910a-3543-449e-b33e-98f4cd2b69fa",
+      "identifier": "CAGL0L05412g",
+      "url": "http://www.candidagenome.org/cgi-bin/locus.pl?dbid=CAL0135742"
+    }
+  },
+  {
+    "model": "data.entry",
+    "pk": "8db37f41-eecd-49af-bcc1-a6ed62853c20",
+    "fields": {
+      "description": "Protein of unknown function",
+      "repository": "14e2910a-3543-449e-b33e-98f4cd2b69fa",
+      "identifier": "CAGL0M06633g",
+      "url": "http://www.candidagenome.org/cgi-bin/locus.pl?dbid=CAL0136763"
+    }
+  },
+  {
+    "pk": "a364b6d5-9bce-423a-9341-131e876f7333",
+    "model": "data.entry",
+    "fields": {
+      "identifier": "CAGL0M13959g",
+      "repository": "14e2910a-3543-449e-b33e-98f4cd2b69fa",
+      "description": "Ortholog(s) have ATPase activity, tRNA binding activity, role in protein urmylation, regulation of transcription from RNA polymerase II promoter, tRNA wobble uridine modification and Elongator holoenzyme complex localization",
+      "url": "http://www.candidagenome.org/cgi-bin/locus.pl?dbid=CAL0136315"
+    }
+  }
+]

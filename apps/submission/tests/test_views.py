@@ -1,9 +1,13 @@
+import logging
+
 from pathlib import Path, PurePath
 from tempfile import mkdtemp
+from time import sleep
 
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 from django.urls import reverse
 from openpyxl import load_workbook
+from viewflow.activation import STATUS
 from viewflow.base import Flow
 
 from apps.core.factories import PIXELER_PASSWORD, PixelerFactory
@@ -13,6 +17,8 @@ from ..io.xlsx import (
 )
 from ..models import SubmissionProcess
 from ..views import NextTaskRedirectView
+
+logger = logging.getLogger(__name__)
 
 
 class StartTestMixin(object):
@@ -77,7 +83,7 @@ class UploadTestMixin(DownloadTestMixin):
         params.update({'task_pk': self.task.pk})
         self.url = reverse('submission:upload', kwargs=params)
 
-        self.archive = Path('apps/submission/fixtures/dataset-0001.zip')
+        self.archive = Path('apps/submission/fixtures/dataset-0001-shrink.zip')
 
 
 class ValidateTestMixin(UploadTestMixin):
@@ -412,13 +418,40 @@ class UploadArchiveViewTestCase(UploadTestMixin, TestCase):
         )
 
 
-class ArchiveValidationViewTestCase(ValidateTestMixin, TestCase):
+class ArchiveValidationViewTestCase(ValidateTestMixin, TransactionTestCase):
+    """
+    We use a TransactionTestCase to avoid using transactions for each test. By
+    doing so, we commit each request allowing multiple threads to access a
+    shared state of the database. This is required as the archive importation
+    is a background task (using concurrent.futures).
+    """
 
     template = 'submission/validation.html'
     fixtures = [
         'apps/data/fixtures/initial_data.json',
+        'apps/data/fixtures/test_entries.json',
         'apps/core/fixtures/initial_data.json',
     ]
+
+    # Forcing data serialization is also required
+    serialized_rollback = True
+
+    def _wait_for_async_import(self, timeout=60):
+
+        for t in range(timeout):
+            self.process.refresh_from_db()
+            latest_task = self.process.task_set.all()[0]
+            logging.debug('{:04d} sec — status:{} imported:{} Task:{}'.format(
+                t, self.process.status, self.process.imported, latest_task
+            ))
+            if self.process.imported or self.process.status == STATUS.DONE:
+                break
+            sleep(1)
+
+        if self.process.imported is False:
+            raise TimeoutError(
+                'Importation timed out (> {}s)'.format(timeout)
+            )
 
     def test_get(self):
 
@@ -448,5 +481,8 @@ class ArchiveValidationViewTestCase(ValidateTestMixin, TestCase):
             follow=True,
         )
         self.assertEqual(response.status_code, 200)
-        process = SubmissionProcess.objects.get()
-        self.assertTrue(process.validated)
+
+        self.process.refresh_from_db()
+        self.assertTrue(self.process.validated)
+
+        self._wait_for_async_import()
