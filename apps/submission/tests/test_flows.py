@@ -14,13 +14,6 @@ class ProcessStub(object):
     def __init__(self, flow_class=None):
         self.flow_class = flow_class
 
-    def active_tasks(self):
-        return []
-
-    def save(self):
-        self.pk = 1
-        return
-
 
 class TaskStub(object):
     _default_manager = mock.Mock()
