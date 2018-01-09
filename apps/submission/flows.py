@@ -192,6 +192,11 @@ class SubmissionFlow(Flow):
 
         @background.callback
         def importation_callback(future):
+            """
+            We need to force databases connection closing since the background
+            process (in a separated thread) creates a new connection that would
+            never be closed otherwise.
+            """
             logger.debug("Background importation callback started…")
 
             e = future.exception()
@@ -211,6 +216,11 @@ class SubmissionFlow(Flow):
                             pixeler
                         )
                     )
+                    logger.debug(
+                        "Closing open database connections "
+                        "(background callback exception)"
+                    )
+                    db.connections.close_all()
                     raise
 
             process.imported = True
@@ -220,9 +230,6 @@ class SubmissionFlow(Flow):
             logger.debug("Proceeding with activation callback")
             activation.callback()
 
-            # We need to force databases connection closing since the
-            # background process (in a separated thread) creates a new
-            # connection that would never be closed otherwise.
             logger.debug(
                 "Closing open database connections (background callback)"
             )
