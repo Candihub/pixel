@@ -207,6 +207,8 @@ class SubmissionFlow(Flow):
                 task.comments = str(e)
                 task.finished = now()
                 task.save()
+
+                # Re-raise the exception for lazy logging
                 try:
                     raise e
                 except Exception:
