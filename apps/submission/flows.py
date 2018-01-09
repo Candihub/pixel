@@ -4,6 +4,7 @@ from pathlib import Path
 
 import background
 
+from django import db
 from django.conf import settings
 from django.utils.timezone import now
 from viewflow import flow, signals as vf_signals
@@ -181,14 +182,21 @@ class SubmissionFlow(Flow):
 
         @background.task
         def async_import_archive():
+            logger.debug("Async import started…")
+
             archive = PixelArchive(archive_path)
+            logger.debug("Archive instanciated")
+
+            logger.debug("Saving archive…")
             return archive.save(pixeler=pixeler)
 
         @background.callback
         def importation_callback(future):
-            logger.debug('Background importation callback started…')
+            logger.debug("Background importation callback started…")
 
             e = future.exception()
+            logger.debug("Future exception: {} ({})".format(e, type(e)))
+
             if e is not None:
                 task.status = STATUS.ERROR
                 task.comments = str(e)
@@ -198,7 +206,7 @@ class SubmissionFlow(Flow):
                     raise e
                 except Exception:
                     logger.exception(
-                        'Importation failed! archive: {} (pixeler: {})'.format(
+                        "Importation failed! archive: {} (pixeler: {})".format(
                             archive_path,
                             pixeler
                         )
@@ -207,8 +215,19 @@ class SubmissionFlow(Flow):
 
             process.imported = True
             process.save()
+            logger.debug("Submission process updated (imported: True)")
+
+            logger.debug("Proceeding with activation callback")
             activation.callback()
 
-            logger.debug('Background importation callback done')
+            # We need to force databases connection closing since the
+            # background process (in a separated thread) creates a new
+            # connection that would never be closed.
+            logger.debug(
+                "Closing open database connections (background callback)"
+            )
+            db.connections.close_all()
+
+            logger.debug("Background importation callback done")
 
         async_import_archive()
