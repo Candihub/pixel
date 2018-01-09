@@ -222,7 +222,7 @@ class SubmissionFlow(Flow):
 
             # We need to force databases connection closing since the
             # background process (in a separated thread) creates a new
-            # connection that would never be closed.
+            # connection that would never be closed otherwise.
             logger.debug(
                 "Closing open database connections (background callback)"
             )
