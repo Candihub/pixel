@@ -3,6 +3,7 @@ import logging
 from pathlib import Path, PurePath
 from tempfile import mkdtemp
 from time import sleep
+from unittest.mock import patch
 
 from django.test import TestCase, TransactionTestCase
 from django.urls import reverse
@@ -12,6 +13,7 @@ from viewflow.base import Flow
 
 from apps.core.factories import PIXELER_PASSWORD, PixelerFactory
 from ..flows import SubmissionFlow
+from ..io.archive import PixelArchive
 from ..io.xlsx import (
     sha256_checksum, generate_template, get_template_version
 )
@@ -491,3 +493,41 @@ class ArchiveValidationViewTestCase(ValidateTestMixin,
         self.assertTrue(self.process.validated)
 
         self._wait_for_async_import(self.process)
+
+
+
+class AsyncImportMixinTestCase(ValidateTestMixin,
+                               AsyncImportMixin,
+                               TransactionTestCase):
+
+    fixtures = [
+        'apps/data/fixtures/initial_data.json',
+        'apps/data/fixtures/test_entries.json',
+        'apps/core/fixtures/initial_data.json',
+    ]
+
+    # Forcing data serialization is also required
+    serialized_rollback = True
+
+    def long_save(other, pixeler):
+        logging.debug("Calling long_save (PixelArchive.save patch)")
+        sleep(5)
+
+    @patch.object(PixelArchive, 'save', new=long_save)
+    def test_raise_timeout_with_long_import_process(self):
+
+        response = self.client.post(
+            self.url,
+            data={
+                '_viewflow_activation-started': '2000-01-01',
+                'validated': True,
+            },
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+
+        with self.assertRaises(TimeoutError):
+            self._wait_for_async_import(self.process, timeout=2)
+
+        # Wait for the patched save to finish
+        sleep(10)
