@@ -74,6 +74,10 @@ class PixelSetParser(object):
                 )
             )
 
+        logger.debug(
+            "Will set PixelSet for file: {}".format(self.pixelset_path.name)
+        )
+
         self.pixelset, __ = PixelSet.objects.get_or_create(
             pixels_file__exact=self.pixelset_path.name,
             description=self.description,
