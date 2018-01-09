@@ -128,7 +128,9 @@ class AsyncImportMixin(object):
             logging.debug('{:04d} sec — status:{} imported:{} Task:{}'.format(
                 t, process.status, process.imported, latest_task
             ))
-            if process.imported or process.status == STATUS.DONE:
+            if latest_task.status == STATUS.ERROR:
+                return
+            if process.status == STATUS.DONE:
                 break
             sleep(1)
 
@@ -495,7 +497,6 @@ class ArchiveValidationViewTestCase(ValidateTestMixin,
         self._wait_for_async_import(self.process)
 
 
-
 class AsyncImportMixinTestCase(ValidateTestMixin,
                                AsyncImportMixin,
                                TransactionTestCase):
@@ -531,3 +532,37 @@ class AsyncImportMixinTestCase(ValidateTestMixin,
 
         # Wait for the patched save to finish
         sleep(10)
+
+
+class AsyncImportTestCase(ValidateTestMixin,
+                          AsyncImportMixin,
+                          TransactionTestCase):
+
+    fixtures = [
+        'apps/data/fixtures/initial_data.json',
+        'apps/core/fixtures/initial_data.json',
+    ]
+
+    # Forcing data serialization is also required
+    serialized_rollback = True
+
+    def test_raise_importation_error_without_entries_fixture(self):
+
+        response = self.client.post(
+            self.url,
+            data={
+                '_viewflow_activation-started': '2000-01-01',
+                'validated': True,
+            },
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self._wait_for_async_import(self.process)
+
+        latest_task = self.process.task_set.all()[0]
+        self.assertEqual(latest_task.status, STATUS.ERROR)
+        expected_comments = (
+            'Required entries partially exists (0 vs 10). Please load entries'
+            ' first thanks to the load_entries management command.'
+        )
+        self.assertEqual(latest_task.comments, expected_comments)
