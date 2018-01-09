@@ -116,6 +116,26 @@ class ValidateTestMixin(UploadTestMixin):
         self.url = reverse('submission:validation', kwargs=params)
 
 
+class AsyncImportMixin(object):
+
+    def _wait_for_async_import(self, process, timeout=60):
+
+        for t in range(timeout):
+            process.refresh_from_db()
+            latest_task = process.task_set.all()[0]
+            logging.debug('{:04d} sec — status:{} imported:{} Task:{}'.format(
+                t, process.status, process.imported, latest_task
+            ))
+            if process.imported or process.status == STATUS.DONE:
+                break
+            sleep(1)
+
+        if process.imported is False:
+            raise TimeoutError(
+                'Importation timed out (> {}s)'.format(timeout)
+            )
+
+
 class NextTaskRedirectViewTestCase(UploadTestMixin, TestCase):
 
     def setUp(self):
@@ -418,7 +438,9 @@ class UploadArchiveViewTestCase(UploadTestMixin, TestCase):
         )
 
 
-class ArchiveValidationViewTestCase(ValidateTestMixin, TransactionTestCase):
+class ArchiveValidationViewTestCase(ValidateTestMixin,
+                                    AsyncImportMixin,
+                                    TransactionTestCase):
     """
     We use a TransactionTestCase to avoid using transactions for each test. By
     doing so, we commit each request allowing multiple threads to access a
@@ -435,23 +457,6 @@ class ArchiveValidationViewTestCase(ValidateTestMixin, TransactionTestCase):
 
     # Forcing data serialization is also required
     serialized_rollback = True
-
-    def _wait_for_async_import(self, timeout=60):
-
-        for t in range(timeout):
-            self.process.refresh_from_db()
-            latest_task = self.process.task_set.all()[0]
-            logging.debug('{:04d} sec — status:{} imported:{} Task:{}'.format(
-                t, self.process.status, self.process.imported, latest_task
-            ))
-            if self.process.imported or self.process.status == STATUS.DONE:
-                break
-            sleep(1)
-
-        if self.process.imported is False:
-            raise TimeoutError(
-                'Importation timed out (> {}s)'.format(timeout)
-            )
 
     def test_get(self):
 
@@ -485,4 +490,4 @@ class ArchiveValidationViewTestCase(ValidateTestMixin, TransactionTestCase):
         self.process.refresh_from_db()
         self.assertTrue(self.process.validated)
 
-        self._wait_for_async_import()
+        self._wait_for_async_import(self.process)
