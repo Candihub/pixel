@@ -204,7 +204,7 @@ class PixelSet(UUIDModelMixin, models.Model):
         return '{}/{}/pixelsets/{}'.format(
             instance.analysis.pixeler.id,
             instance.analysis.id,
-            instance.id
+            filename
         )
 
     id = models.UUIDField(

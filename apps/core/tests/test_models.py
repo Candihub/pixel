@@ -332,14 +332,15 @@ class PixelSetTestCase(TestCase):
             pixels_file__from_path=factories.PIXELS_DEFAULT_PATH,
         )
 
+        pixel_filename = 'misc.csv'
         upload_path = models.PixelSet.pixelset_upload_to(
             pixel_set,
-            'misc.csv'
+            pixel_filename
         )
         expected = '{}/{}/pixelsets/{}'.format(
             pixel_set.analysis.pixeler.id,
             pixel_set.analysis.id,
-            pixel_set.id
+            pixel_filename
         )
 
         self.assertEqual(upload_path, expected)
