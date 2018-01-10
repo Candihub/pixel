@@ -1,7 +1,12 @@
 import logging
 
+from os import makedirs
+from pathlib import Path
+from shutil import copyfile
+
 import pandas
 
+from django.conf import settings
 from django.utils.translation import ugettext as _
 
 from apps.core.models import OmicsUnit, Pixel, PixelSet
@@ -79,12 +84,23 @@ class PixelSetParser(object):
         )
 
         self.pixelset, __ = PixelSet.objects.get_or_create(
-            pixels_file__exact=self.pixelset_path.name,
+            pixels_file__contains=self.pixelset_path.name,
             description=self.description,
             analysis=self.analysis,
         )
-        # Get or create cannot set file path as is
-        self.pixelset.pixels_file.name = self.pixelset_path.name
+
+        # Copy pixels file where appropriated and update record
+        relative_dest = Path(
+            PixelSet.pixelset_upload_to(
+                self.pixelset,
+                self.pixelset_path.name
+            )
+        )
+        dest = Path(settings.MEDIA_ROOT) / relative_dest
+        if not dest.parent.exists():
+            makedirs(dest.parent)
+        copyfile(self.pixelset_path, dest)
+        self.pixelset.pixels_file.name = relative_dest
         self.pixelset.save()
 
     def _get_omics_units(self, pixels, verbose=False):

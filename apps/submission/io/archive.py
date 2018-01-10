@@ -1,9 +1,12 @@
 import logging
 
+from os import makedirs
 from pathlib import Path
+from shutil import copyfile
 from tempfile import mkdtemp
 from zipfile import ZipFile, is_zipfile
 
+from django.conf import settings
 from django.utils.translation import ugettext as _
 
 from apps.core.models import Analysis, Experiment
@@ -95,8 +98,33 @@ class PixelArchive(object):
             pixeler=pixeler,
             completed_at=self.meta['analysis']['date'],
         )
-        analysis.secondary_data.name = self.meta['analysis']['secondary_data_path'].name  # noqa
-        analysis.notebook.name = self.meta['analysis']['notebook_path'].name
+
+        # Copy archive files to the media tree
+        relative_dest = Path(
+            Analysis.secondary_data_upload_to(
+                analysis,
+                self.meta['analysis']['secondary_data_path'].name
+            )
+        )
+        dest = Path(settings.MEDIA_ROOT) / relative_dest
+        if not dest.parent.exists():
+            makedirs(dest.parent)
+        copyfile(self.meta['analysis']['secondary_data_path'], dest)
+        analysis.secondary_data.name = relative_dest
+
+        if len(self.meta['analysis']['notebook_path'].name):
+            relative_dest = Path(
+                Analysis.notebook_upload_to(
+                    analysis,
+                    self.meta['analysis']['notebook_path'].name
+                )
+            )
+            dest = Path(settings.MEDIA_ROOT) / relative_dest
+            if not dest.parent.exists():
+                makedirs(dest.parent)
+            copyfile(self.meta['analysis']['notebook_path'], dest)
+            analysis.notebook.name = relative_dest
+
         analysis.save()
 
         # Add missing related experiment
