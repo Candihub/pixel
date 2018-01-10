@@ -25,6 +25,7 @@ class SubmissionProcess(Process):
     archive = models.FileField(
         _("Pixels submitted archive"),
         upload_to=archive_upload_to,
+        max_length=255,
     )
 
     template_checksum = models.CharField(

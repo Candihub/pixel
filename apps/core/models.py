@@ -201,7 +201,7 @@ class PixelSet(UUIDModelMixin, models.Model):
     """
 
     def pixelset_upload_to(instance, filename):
-        return '{}/{}/pixelsets/{}'.format(
+        return '{}/analyses/{}/pixelsets/{}'.format(
             instance.analysis.pixeler.id,
             instance.analysis.id,
             filename
@@ -216,6 +216,7 @@ class PixelSet(UUIDModelMixin, models.Model):
     pixels_file = models.FileField(
         _("Pixels file"),
         upload_to=pixelset_upload_to,
+        max_length=255,
     )
 
     description = models.TextField(
@@ -341,13 +342,17 @@ class Analysis(UUIDModelMixin, models.Model):
     """
 
     def secondary_data_upload_to(instance, filename):
-        return '{0}/{1}/secondary_data'.format(
-            instance.pixeler.id, instance.id
+        return '{}/analyses/{}/secondary_data/{}'.format(
+            instance.pixeler.id,
+            instance.id,
+            filename
         )
 
     def notebook_upload_to(instance, filename):
-        return '{0}/{1}/notebook'.format(
-            instance.pixeler.id, instance.id
+        return '{}/analyses/{}/notebook/{}'.format(
+            instance.pixeler.id,
+            instance.id,
+            filename
         )
 
     id = models.UUIDField(
@@ -370,6 +375,7 @@ class Analysis(UUIDModelMixin, models.Model):
     secondary_data = models.FileField(
         _("Secondary data"),
         upload_to=secondary_data_upload_to,
+        max_length=255,
     )
 
     notebook = models.FileField(
@@ -380,6 +386,7 @@ class Analysis(UUIDModelMixin, models.Model):
         ),
         blank=True,
         upload_to=notebook_upload_to,
+        max_length=255,
     )
 
     pixeler = models.ForeignKey(
