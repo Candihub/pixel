@@ -62,14 +62,8 @@ class CoreTasksFilterTestCase(ValidateTestMixin,
 
         super().setUp()
 
-        task = self.process.task_set.first()
-        params = {
-            'process_pk': self.process.pk,
-            'task_pk': task.pk,
-        }
-        url = reverse('submission:validation', kwargs=params)
         self.client.post(
-            url,
+            self.url,
             data={
                 '_viewflow_activation-started': '2000-01-01',
                 'validated': True,
@@ -81,8 +75,7 @@ class CoreTasksFilterTestCase(ValidateTestMixin,
 
     def test_filtering(self):
 
-        process = SubmissionProcess.objects.get()
-        tasks = process.task_set.all().reverse()
+        tasks = self.process.task_set.all().reverse()
         expected = (
             'download',
             'upload',
