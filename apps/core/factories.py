@@ -125,7 +125,7 @@ class AnalysisFactory(DjangoModelFactory):
 
     class Meta:
         model = 'core.Analysis'
-        django_get_or_create = ('secondary_data', 'pixeler',)
+        django_get_or_create = ('description', 'pixeler')
 
 
 class PixelSetFactory(DjangoModelFactory):
