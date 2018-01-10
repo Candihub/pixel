@@ -1,10 +1,12 @@
 from pathlib import Path
-from django.test import TestCase
+
+from django.test import TestCase, TransactionTestCase
 from django.urls import reverse
 
-from .test_views import StartTestMixin, ValidateTestMixin
 from ..models import SubmissionProcess
 from ..templatetags import submission
+from .io.test_pixel import LoadCGDMixin
+from .test_views import AsyncImportMixin, StartTestMixin, ValidateTestMixin
 
 
 class HideTracebackFilterTestCase(TestCase):
@@ -43,12 +45,18 @@ class HideTracebackFilterTestCase(TestCase):
         self.assertEqual(submission.hide_traceback(value), value)
 
 
-class CoreTasksFilterTestCase(ValidateTestMixin, TestCase):
+class CoreTasksFilterTestCase(ValidateTestMixin,
+                              AsyncImportMixin,
+                              TransactionTestCase):
 
     fixtures = [
         'apps/data/fixtures/initial_data.json',
+        'apps/data/fixtures/test_entries.json',
         'apps/core/fixtures/initial_data.json',
     ]
+
+    # Forcing data serialization is also required
+    serialized_rollback = True
 
     def setUp(self):
 
@@ -69,6 +77,8 @@ class CoreTasksFilterTestCase(ValidateTestMixin, TestCase):
             follow=True,
         )
 
+        self._wait_for_async_import(self.process)
+
     def test_filtering(self):
 
         process = SubmissionProcess.objects.get()
@@ -77,7 +87,8 @@ class CoreTasksFilterTestCase(ValidateTestMixin, TestCase):
             'download',
             'upload',
             'meta',
-            'validation'
+            'validation',
+            'import archive'
         )
         tasks = tuple(
             str(t.flow_task).lower() for t in submission.core_tasks(tasks)
@@ -88,12 +99,19 @@ class CoreTasksFilterTestCase(ValidateTestMixin, TestCase):
         )
 
 
-class SubmissionRatioTestCase(StartTestMixin, TestCase):
+class SubmissionRatioTestCase(StartTestMixin,
+                              AsyncImportMixin,
+                              LoadCGDMixin,
+                              TransactionTestCase):
 
     fixtures = [
         'apps/data/fixtures/initial_data.json',
+        'apps/data/fixtures/test_entries.json',
         'apps/core/fixtures/initial_data.json',
     ]
+
+    # Forcing data serialization is also required
+    serialized_rollback = True
 
     def test_submission_ratio_along_process(self):
 
@@ -110,7 +128,7 @@ class SubmissionRatioTestCase(StartTestMixin, TestCase):
         task = process.task_set.first()
         self.assertEqual(
             submission.submission_ratio(process),
-            10
+            8
         )
 
         # Download
@@ -129,12 +147,12 @@ class SubmissionRatioTestCase(StartTestMixin, TestCase):
         )
         self.assertEqual(
             submission.submission_ratio(process),
-            30
+            25
         )
 
         # Upload
         task = process.task_set.first()
-        archive = Path('apps/submission/fixtures/dataset-0001.zip')
+        archive = Path('apps/submission/fixtures/dataset-0001-shrink.zip')
         url = reverse(
             'submission:upload',
             kwargs={
@@ -153,10 +171,11 @@ class SubmissionRatioTestCase(StartTestMixin, TestCase):
             )
         self.assertEqual(
             submission.submission_ratio(process),
-            70
+            58
         )
 
         # Validate
+        self._load_cgd_entries()
         task = process.task_set.first()
         url = reverse(
             'submission:validation',
@@ -173,6 +192,12 @@ class SubmissionRatioTestCase(StartTestMixin, TestCase):
             },
             follow=True,
         )
+        self.assertEqual(
+            submission.submission_ratio(process),
+            75
+        )
+
+        self._wait_for_async_import(process)
         self.assertEqual(
             submission.submission_ratio(process),
             100

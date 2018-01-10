@@ -1,18 +1,26 @@
+import logging
+
 from pathlib import Path, PurePath
 from tempfile import mkdtemp
+from time import sleep
+from unittest.mock import patch
 
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 from django.urls import reverse
 from openpyxl import load_workbook
+from viewflow.activation import STATUS
 from viewflow.base import Flow
 
 from apps.core.factories import PIXELER_PASSWORD, PixelerFactory
 from ..flows import SubmissionFlow
+from ..io.archive import PixelArchive
 from ..io.xlsx import (
     sha256_checksum, generate_template, get_template_version
 )
 from ..models import SubmissionProcess
 from ..views import NextTaskRedirectView
+
+logger = logging.getLogger(__name__)
 
 
 class StartTestMixin(object):
@@ -77,7 +85,7 @@ class UploadTestMixin(DownloadTestMixin):
         params.update({'task_pk': self.task.pk})
         self.url = reverse('submission:upload', kwargs=params)
 
-        self.archive = Path('apps/submission/fixtures/dataset-0001.zip')
+        self.archive = Path('apps/submission/fixtures/dataset-0001-shrink.zip')
 
 
 class ValidateTestMixin(UploadTestMixin):
@@ -108,6 +116,28 @@ class ValidateTestMixin(UploadTestMixin):
             'task_pk': self.task.pk,
         }
         self.url = reverse('submission:validation', kwargs=params)
+
+
+class AsyncImportMixin(object):
+
+    def _wait_for_async_import(self, process, timeout=60):
+
+        for t in range(timeout):
+            process.refresh_from_db()
+            latest_task = process.task_set.all()[0]
+            logging.debug('{:04d} sec — status:{} imported:{} Task:{}'.format(
+                t, process.status, process.imported, latest_task
+            ))
+            if latest_task.status == STATUS.ERROR:
+                return
+            if process.status == STATUS.DONE:
+                break
+            sleep(1)
+
+        if process.imported is False:
+            raise TimeoutError(
+                'Importation timed out (> {}s)'.format(timeout)
+            )
 
 
 class NextTaskRedirectViewTestCase(UploadTestMixin, TestCase):
@@ -412,13 +442,25 @@ class UploadArchiveViewTestCase(UploadTestMixin, TestCase):
         )
 
 
-class ArchiveValidationViewTestCase(ValidateTestMixin, TestCase):
+class ArchiveValidationViewTestCase(ValidateTestMixin,
+                                    AsyncImportMixin,
+                                    TransactionTestCase):
+    """
+    We use a TransactionTestCase to avoid using transactions for each test. By
+    doing so, we commit each request allowing multiple threads to access a
+    shared state of the database. This is required as the archive importation
+    is a background task (using concurrent.futures).
+    """
 
     template = 'submission/validation.html'
     fixtures = [
         'apps/data/fixtures/initial_data.json',
+        'apps/data/fixtures/test_entries.json',
         'apps/core/fixtures/initial_data.json',
     ]
+
+    # Forcing data serialization is also required
+    serialized_rollback = True
 
     def test_get(self):
 
@@ -448,5 +490,79 @@ class ArchiveValidationViewTestCase(ValidateTestMixin, TestCase):
             follow=True,
         )
         self.assertEqual(response.status_code, 200)
-        process = SubmissionProcess.objects.get()
-        self.assertTrue(process.validated)
+
+        self.process.refresh_from_db()
+        self.assertTrue(self.process.validated)
+
+        self._wait_for_async_import(self.process)
+
+
+class AsyncImportMixinTestCase(ValidateTestMixin,
+                               AsyncImportMixin,
+                               TransactionTestCase):
+
+    fixtures = [
+        'apps/data/fixtures/initial_data.json',
+        'apps/data/fixtures/test_entries.json',
+        'apps/core/fixtures/initial_data.json',
+    ]
+
+    # Forcing data serialization is also required
+    serialized_rollback = True
+
+    def long_save(other, pixeler):
+        logging.debug("Calling long_save (PixelArchive.save patch)")
+        sleep(5)
+
+    @patch.object(PixelArchive, 'save', new=long_save)
+    def test_raise_timeout_with_long_import_process(self):
+
+        response = self.client.post(
+            self.url,
+            data={
+                '_viewflow_activation-started': '2000-01-01',
+                'validated': True,
+            },
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+
+        with self.assertRaises(TimeoutError):
+            self._wait_for_async_import(self.process, timeout=2)
+
+        # Wait for the patched save to finish
+        sleep(10)
+
+
+class AsyncImportTestCase(ValidateTestMixin,
+                          AsyncImportMixin,
+                          TransactionTestCase):
+
+    fixtures = [
+        'apps/data/fixtures/initial_data.json',
+        'apps/core/fixtures/initial_data.json',
+    ]
+
+    # Forcing data serialization is also required
+    serialized_rollback = True
+
+    def test_raise_importation_error_without_entries_fixture(self):
+
+        response = self.client.post(
+            self.url,
+            data={
+                '_viewflow_activation-started': '2000-01-01',
+                'validated': True,
+            },
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self._wait_for_async_import(self.process)
+
+        latest_task = self.process.task_set.all()[0]
+        self.assertEqual(latest_task.status, STATUS.ERROR)
+        expected_comments = (
+            'Required entries partially exists (0 vs 10). Please load entries'
+            ' first thanks to the load_entries management command.'
+        )
+        self.assertEqual(latest_task.comments, expected_comments)

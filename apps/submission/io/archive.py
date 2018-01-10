@@ -1,3 +1,5 @@
+import logging
+
 from pathlib import Path
 from tempfile import mkdtemp
 from zipfile import ZipFile, is_zipfile
@@ -7,15 +9,17 @@ from django.utils.translation import ugettext as _
 from apps.core.models import Analysis, Experiment
 from apps.data.models import Entry
 from apps.submission.io.xlsx import parse_template
-from .. import exceptions
+from .. import exceptions, signals
 from .pixel import PixelSetParser
 
+logger = logging.getLogger(__name__)
 META_FILENAME = 'meta.xlsx'
 
 
 class PixelArchive(object):
 
     def __init__(self, archive_path):
+        logger.debug('New archive: {}'.format(archive_path))
 
         if not Path(archive_path).exists():
             raise FileNotFoundError(
@@ -60,10 +64,12 @@ class PixelArchive(object):
         )
 
     def parse(self, serialized=False):
+        logger.debug('Parsing meta for {}…'.format(self.archive_path))
 
         self.meta = parse_template(self.meta_path, serialized=serialized)
 
     def save(self, pixeler):
+        logger.debug('Saving data for {}…'.format(self.archive_path))
 
         # -- Experiment
         experiment, _ = Experiment.objects.get_or_create(
@@ -89,8 +95,8 @@ class PixelArchive(object):
             pixeler=pixeler,
             completed_at=self.meta['analysis']['date'],
         )
-        analysis.secondary_data.name = self.meta['analysis']['secondary_data_path']  # noqa
-        analysis.notebook.name = self.meta['analysis']['notebook_path']
+        analysis.secondary_data.name = self.meta['analysis']['secondary_data_path'].name  # noqa
+        analysis.notebook.name = self.meta['analysis']['notebook_path'].name
         analysis.save()
 
         # Add missing related experiment
@@ -99,6 +105,7 @@ class PixelArchive(object):
             analysis.experiments.add(experiment)
 
         # -- Pixels
+        pixel_sets = []
         for dataset in self.meta['datasets']:
             pixelset_path, omics_unit_type, strain, description = dataset
             parser = PixelSetParser(
@@ -110,3 +117,29 @@ class PixelArchive(object):
             )
             parser.parse()
             parser.save()
+            pixel_sets.append(parser.pixelset)
+
+        # Spread the word!
+        logger.debug(
+            'Sending importation_done signal for {}'.format(
+                self.archive_path
+            )
+        )
+        signals.importation_done.send(
+            sender=self.__class__,
+            experiment=experiment,
+            analysis=analysis,
+            pixel_sets=pixel_sets,
+        )
+
+        logger.debug(
+            (
+                'Saved archive data with: experiment:{}, analysis:{}, '
+                'pixel_sets: {}'
+            ).format(
+                experiment,
+                analysis,
+                pixel_sets,
+            )
+        )
+        return experiment, analysis, pixel_sets

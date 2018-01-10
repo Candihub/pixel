@@ -255,6 +255,7 @@ class Pixel(UUIDModelMixin, models.Model):
 
     omics_unit = models.ForeignKey(
         'OmicsUnit',
+        on_delete=models.CASCADE,
         related_name='pixels',
         related_query_name='pixel',
     )
@@ -434,6 +435,7 @@ class OmicsArea(MPTTModel):
 
     parent = TreeForeignKey(
         'self',
+        on_delete=models.CASCADE,
         null=True,
         blank=True,
         related_name='children',

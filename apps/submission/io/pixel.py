@@ -74,13 +74,17 @@ class PixelSetParser(object):
                 )
             )
 
+        logger.debug(
+            "Will set PixelSet for file: {}".format(self.pixelset_path.name)
+        )
+
         self.pixelset, __ = PixelSet.objects.get_or_create(
-            pixels_file__exact=self.pixelset_path,
+            pixels_file__exact=self.pixelset_path.name,
             description=self.description,
             analysis=self.analysis,
         )
         # Get or create cannot set file path as is
-        self.pixelset.pixels_file.name = self.pixelset_path
+        self.pixelset.pixels_file.name = self.pixelset_path.name
         self.pixelset.save()
 
     def _get_omics_units(self, pixels, verbose=False):
