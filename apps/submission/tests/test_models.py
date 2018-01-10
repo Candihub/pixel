@@ -94,6 +94,7 @@ class SubmissionProcessIsDoneHelperTestCase(ValidateTestMixin,
 class SubmissionProcessIsFailedHelperTestCase(ValidateTestMixin,
                                               AsyncImportMixin,
                                               TransactionTestCase):
+
     fixtures = [
         'apps/data/fixtures/initial_data.json',
         'apps/core/fixtures/initial_data.json',
