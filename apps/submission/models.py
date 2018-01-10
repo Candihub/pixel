@@ -2,6 +2,7 @@ from django.contrib.postgres.fields import JSONField
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 from django.utils.translation import ugettext as _
+from viewflow.activation import STATUS
 from viewflow.models import Process
 
 
@@ -61,3 +62,19 @@ class SubmissionProcess(Process):
     )
 
     imported = models.BooleanField(default=False)
+
+    @property
+    def is_failed(self):
+        """Check if process has failed tasks"""
+
+        if self.task_set.filter(status=STATUS.ERROR).count() > 0:
+            return True
+        return False
+
+    @property
+    def is_done(self):
+        """Check if the process is done"""
+
+        if self.status == STATUS.DONE:
+            return True
+        return False
