@@ -22,6 +22,15 @@ h1 {
   }
 }
 
+i {
+  &.success {
+    color: $success-color;
+  }
+  &.error {
+    color: $alert-color;
+  }
+}
+
 .disclaimer {
   @include callout($warning-color);
 
