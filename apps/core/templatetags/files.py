@@ -9,9 +9,8 @@ register = template.Library()
 @register.filter
 @stringfilter
 def filename(path):
-    """Removes traceback lines from a string (if any). It has no effect when
-    no 'Traceback' pattern has been found.
+    """Removes parent path from a relative or absolute filename
 
-    Returns: raws before the 'Traceback' pattern
+    Returns: the filename
     """
     return Path(path).name
