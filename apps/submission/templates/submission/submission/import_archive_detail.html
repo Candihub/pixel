@@ -1,0 +1,30 @@
+{% extends "submission/submission/task_detail.html" %}
+
+{% load i18n %}
+
+{% block body_class %}{{ block.super }} import{% endblock %}
+
+{% block step_content %}
+
+{% if activation.task.status == 'DONE' %}
+  {{ block.super }}
+{% else %}
+  <div class="disclaimer">
+    <i class="fa fa-clock-o" aria-hidden="true"></i>
+    <h4>{% trans "Importing Pixels…" %}</h4>
+
+    <p>
+      {% blocktrans %}
+        Your archive is being imported.
+        Refresh this page to check importation status.
+      {% endblocktrans %}
+    </p>
+
+    <a href="{{ request.path }}" class="action secondary">
+      <i class="fa fa-refresh" aria-hidden="true"></i>
+      {% trans "Refresh" %}
+    </a>
+  </div>
+{% endif %}
+
+{% endblock step_content %}
