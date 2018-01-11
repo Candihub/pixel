@@ -35,6 +35,7 @@
         <th>{% trans "Label" %}</th>
         <th>{% trans "Owner" %}</th>
         <th>{% trans "Completion" %}</th>
+        <th>{% trans "Status" %}</th>
         <th>{% trans "Actions" %}</th>
       </tr>
     </thead>
@@ -57,6 +58,15 @@
           <td class="completion">
             {% submission_ratio process as submission_ratio %}
             {{ submission_ratio }}%
+          </td>
+          <td class="status">
+            {% if process.has_failed %}
+              <i class="fa fa-exclamation-triangle error" aria-hidden="true"></i>
+            {% elif process.is_done %}
+              <i class="fa fa-check-circle success" aria-hidden="true"></i>
+            {% else %}
+              <i class="fa fa-pause-circle-o" aria-hidden="true"></i>
+            {% endif %}
           </td>
           <td class="actions">
             <a
