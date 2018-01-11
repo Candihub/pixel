@@ -1,17 +1,16 @@
 import logging
 
-from os import makedirs
 from pathlib import Path
 from shutil import copyfile
 
 import pandas
 
-from django.conf import settings
 from django.utils.translation import ugettext as _
 
 from apps.core.models import OmicsUnit, Pixel, PixelSet
 from apps.data.models import Entry
 from ..exceptions import PixelSetParserError, PixelSetParserSaveError
+from ..utils import ensure_tree
 
 logger = logging.getLogger(__name__)
 
@@ -96,9 +95,7 @@ class PixelSetParser(object):
                 self.pixelset_path.name
             )
         )
-        dest = Path(settings.MEDIA_ROOT) / relative_dest
-        if not dest.parent.exists():
-            makedirs(dest.parent)
+        dest = ensure_tree(relative_dest)
         copyfile(self.pixelset_path, dest)
         self.pixelset.pixels_file.name = relative_dest
         self.pixelset.save()

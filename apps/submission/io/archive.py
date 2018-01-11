@@ -1,18 +1,17 @@
 import logging
 
-from os import makedirs
 from pathlib import Path
 from shutil import copyfile
 from tempfile import mkdtemp
 from zipfile import ZipFile, is_zipfile
 
-from django.conf import settings
 from django.utils.translation import ugettext as _
 
 from apps.core.models import Analysis, Experiment
 from apps.data.models import Entry
 from apps.submission.io.xlsx import parse_template
 from .. import exceptions, signals
+from ..utils import ensure_tree
 from .pixel import PixelSetParser
 
 logger = logging.getLogger(__name__)
@@ -106,9 +105,7 @@ class PixelArchive(object):
                 self.meta['analysis']['secondary_data_path'].name
             )
         )
-        dest = Path(settings.MEDIA_ROOT) / relative_dest
-        if not dest.parent.exists():
-            makedirs(dest.parent)
+        dest = ensure_tree(relative_dest)
         copyfile(self.meta['analysis']['secondary_data_path'], dest)
         analysis.secondary_data.name = relative_dest
 
@@ -119,9 +116,7 @@ class PixelArchive(object):
                     self.meta['analysis']['notebook_path'].name
                 )
             )
-            dest = Path(settings.MEDIA_ROOT) / relative_dest
-            if not dest.parent.exists():
-                makedirs(dest.parent)
+            dest = ensure_tree(relative_dest)
             copyfile(self.meta['analysis']['notebook_path'], dest)
             analysis.notebook.name = relative_dest
 
