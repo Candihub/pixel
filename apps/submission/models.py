@@ -67,14 +67,10 @@ class SubmissionProcess(Process):
     def has_failed(self):
         """Check if process has failed tasks"""
 
-        if self.task_set.filter(status=STATUS.ERROR).count() > 0:
-            return True
-        return False
+        return self.task_set.filter(status=STATUS.ERROR).count() > 0
 
     @property
     def is_done(self):
         """Check if the process is done"""
 
-        if self.status == STATUS.DONE:
-            return True
-        return False
+        return self.status == STATUS.DONE
