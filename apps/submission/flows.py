@@ -188,7 +188,7 @@ class SubmissionFlow(Flow):
             logger.debug("Archive instanciated")
 
             logger.debug("Saving archive…")
-            return archive.save(pixeler=pixeler)
+            return archive.save(pixeler=pixeler, submission=process)
 
         @background.callback
         def importation_callback(future):
