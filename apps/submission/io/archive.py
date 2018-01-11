@@ -1,6 +1,7 @@
 import logging
 
 from pathlib import Path
+from shutil import copyfile
 from tempfile import mkdtemp
 from zipfile import ZipFile, is_zipfile
 
@@ -10,6 +11,7 @@ from apps.core.models import Analysis, Experiment
 from apps.data.models import Entry
 from apps.submission.io.xlsx import parse_template
 from .. import exceptions, signals
+from ..utils import make_absolute_path
 from .pixel import PixelSetParser
 
 logger = logging.getLogger(__name__)
@@ -95,8 +97,29 @@ class PixelArchive(object):
             pixeler=pixeler,
             completed_at=self.meta['analysis']['date'],
         )
-        analysis.secondary_data.name = self.meta['analysis']['secondary_data_path'].name  # noqa
-        analysis.notebook.name = self.meta['analysis']['notebook_path'].name
+
+        # Copy archive files to the media tree
+        relative_dest = Path(
+            Analysis.secondary_data_upload_to(
+                analysis,
+                self.meta['analysis']['secondary_data_path'].name
+            )
+        )
+        dest = make_absolute_path(relative_dest)
+        copyfile(self.meta['analysis']['secondary_data_path'], dest)
+        analysis.secondary_data.name = relative_dest
+
+        if len(self.meta['analysis']['notebook_path'].name):
+            relative_dest = Path(
+                Analysis.notebook_upload_to(
+                    analysis,
+                    self.meta['analysis']['notebook_path'].name
+                )
+            )
+            dest = make_absolute_path(relative_dest)
+            copyfile(self.meta['analysis']['notebook_path'], dest)
+            analysis.notebook.name = relative_dest
+
         analysis.save()
 
         # Add missing related experiment

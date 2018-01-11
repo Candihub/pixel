@@ -332,14 +332,15 @@ class PixelSetTestCase(TestCase):
             pixels_file__from_path=factories.PIXELS_DEFAULT_PATH,
         )
 
+        pixel_filename = 'misc.csv'
         upload_path = models.PixelSet.pixelset_upload_to(
             pixel_set,
-            'misc.csv'
+            pixel_filename
         )
-        expected = '{}/{}/pixelsets/{}'.format(
+        expected = '{}/analyses/{}/pixelsets/{}'.format(
             pixel_set.analysis.pixeler.id,
             pixel_set.analysis.id,
-            pixel_set.id
+            pixel_filename
         )
 
         self.assertEqual(upload_path, expected)
@@ -610,12 +611,15 @@ class AnalysisTestCase(TestCase):
             completed_at=datetime.date(1980, 10, 14),
         )
 
+        secondary_data_filename = 'misc.csv'
         upload_path = models.Analysis.secondary_data_upload_to(
             analysis,
-            'misc.csv'
+            secondary_data_filename
         )
-        expected = '{}/{}/secondary_data'.format(
-            analysis.pixeler.id, analysis.id
+        expected = '{}/analyses/{}/secondary_data/{}'.format(
+            analysis.pixeler.id,
+            analysis.id,
+            secondary_data_filename
         )
 
         self.assertEqual(upload_path, expected)
@@ -629,12 +633,15 @@ class AnalysisTestCase(TestCase):
             completed_at=datetime.date(1980, 10, 14),
         )
 
+        notebook_filename = 'misc.csv'
         upload_path = models.Analysis.notebook_upload_to(
             analysis,
-            'misc.csv'
+            notebook_filename
         )
-        expected = '{}/{}/notebook'.format(
-            analysis.pixeler.id, analysis.id
+        expected = '{}/analyses/{}/notebook/{}'.format(
+            analysis.pixeler.id,
+            analysis.id,
+            notebook_filename
         )
 
         self.assertEqual(upload_path, expected)
