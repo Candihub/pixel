@@ -60,7 +60,7 @@
             {{ submission_ratio }}%
           </td>
           <td class="status">
-            {% if process.is_failed %}
+            {% if process.has_failed %}
               <i class="fa fa-exclamation-triangle error" aria-hidden="true"></i>
             {% elif process.is_done %}
               <i class="fa fa-check-circle success" aria-hidden="true"></i>

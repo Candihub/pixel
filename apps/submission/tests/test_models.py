@@ -91,7 +91,7 @@ class SubmissionProcessIsDoneHelperTestCase(ValidateTestMixin,
         self.assertTrue(self.process.is_done)
 
 
-class SubmissionProcessIsFailedHelperTestCase(ValidateTestMixin,
+class SubmissionProcessHasFailedHelperTestCase(ValidateTestMixin,
                                               AsyncImportMixin,
                                               TransactionTestCase):
 
@@ -103,9 +103,9 @@ class SubmissionProcessIsFailedHelperTestCase(ValidateTestMixin,
     # Forcing data serialization is also required
     serialized_rollback = True
 
-    def test_is_failed(self):
+    def test_has_failed(self):
 
-        self.assertFalse(self.process.is_failed)
+        self.assertFalse(self.process.has_failed)
 
         response = self.client.post(
             self.url,
@@ -120,4 +120,4 @@ class SubmissionProcessIsFailedHelperTestCase(ValidateTestMixin,
         self._wait_for_async_import(self.process)
 
         self.process.refresh_from_db()
-        self.assertTrue(self.process.is_failed)
+        self.assertTrue(self.process.has_failed)

@@ -64,7 +64,7 @@ class SubmissionProcess(Process):
     imported = models.BooleanField(default=False)
 
     @property
-    def is_failed(self):
+    def has_failed(self):
         """Check if process has failed tasks"""
 
         if self.task_set.filter(status=STATUS.ERROR).count() > 0:
