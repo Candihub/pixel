@@ -5,7 +5,7 @@ from tempfile import gettempdir
 
 from django.conf import settings
 
-from ..utils import ensure_tree, is_hidden_task
+from ..utils import make_absolute_path, is_hidden_task
 
 
 def test_is_hidden_task():
@@ -28,17 +28,17 @@ def test_is_hidden_task():
         is_hidden_task(('foo', ))
 
 
-def test_ensure_tree():
+def test_make_absolute_path():
 
     relative_path = Path('foo/bar/baz.txt')
 
     expected = Path(settings.MEDIA_ROOT) / relative_path
-    assert ensure_tree(relative_path, dry_run=True) == expected
+    assert make_absolute_path(relative_path, dry_run=True) == expected
 
     root = gettempdir()
     expected = Path(root) / relative_path
-    assert ensure_tree(relative_path, root=root, dry_run=True) == expected
+    assert make_absolute_path(relative_path, root=root, dry_run=True) == expected  # noqa
 
     assert expected.parent.exists() is False
-    assert ensure_tree(relative_path, root=root) == expected
+    assert make_absolute_path(relative_path, root=root) == expected
     assert expected.parent.exists() is True

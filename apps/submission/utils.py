@@ -15,7 +15,7 @@ def is_hidden_task(task_name):
     return False
 
 
-def ensure_tree(relative_path, root=settings.MEDIA_ROOT, dry_run=False):
+def make_absolute_path(relative_path, root=settings.MEDIA_ROOT, dry_run=False):
     """
     Ensure that the relative path tree exists and creates it if not. Note that
     if relative_path points to a directory only its parents directories will be

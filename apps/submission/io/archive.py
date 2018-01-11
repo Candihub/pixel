@@ -11,7 +11,7 @@ from apps.core.models import Analysis, Experiment
 from apps.data.models import Entry
 from apps.submission.io.xlsx import parse_template
 from .. import exceptions, signals
-from ..utils import ensure_tree
+from ..utils import make_absolute_path
 from .pixel import PixelSetParser
 
 logger = logging.getLogger(__name__)
@@ -105,7 +105,7 @@ class PixelArchive(object):
                 self.meta['analysis']['secondary_data_path'].name
             )
         )
-        dest = ensure_tree(relative_dest)
+        dest = make_absolute_path(relative_dest)
         copyfile(self.meta['analysis']['secondary_data_path'], dest)
         analysis.secondary_data.name = relative_dest
 
@@ -116,7 +116,7 @@ class PixelArchive(object):
                     self.meta['analysis']['notebook_path'].name
                 )
             )
-            dest = ensure_tree(relative_dest)
+            dest = make_absolute_path(relative_dest)
             copyfile(self.meta['analysis']['notebook_path'], dest)
             analysis.notebook.name = relative_dest
 

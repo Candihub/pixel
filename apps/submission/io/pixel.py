@@ -10,7 +10,7 @@ from django.utils.translation import ugettext as _
 from apps.core.models import OmicsUnit, Pixel, PixelSet
 from apps.data.models import Entry
 from ..exceptions import PixelSetParserError, PixelSetParserSaveError
-from ..utils import ensure_tree
+from ..utils import make_absolute_path
 
 logger = logging.getLogger(__name__)
 
@@ -95,7 +95,7 @@ class PixelSetParser(object):
                 self.pixelset_path.name
             )
         )
-        dest = ensure_tree(relative_dest)
+        dest = make_absolute_path(relative_dest)
         copyfile(self.pixelset_path, dest)
         self.pixelset.pixels_file.name = relative_dest
         self.pixelset.save()
