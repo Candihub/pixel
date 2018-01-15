@@ -102,6 +102,13 @@ class PixelArchive(object):
             submission.analysis = analysis
             submission.save()
 
+            # Update tags
+            experiment.tags = submission.tags.get('experiment')
+            experiment.save()
+
+            analysis.tags = submission.tags.get('analysis')
+            analysis.save()
+
         # Copy archive files to the media tree
         relative_dest = Path(
             Analysis.secondary_data_upload_to(
