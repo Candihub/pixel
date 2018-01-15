@@ -137,9 +137,17 @@ class SubmissionFlow(Flow):
     check_validation = flow.If(
         lambda activation: activation.process.validated
     ).Then(
-        this.import_archive
+        this.tags
     ).Else(
         this.validation
+    )
+
+    tags = flow.View(
+        views.TagsView,
+    ).Assign(
+        this.start.owner
+    ).Next(
+        this.import_archive
     )
 
     import_archive = AsyncHandler(
