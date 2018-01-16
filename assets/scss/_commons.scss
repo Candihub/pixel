@@ -45,11 +45,3 @@ i {
 .empty {
   font-style: italic;
 }
-
-form {
-  @include xy-grid;
-  
-  .form-actions {
-    @include xy-cell($size: 100%);
-  }
-}
