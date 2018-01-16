@@ -34,7 +34,7 @@ i {
 .disclaimer {
   @include callout($warning-color);
 
-  i.fa {
+  & > i.fa {
     float: left;
     padding: 0 1rem 1rem 0;
     font-size: 3rem;
