@@ -6,7 +6,7 @@ from django.urls import reverse
 from ..models import SubmissionProcess
 from ..templatetags import submission
 from .io.test_pixel import LoadCGDMixin
-from .test_views import AsyncImportMixin, StartTestMixin, ValidateTestMixin
+from .test_views import AsyncImportMixin, StartTestMixin, TagsTestMixin
 
 
 class HideTracebackFilterTestCase(TestCase):
@@ -45,7 +45,7 @@ class HideTracebackFilterTestCase(TestCase):
         self.assertEqual(submission.hide_traceback(value), value)
 
 
-class CoreTasksFilterTestCase(ValidateTestMixin,
+class CoreTasksFilterTestCase(TagsTestMixin,
                               AsyncImportMixin,
                               TransactionTestCase):
 
@@ -66,7 +66,10 @@ class CoreTasksFilterTestCase(ValidateTestMixin,
             self.url,
             data={
                 '_viewflow_activation-started': '2000-01-01',
-                'validated': True,
+                'experiment_tags': ['msms', 'omics/rna'],
+                'analysis_tags': ['complex/molecule/atom', 'msms'],
+                'new_analysis_tags': 'ijm, candida',
+                'new_experiment_tags': 'msms/time, rna-seq',
             },
             follow=True,
         )
@@ -81,6 +84,7 @@ class CoreTasksFilterTestCase(ValidateTestMixin,
             'upload',
             'meta',
             'validation',
+            'tags',
             'import archive'
         )
         tasks = tuple(
@@ -121,7 +125,7 @@ class SubmissionRatioTestCase(StartTestMixin,
         task = process.task_set.first()
         self.assertEqual(
             submission.submission_ratio(process),
-            8
+            7
         )
 
         # Download
@@ -140,7 +144,7 @@ class SubmissionRatioTestCase(StartTestMixin,
         )
         self.assertEqual(
             submission.submission_ratio(process),
-            25
+            23
         )
 
         # Upload
@@ -164,7 +168,7 @@ class SubmissionRatioTestCase(StartTestMixin,
             )
         self.assertEqual(
             submission.submission_ratio(process),
-            58
+            53
         )
 
         # Validate
@@ -187,7 +191,31 @@ class SubmissionRatioTestCase(StartTestMixin,
         )
         self.assertEqual(
             submission.submission_ratio(process),
-            75
+            69
+        )
+
+        # Tags
+        task = process.task_set.first()
+        url = reverse(
+            'submission:tags',
+            kwargs={
+                'process_pk': process.pk,
+                'task_pk': task.pk,
+            }
+        )
+
+        self.client.post(
+            url,
+            data={
+                '_viewflow_activation-started': '2000-01-01',
+                'new_analysis_tags': 'candida',
+                'new_experiment_tags': 'msms/time',
+            },
+            follow=True,
+        )
+        self.assertEqual(
+            submission.submission_ratio(process),
+            76
         )
 
         self._wait_for_async_import(process)

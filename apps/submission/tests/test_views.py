@@ -12,6 +12,7 @@ from viewflow.activation import STATUS
 from viewflow.base import Flow
 
 from apps.core.factories import PIXELER_PASSWORD, PixelerFactory
+from apps.core.models import Tag
 from ..flows import SubmissionFlow
 from ..io.archive import PixelArchive
 from ..io.xlsx import (
@@ -116,6 +117,40 @@ class ValidateTestMixin(UploadTestMixin):
             'task_pk': self.task.pk,
         }
         self.url = reverse('submission:validation', kwargs=params)
+
+
+class TagsTestMixin(ValidateTestMixin):
+
+    def setUp(self):
+
+        super().setUp()
+
+        # Create tags
+        tags = (
+            'complex/molecule/atom',
+            'omics/rna',
+            'omics/dna',
+            'omics/protein',
+            'msms',
+        )
+        for tag in tags:
+            Tag.objects.create(name=tag)
+
+        self.client.post(
+            self.url,
+            data={
+                '_viewflow_activation-started': '2000-01-01',
+                'validated': True,
+            },
+            follow=True,
+        )
+
+        self.task = self.process.task_set.first()
+        params = {
+            'process_pk': self.process.pk,
+            'task_pk': self.task.pk,
+        }
+        self.url = reverse('submission:tags', kwargs=params)
 
 
 class AsyncImportMixin(object):
@@ -442,9 +477,7 @@ class UploadArchiveViewTestCase(UploadTestMixin, TestCase):
         )
 
 
-class ArchiveValidationViewTestCase(ValidateTestMixin,
-                                    AsyncImportMixin,
-                                    TransactionTestCase):
+class ArchiveValidationViewTestCase(ValidateTestMixin, TestCase):
     """
     We use a TransactionTestCase to avoid using transactions for each test. By
     doing so, we commit each request allowing multiple threads to access a
@@ -494,10 +527,78 @@ class ArchiveValidationViewTestCase(ValidateTestMixin,
         self.process.refresh_from_db()
         self.assertTrue(self.process.validated)
 
+
+class TagsViewTestCase(TagsTestMixin,
+                       AsyncImportMixin,
+                       TransactionTestCase):
+
+    template = 'submission/tags.html'
+    fixtures = [
+        'apps/data/fixtures/initial_data.json',
+        'apps/data/fixtures/test_entries.json',
+        'apps/core/fixtures/initial_data.json',
+    ]
+
+    # Forcing data serialization is also required
+    serialized_rollback = True
+
+    def test_get(self):
+
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, self.template)
+
+    def test_post_redirection(self):
+
+        response = self.client.post(
+            self.url,
+            data={
+                '_viewflow_activation-started': '2000-01-01',
+                'experiment_tags': ['msms', 'omics/rna'],
+                'analysis_tags': ['complex/molecule/atom', 'msms'],
+                'new_analysis_tags': 'ijm, candida',
+                'new_experiment_tags': 'msms/time, rna-seq',
+            }
+        )
+
+        self.assertEqual(response.status_code, 302)
         self._wait_for_async_import(self.process)
 
+    def test_tags(self):
 
-class AsyncImportMixinTestCase(ValidateTestMixin,
+        response = self.client.post(
+            self.url,
+            data={
+                '_viewflow_activation-started': '2000-01-01',
+                'experiment_tags': ['msms', 'omics/rna'],
+                'analysis_tags': ['complex/molecule/atom', 'msms'],
+                'new_analysis_tags': 'ijm, candida',
+                'new_experiment_tags': 'msms/time, rna-seq',
+            },
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+
+        self._wait_for_async_import(self.process)
+
+        experiment_tags = 'msms,msms/time,omics/rna,rna-seq'
+        analysis_tags = 'candida,complex/molecule/atom,ijm,msms'
+        expected = {
+            'experiment': experiment_tags,
+            'analysis': analysis_tags,
+        }
+        self.assertEqual(self.process.tags, expected)
+        self.assertEqual(
+            str(self.process.analysis.tags),
+            ', '.join(analysis_tags.split(','))
+        )
+        self.assertEqual(
+            str(self.process.analysis.experiments.get().tags),
+            ', '.join(experiment_tags.split(','))
+        )
+
+
+class AsyncImportMixinTestCase(TagsTestMixin,
                                AsyncImportMixin,
                                TransactionTestCase):
 
@@ -521,7 +622,6 @@ class AsyncImportMixinTestCase(ValidateTestMixin,
             self.url,
             data={
                 '_viewflow_activation-started': '2000-01-01',
-                'validated': True,
             },
             follow=True,
         )
@@ -534,7 +634,7 @@ class AsyncImportMixinTestCase(ValidateTestMixin,
         sleep(10)
 
 
-class AsyncImportTestCase(ValidateTestMixin,
+class AsyncImportTestCase(TagsTestMixin,
                           AsyncImportMixin,
                           TransactionTestCase):
 
@@ -552,7 +652,6 @@ class AsyncImportTestCase(ValidateTestMixin,
             self.url,
             data={
                 '_viewflow_activation-started': '2000-01-01',
-                'validated': True,
             },
             follow=True,
         )
