@@ -70,7 +70,7 @@ class PixelArchive(object):
 
         self.meta = parse_template(self.meta_path, serialized=serialized)
 
-    def save(self, pixeler):
+    def save(self, pixeler, submission=None):
         logger.debug('Saving data for {}…'.format(self.archive_path))
 
         # -- Experiment
@@ -97,6 +97,10 @@ class PixelArchive(object):
             pixeler=pixeler,
             completed_at=self.meta['analysis']['date'],
         )
+
+        if submission is not None:
+            submission.analysis = analysis
+            submission.save()
 
         # Copy archive files to the media tree
         relative_dest = Path(

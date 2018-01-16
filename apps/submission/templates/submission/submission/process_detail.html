@@ -1,6 +1,7 @@
 {% extends "submission/base.html" %}
 
 {% load i18n viewflow %}
+{% load files %}
 
 {% block title %}{% trans "Submission details" %} — #{{ process.id }}{% endblock %}
 {% block body_class %}{{ block.super }} detail{% endblock %}
@@ -28,6 +29,8 @@
       names above to pursue your submission.
     {% endblocktrans %}
   </div>
+  {% else %}
+  <h3>{% trans "Submission files" %}</h3>
   {% endif %}
 
   <table>
@@ -38,13 +41,58 @@
           {% if process.archive %}
             <a href="{{ process.archive.url }}">
               <i class="fa fa-download" aria-hidden="true"></i>
-              Download
+              {{ process.archive.name|filename }}
             </a>
           {% else %}
             {% trans "N/A" %}
           {% endif %}
         </td>
       </tr>
+      {% if process.analysis %}
+        <tr>
+          <th>
+            {% trans "Secondary data" %}
+          </th>
+          <td>
+            <a href="{{ process.analysis.secondary_data.url }}" title="{% trans "View file" %}">
+              <i class="fa fa-download" aria-hidden="true"></i>
+              {{ process.analysis.secondary_data.name|filename }}
+            </a>
+          </td>
+        </tr>
+        {% if process.analysis.notebook %}
+        <tr>
+          <th>
+            {% trans "Notebook" %}
+          </th>
+          <td>
+            <a href="{{ process.analysis.notebook.url }}" title="{% trans "View file" %}">
+              <i class="fa fa-download" aria-hidden="true"></i>
+              {{ process.analysis.notebook.name|filename }}
+            </a>
+          </td>
+        </tr>
+        {% endif %}
+        {% for pixelset in process.analysis.pixelsets.all %}
+        <tr>
+          <th>
+            {% trans "Pixel set" %} {{ forloop.counter }}
+          </th>
+          <td>
+            <a href="{{ pixelset.pixels_file.url }}" title="{% trans "View file" %}">
+              <i class="fa fa-download" aria-hidden="true"></i>
+              {{ pixelset.pixels_file.name|filename }}
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="2" class="empty">
+            {% trans "Submitted archive has no pixel set" %}
+          </td>
+        </tr>
+        {% endfor %}
+      {% endif %}
     </tbody>
   </table>
 {% endblock step_content %}

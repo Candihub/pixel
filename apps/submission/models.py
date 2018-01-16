@@ -5,6 +5,8 @@ from django.utils.translation import ugettext as _
 from viewflow.activation import STATUS
 from viewflow.models import Process
 
+from apps.core.models import Analysis
+
 
 class SubmissionProcess(Process):
 
@@ -27,6 +29,15 @@ class SubmissionProcess(Process):
         _("Pixels submitted archive"),
         upload_to=archive_upload_to,
         max_length=255,
+    )
+
+    analysis = models.ForeignKey(
+        Analysis,
+        on_delete=models.SET_NULL,
+        related_name='submission',
+        related_query_name='submissions',
+        blank=True,
+        null=True,
     )
 
     template_checksum = models.CharField(

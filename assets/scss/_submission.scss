@@ -41,6 +41,20 @@
     @include flex-align(right, middle);
   }
 
+  &.detail {
+    table {
+      @include table($stripe:even);
+      @include table-hover;
+      table-layout: fixed;
+
+      tr {
+        th {
+          text-align: left;
+        }
+      }
+    }
+  }
+
   table.task.detail {
     @include table($stripe:even);
     table-layout: fixed;

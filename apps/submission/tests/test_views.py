@@ -510,7 +510,7 @@ class AsyncImportMixinTestCase(ValidateTestMixin,
     # Forcing data serialization is also required
     serialized_rollback = True
 
-    def long_save(other, pixeler):
+    def long_save(other, pixeler, submission=None):
         logging.debug("Calling long_save (PixelArchive.save patch)")
         sleep(5)
 
