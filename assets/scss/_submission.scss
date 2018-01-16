@@ -44,7 +44,14 @@
   &.detail {
     table {
       @include table($stripe:even);
+      @include table-hover;
       table-layout: fixed;
+
+      tr {
+        th {
+          text-align: left;
+        }
+      }
     }
   }
 
