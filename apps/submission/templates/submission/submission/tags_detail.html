@@ -1,0 +1,18 @@
+{% extends "submission/submission/task_detail.html" %}
+
+{% load i18n %}
+
+{% block step_details %}
+<tr>
+  <th>{% trans "Experiment tags" %}</th>
+  <td>
+    {{ activation.process.tags.experiment }}
+  </td>
+</tr>
+<tr>
+  <th>{% trans "Analysis tags" %}</th>
+  <td>
+    {{ activation.process.tags.analysis }}
+  </td>
+</tr>
+{% endblock step_details %}
