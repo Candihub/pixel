@@ -40,8 +40,8 @@
         <td>
           {% if process.archive %}
             <a href="{{ process.archive.url }}">
-              {{ process.archive.name|filename }}
               <i class="fa fa-download" aria-hidden="true"></i>
+              {{ process.archive.name|filename }}
             </a>
           {% else %}
             {% trans "N/A" %}
@@ -55,8 +55,8 @@
           </th>
           <td>
             <a href="{{ process.analysis.secondary_data.url }}" title="{% trans "View file" %}">
-              {{ process.analysis.secondary_data.name|filename }}
               <i class="fa fa-download" aria-hidden="true"></i>
+              {{ process.analysis.secondary_data.name|filename }}
             </a>
           </td>
         </tr>
@@ -67,8 +67,8 @@
           </th>
           <td>
             <a href="{{ process.analysis.notebook.url }}" title="{% trans "View file" %}">
-              {{ process.analysis.notebook.name|filename }}
               <i class="fa fa-download" aria-hidden="true"></i>
+              {{ process.analysis.notebook.name|filename }}
             </a>
           </td>
         </tr>
@@ -80,8 +80,8 @@
           </th>
           <td>
             <a href="{{ pixelset.pixels_file.url }}" title="{% trans "View file" %}">
-              {{ pixelset.pixels_file.name|filename }}
               <i class="fa fa-download" aria-hidden="true"></i>
+              {{ pixelset.pixels_file.name|filename }}
             </a>
           </td>
         </tr>
