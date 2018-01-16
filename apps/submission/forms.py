@@ -65,9 +65,17 @@ class SubmissionTagsForm(forms.ModelForm):
     def _clean_tags(tags):
         """Clean input tags: sorted, stripped, lowercase and unique"""
 
-        return ','.join(
+        cleaned_tags = ','.join(
             sorted(set(t.lower().strip() for t in tags.split(',')))
         )
+
+        if len(cleaned_tags) and \
+                any(map(lambda t: len(t) < 2, cleaned_tags.split(','))):
+            raise forms.ValidationError(
+                _("Invalid tag length (should be at leat 2 characters)")
+            )
+
+        return cleaned_tags
 
     def _set_tags(self):
         """Set process tags"""
@@ -79,14 +87,14 @@ class SubmissionTagsForm(forms.ModelForm):
             ','.join((
                 ','.join(self.cleaned_data['analysis_tags']),
                 self.cleaned_data['new_analysis_tags'],
-            ))
+            )).strip(',')
         )
 
         experiment_tags = self._clean_tags(
             ','.join((
                 ','.join(self.cleaned_data['experiment_tags']),
                 self.cleaned_data['new_experiment_tags'],
-            ))
+            )).strip(',')
         )
 
         self.instance.tags = self.cleaned_data['tags'] = {

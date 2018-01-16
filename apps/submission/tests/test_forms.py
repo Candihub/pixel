@@ -1,3 +1,4 @@
+from django import forms
 from django.test import TestCase
 from django.urls import reverse
 
@@ -66,10 +67,14 @@ class SubmissionTagsFormTestCase(TestCase):
         expected = 'complex,complex/molecule,omics,omics/protein'
         self.assertEqual(SubmissionTagsForm._clean_tags(tags), expected)
 
-        # unicode, yeah 🎉
-        tags = '🍕, complex/molecule, 🎸'
-        expected = 'complex/molecule,🍕,🎸'
-        self.assertEqual(SubmissionTagsForm._clean_tags(tags), expected)
+        # Minimal tag length is 2
+        tags = 'complex/modecule,R'
+        with self.assertRaises(forms.ValidationError) as e:
+            SubmissionTagsForm._clean_tags(tags)
+        self.assertEqual(
+            e.exception.message,
+            'Invalid tag length (should be at leat 2 characters)'
+        )
 
     def test_clean_new_experiment_tags(self):
 
@@ -96,7 +101,7 @@ class SubmissionTagsFormTestCase(TestCase):
         data = {
             'experiment_tags': ['msms', 'omics/rna'],
             'analysis_tags': ['complex/molecule/atom', 'msms'],
-            'new_analysis_tags': 'ijm, R',
+            'new_analysis_tags': 'ijm, candida',
             'new_experiment_tags': 'msms/time, rna-seq',
             'tags': None,
         }
@@ -107,7 +112,7 @@ class SubmissionTagsFormTestCase(TestCase):
         expected = {
             'experiment_tags': ['msms', 'omics/rna'],
             'analysis_tags': ['complex/molecule/atom', 'msms'],
-            'new_analysis_tags': 'ijm,r',
+            'new_analysis_tags': 'candida,ijm',
             'new_experiment_tags': 'msms/time,rna-seq',
             'tags': None,
         }
@@ -118,7 +123,7 @@ class SubmissionTagsFormTestCase(TestCase):
         data = {
             'experiment_tags': ['msms', 'omics/rna'],
             'analysis_tags': ['complex/molecule/atom', 'msms'],
-            'new_analysis_tags': 'ijm, R',
+            'new_analysis_tags': 'ijm, candida',
             'new_experiment_tags': 'msms/time, rna-seq',
             'tags': None,
         }
@@ -136,7 +141,7 @@ class SubmissionTagsFormTestCase(TestCase):
         form._set_tags()
 
         expected = {
-            'analysis': 'complex/molecule/atom,ijm,msms,r',
+            'analysis': 'candida,complex/molecule/atom,ijm,msms',
             'experiment': 'msms,msms/time,omics/rna,rna-seq'
         }
         self.assertEqual(form.cleaned_data['tags'], expected)
@@ -149,7 +154,7 @@ class SubmissionTagsFormTestCase(TestCase):
         data = {
             'experiment_tags': ['msms', 'omics/rna'],
             'analysis_tags': ['complex/molecule/atom', 'msms'],
-            'new_analysis_tags': 'ijm, R',
+            'new_analysis_tags': 'ijm, candida',
             'new_experiment_tags': 'msms/time, rna-seq',
             'tags': {},
         }
@@ -157,7 +162,7 @@ class SubmissionTagsFormTestCase(TestCase):
         assert form.is_valid()
 
         expected = {
-            'analysis': 'complex/molecule/atom,ijm,msms,r',
+            'analysis': 'candida,complex/molecule/atom,ijm,msms',
             'experiment': 'msms,msms/time,omics/rna,rna-seq'
         }
         process = form.save()
