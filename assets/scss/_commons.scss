@@ -16,6 +16,28 @@ a {
   }
 }
 
+form {
+  .field-wrapper {
+    .field {
+      label {
+        &.error {
+          border-bottom: 3px solid $alert-color;
+        }
+
+        .errors {
+          .error {
+            color: $alert-color;
+          }
+        }
+      }
+
+      p.help-text {
+        margin-top: 0;
+      }
+    }
+  }
+}
+
 h1 {
   span.subheader {
     font-size: 2rem;
