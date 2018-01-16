@@ -138,12 +138,3 @@ class TagsView(UpdateProcessView):
 
     template_name = 'submission/tags.html'
     form_class = SubmissionTagsForm
-
-    def form_valid(self, form):
-
-        response = super().form_valid(form)
-
-        # Serialize tags to store them in the submission process
-        # TODO
-
-        return response
