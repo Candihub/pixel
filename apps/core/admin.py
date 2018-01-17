@@ -124,6 +124,7 @@ class StrainAdmin(admin.ModelAdmin):
         'name', 'description', 'get_species', 'get_entry_identifier'
     )
     list_filter = ('species__name',)
+    raw_id_fields = ('reference', )
 
     def get_species(self, obj):
         return (obj.species.name)
