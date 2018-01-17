@@ -20,6 +20,7 @@ class TagsModelAdminMixin(object):
     get_tags.short_description = _("Tags")
 
 
+# Taggable models should be registered by tagulous
 class AnalysisAdmin(UUIDModelAdminMixin,
                     TagsModelAdminMixin,
                     admin.ModelAdmin):
@@ -28,9 +29,9 @@ class AnalysisAdmin(UUIDModelAdminMixin,
         'created_at', 'saved_at',
     )
     list_filter = ('experiments__omics_area', 'tags', 'created_at', 'saved_at')
-tagulous_register(models.Analysis, AnalysisAdmin)
 
 
+# Taggable models should be registered by tagulous
 class ExperimentAdmin(UUIDModelAdminMixin,
                       TagsModelAdminMixin,
                       admin.ModelAdmin):
@@ -40,7 +41,6 @@ class ExperimentAdmin(UUIDModelAdminMixin,
     )
     list_filter = ('omics_area', 'tags', 'created_at', 'saved_at')
     raw_id_fields = ('entries', )
-tagulous_register(models.Experiment, ExperimentAdmin)
 
 
 @admin.register(models.OmicsArea)
@@ -140,3 +140,7 @@ class StrainAdmin(admin.ModelAdmin):
 @admin.register(models.Tag)
 class TagAdmin(TagTreeModelAdmin):
     pass
+
+
+tagulous_register(models.Analysis, AnalysisAdmin)
+tagulous_register(models.Experiment, ExperimentAdmin)
