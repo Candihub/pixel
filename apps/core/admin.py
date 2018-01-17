@@ -32,11 +32,15 @@ class AnalysisAdmin(UUIDModelAdminMixin,
 
 
 @admin.register(models.Experiment)
-class ExperimentAdmin(admin.ModelAdmin):
+class ExperimentAdmin(UUIDModelAdminMixin,
+                      TagsModelAdminMixin,
+                      admin.ModelAdmin):
     list_display = (
-        'description', 'created_at', 'released_at', 'saved_at',
+        'get_short_uuid', 'description', 'omics_area', 'get_tags',
+        'completed_at', 'released_at',
     )
-    list_filter = ('tags', 'entries')
+    list_filter = ('omics_area', 'tags', 'created_at', 'saved_at')
+    raw_id_fields = ('entries', )
 
 
 @admin.register(models.OmicsArea)
