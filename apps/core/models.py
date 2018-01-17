@@ -281,7 +281,7 @@ class Tag(tgl_models.TagTreeModel):
         force_lowercase = True
 
 
-class Experiment(models.Model):
+class Experiment(UUIDModelMixin, models.Model):
     """An experiment correspond to preliminary work on an OmicsUnit, _e.g._ a
     publication or preliminary work from a partnering laboratory.
     """
