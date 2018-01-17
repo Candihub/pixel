@@ -90,11 +90,12 @@ class PixelSetAdmin(admin.ModelAdmin):
 @admin.register(models.Pixel)
 class PixelAdmin(admin.ModelAdmin):
     list_display = (
-        'get_short_uuid', 'value', 'quality_score', 'omics_unit',
+        'get_short_uuid', 'pixel_set', 'value', 'quality_score', 'omics_unit',
         'get_analysis_description',
     )
     list_filter = (
-        'omics_unit__type', 'pixel_set__analysis__experiments__omics_area'
+        'omics_unit__type', 'pixel_set__analysis__experiments__omics_area',
+        'pixel_set__analysis__tags'
     )
 
     def get_analysis_description(self, obj):
