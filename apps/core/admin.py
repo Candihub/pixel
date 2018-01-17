@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import ugettext as _
 from mptt.admin import MPTTModelAdmin
-
+from tagulous.admin import register as tagulous_register, TagTreeModelAdmin
 from . import models
 
 
@@ -20,7 +20,6 @@ class TagsModelAdminMixin(object):
     get_tags.short_description = _("Tags")
 
 
-@admin.register(models.Analysis)
 class AnalysisAdmin(UUIDModelAdminMixin,
                     TagsModelAdminMixin,
                     admin.ModelAdmin):
@@ -29,9 +28,9 @@ class AnalysisAdmin(UUIDModelAdminMixin,
         'created_at', 'saved_at',
     )
     list_filter = ('experiments__omics_area', 'tags', 'created_at', 'saved_at')
+tagulous_register(models.Analysis, AnalysisAdmin)
 
 
-@admin.register(models.Experiment)
 class ExperimentAdmin(UUIDModelAdminMixin,
                       TagsModelAdminMixin,
                       admin.ModelAdmin):
@@ -41,6 +40,7 @@ class ExperimentAdmin(UUIDModelAdminMixin,
     )
     list_filter = ('omics_area', 'tags', 'created_at', 'saved_at')
     raw_id_fields = ('entries', )
+tagulous_register(models.Experiment, ExperimentAdmin)
 
 
 @admin.register(models.OmicsArea)
@@ -138,8 +138,5 @@ class StrainAdmin(admin.ModelAdmin):
 
 
 @admin.register(models.Tag)
-class TagAdmin(admin.ModelAdmin):
-    search_fields = ('name', )
-    list_display = (
-        'name', 'label', 'level', 'count', 'parent'
-    )
+class TagAdmin(TagTreeModelAdmin):
+    pass
