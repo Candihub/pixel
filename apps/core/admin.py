@@ -114,6 +114,7 @@ class SpeciesAdmin(admin.ModelAdmin):
     list_display = (
         'name', 'description', 'reference', 'repository'
     )
+    raw_id_fields = ('reference', )
 
 
 @admin.register(models.Strain)
