@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+from django.utils.translation import ugettext as _
 from mptt.admin import MPTTModelAdmin
 
 from . import models
@@ -12,13 +13,22 @@ class UUIDModelAdminMixin(object):
     get_short_uuid.short_description = 'ID'
 
 
+class TagsModelAdminMixin(object):
+
+    def get_tags(self, obj):
+        return str(obj.tags)
+    get_tags.short_description = _("Tags")
+
+
 @admin.register(models.Analysis)
-class AnalysisAdmin(UUIDModelAdminMixin, admin.ModelAdmin):
+class AnalysisAdmin(UUIDModelAdminMixin,
+                    TagsModelAdminMixin,
+                    admin.ModelAdmin):
     list_display = (
-        'get_short_uuid', 'description', 'pixeler',
+        'get_short_uuid', 'description', 'pixeler', 'get_tags',
         'created_at', 'saved_at',
     )
-    list_filter = ('created_at', 'saved_at', 'tags', 'experiments__omics_area')
+    list_filter = ('experiments__omics_area', 'tags', 'created_at', 'saved_at')
 
 
 @admin.register(models.Experiment)
