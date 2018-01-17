@@ -57,7 +57,8 @@ class OmicsUnitAdmin(UUIDModelAdminMixin, admin.ModelAdmin):
         'get_short_uuid', 'get_reference_identifier',
         'strain', 'get_species', 'type', 'status'
     )
-    list_filter = ['status', 'type', 'strain__species__name', ]
+    list_filter = ('status', 'type', 'strain__species__name', )
+    raw_id_fields = ('reference', )
 
     def get_species(self, obj):
         return obj.strain.species.name
