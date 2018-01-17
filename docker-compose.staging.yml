@@ -4,6 +4,7 @@ services:
   db:
     image: postgres:9.6
     env_file: .env
+    restart: always
 
   web:
     image: candihub/pixel:latest
@@ -14,6 +15,7 @@ services:
       - static:/app/pixel/public/static
     depends_on:
       - db
+    restart: always
 
   proxy:
     image: nginx
@@ -26,6 +28,7 @@ services:
       - 8901:80
     depends_on:
       - web
+    restart: always
 
 volumes:
   media:
