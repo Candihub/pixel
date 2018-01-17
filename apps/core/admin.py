@@ -45,7 +45,7 @@ class ExperimentAdmin(UUIDModelAdminMixin,
 
 @admin.register(models.OmicsArea)
 class OmicsAreaAdmin(MPTTModelAdmin):
-    search_fields = ['name']
+    search_fields = ('name', )
     list_display = (
         'name', 'description', 'level'
     )
@@ -71,7 +71,7 @@ class OmicsUnitAdmin(UUIDModelAdminMixin, admin.ModelAdmin):
 
 @admin.register(models.OmicsUnitType)
 class OmicsUnitTypeAdmin(admin.ModelAdmin):
-    search_fields = ['name']
+    search_fields = ('name', )
     list_display = (
         'name', 'description'
     )
@@ -110,7 +110,7 @@ class PixelerAdmin(UserAdmin):
 
 @admin.register(models.Species)
 class SpeciesAdmin(admin.ModelAdmin):
-    search_fields = ['name']
+    search_fields = ('name', )
     list_display = (
         'name', 'description', 'reference', 'repository'
     )
@@ -119,7 +119,7 @@ class SpeciesAdmin(admin.ModelAdmin):
 
 @admin.register(models.Strain)
 class StrainAdmin(admin.ModelAdmin):
-    search_fields = ['name']
+    search_fields = ('name', )
     list_display = (
         'name', 'description', 'get_species', 'get_entry_identifier'
     )
@@ -139,7 +139,7 @@ class StrainAdmin(admin.ModelAdmin):
 
 @admin.register(models.Tag)
 class TagAdmin(admin.ModelAdmin):
-    search_fields = ['name']
+    search_fields = ('name', )
     list_display = (
         'name', 'label', 'level', 'count', 'parent'
     )
