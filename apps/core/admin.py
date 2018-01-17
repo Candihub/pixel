@@ -83,7 +83,7 @@ class PixelSetAdmin(admin.ModelAdmin):
         'get_short_uuid', 'description', 'analysis'
     )
     list_filter = (
-        'analysis__experiments__omics_area',
+        'analysis__experiments__omics_area', 'analysis__tags'
     )
 
 
