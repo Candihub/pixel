@@ -1,7 +1,15 @@
 # Pixel
 
+**Continuous Integration**
+
 [![CircleCI](https://circleci.com/gh/Candihub/pixel.svg?style=svg)](https://circleci.com/gh/Candihub/pixel)
 [![Coverage Status](https://coveralls.io/repos/github/Candihub/pixel/badge.svg)](https://coveralls.io/github/Candihub/pixel)
+
+**DockerHub containers**
+
+[![](https://images.microbadger.com/badges/version/candihub/pixel.svg)](https://microbadger.com/images/candihub/pixel "Get your own version badge on microbadger.com")
+[![](https://images.microbadger.com/badges/commit/candihub/pixel.svg)](https://microbadger.com/images/candihub/pixel "Get your own commit badge on microbadger.com")
+[![](https://images.microbadger.com/badges/image/candihub/pixel.svg)](https://microbadger.com/images/candihub/pixel "Get your own image badge on microbadger.com")
 
 ## Requirements
 
