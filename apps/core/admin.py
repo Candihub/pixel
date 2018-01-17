@@ -57,11 +57,11 @@ class OmicsUnitAdmin(UUIDModelAdminMixin, admin.ModelAdmin):
 
     def get_species(self, obj):
         return obj.strain.species.name
-    get_species.short_description = 'Species'
+    get_species.short_description = _("Species")
 
     def get_reference_identifier(self, obj):
         return obj.reference.identifier
-    get_reference_identifier.short_description = 'Entry identifier'
+    get_reference_identifier.short_description = _("Entry identifier")
 
 
 @admin.register(models.OmicsUnitType)
@@ -94,7 +94,7 @@ class PixelAdmin(admin.ModelAdmin):
 
     def get_analysis_description(self, obj):
         return obj.pixel_set.analysis.description
-    get_analysis_description.short_description = 'Analysis'
+    get_analysis_description.short_description = _("Analysis")
 
 
 @admin.register(models.Pixeler)
@@ -116,17 +116,17 @@ class StrainAdmin(admin.ModelAdmin):
     list_display = (
         'name', 'description', 'get_species', 'get_entry_identifier'
     )
+    list_filter = ('species__name',)
 
     def get_species(self, obj):
         return (obj.species.name)
-    get_species.short_description = 'Species'
+    get_species.short_description = _("Species")
 
     def get_entry_identifier(self, obj):
         if obj.reference is None:
             return '-'
-
         return obj.reference.identifier
-    list_filter = ('species__name',)
+    get_entry_identifier.short_description = _("Reference")
 
 
 @admin.register(models.Tag)
