@@ -127,6 +127,17 @@ class AnalysisFactory(DjangoModelFactory):
         model = 'core.Analysis'
         django_get_or_create = ('description', 'pixeler')
 
+    @factory.post_generation
+    def experiments(self, create, extracted, **kwargs):
+        if not create:
+            # Simple build, do nothing.
+            return
+
+        if extracted:
+            # A list of groups were passed in, use them
+            for experiment in extracted:
+                self.experiments.add(experiment)
+
 
 class PixelSetFactory(DjangoModelFactory):
 
