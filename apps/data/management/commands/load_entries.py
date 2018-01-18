@@ -36,12 +36,12 @@ class Command(BaseCommand):
         ignore_aliases = options.get('ignore_aliases', False)
 
         if database == 'CGD':
-            chrParser = CGDParser(Path(filename))
+            chr_parser = CGDParser(Path(filename))
         elif database == 'SGD':
-            chrParser = SGDParser(Path(filename))
+            chr_parser = SGDParser(Path(filename))
 
-        chrParser.parse()
-        chrParser.save(ignore_aliases=ignore_aliases)
+        chr_parser.parse()
+        chr_parser.save(ignore_aliases=ignore_aliases)
 
         self.stdout.write(
             self.style.SUCCESS(
