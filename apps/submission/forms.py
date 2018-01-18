@@ -72,7 +72,7 @@ class SubmissionTagsForm(forms.ModelForm):
         if len(cleaned_tags) and \
                 any(map(lambda t: len(t) < 2, cleaned_tags.split(','))):
             raise forms.ValidationError(
-                _("Invalid tag length (should be at leat 2 characters)")
+                _("Invalid tag length (should be at least 2 characters)")
             )
 
         return cleaned_tags

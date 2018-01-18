@@ -73,7 +73,7 @@ class SubmissionTagsFormTestCase(TestCase):
             SubmissionTagsForm._clean_tags(tags)
         self.assertEqual(
             e.exception.message,
-            'Invalid tag length (should be at leat 2 characters)'
+            'Invalid tag length (should be at least 2 characters)'
         )
 
     def test_clean_new_experiment_tags(self):
