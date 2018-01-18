@@ -75,8 +75,14 @@ class SubmissionProcess(Process):
     uploaded = models.BooleanField(default=False)
 
     validated = models.BooleanField(
-        _("I confirm the validity of extracted meta data"),
-        help_text=_("Check this to validate parsed metadata"),
+        _(
+            "I reviewed the extracted metadata on this page "
+            "and I confirm their validity."
+        ),
+        help_text=_(
+            "Check the box above to validate the extracted metadata "
+            "and enable the button."
+        ),
         default=False
     )
 
