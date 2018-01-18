@@ -9,6 +9,7 @@ from viewflow.models import Task
 from viewflow.flow.views import UpdateProcessView
 
 from .io.xlsx import generate_template
+from .forms import SubmissionTagsForm
 from .models import SubmissionProcess
 from .utils import is_hidden_task
 
@@ -131,3 +132,9 @@ class ArchiveValidationView(UpdateProcessView):
 
     template_name = 'submission/validation.html'
     fields = ['validated', ]
+
+
+class TagsView(UpdateProcessView):
+
+    template_name = 'submission/tags.html'
+    form_class = SubmissionTagsForm

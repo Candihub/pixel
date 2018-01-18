@@ -62,12 +62,20 @@ class SubmissionProcess(Process):
         blank=True,
     )
 
+    tags = JSONField(
+        _("Tags"),
+        encoder=DjangoJSONEncoder,
+        help_text=_("Submitted tags for experiment and analysis"),
+        null=True,
+        blank=True,
+    )
+
     downloaded = models.BooleanField(default=False)
 
     uploaded = models.BooleanField(default=False)
 
     validated = models.BooleanField(
-        _("Is validated?"),
+        _("I confirm the validity of extracted meta data"),
         help_text=_("Check this to validate parsed metadata"),
         default=False
     )

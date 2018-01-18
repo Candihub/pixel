@@ -1,14 +1,4 @@
 {% load i18n %}
 
-{% if form.non_field_errors %}
-<div class="non-field-errors">
-    <h5>{% trans "Unexpected errors" %}</h5>
-    <ul>
-        {% for error in form.non_field_errors %}
-        <li>{{ error }}</li>
-        {% endfor %}
-    </ul>
-</div>
-{% endif %}
-
+{% include "foundation/non_field_errors.html" %}
 {% include "foundation/form_fields.html" %}

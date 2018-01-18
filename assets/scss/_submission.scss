@@ -5,7 +5,7 @@
 
     .step-title {
       @include tabs-title;
-      width: 20%;
+      width: 16.6%;
       text-align: center;
       text-transform: uppercase;
       font-size: 1.2rem;
@@ -179,6 +179,43 @@
       &.datasets {
         @include table($stripe:even);
         @include table-hover;
+      }
+    }
+  }
+
+  &.tags {
+    form {
+      @include xy-grid;
+
+      .submission-tags {
+        @include xy-grid;
+
+        .experiment-tags,
+        .analysis-tags {
+          @include xy-cell($size: 50%);
+
+          ul {
+            margin-left: 0;
+            list-style-type: none;
+
+            li {
+              display: inline-block;
+              margin-right: 0.2rem;
+              margin-bottom: 1rem;
+              padding: 0.5rem 0.8rem 0;
+              border-radius: $global-radius;
+              background-color: $body-background-alt;
+
+              &:nth-child(even) {
+                background-color: $body-background-alt-2;
+              }
+            }
+          }
+        }
+      }
+
+      .form-actions {
+        @include xy-cell($size: 100%);
       }
     }
   }

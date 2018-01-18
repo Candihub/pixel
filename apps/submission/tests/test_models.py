@@ -3,7 +3,7 @@ from django.urls import reverse
 
 from apps.core.factories import PIXELER_PASSWORD, PixelerFactory
 from .. import models
-from .test_views import AsyncImportMixin, ValidateTestMixin
+from .test_views import AsyncImportMixin, TagsTestMixin
 
 
 class SubmissionProcessTestCase(TestCase):
@@ -58,7 +58,7 @@ class SubmissionProcessTestCase(TestCase):
         self.assertEqual(upload_path, expected)
 
 
-class SubmissionProcessIsDoneHelperTestCase(ValidateTestMixin,
+class SubmissionProcessIsDoneHelperTestCase(TagsTestMixin,
                                             AsyncImportMixin,
                                             TransactionTestCase):
 
@@ -79,7 +79,8 @@ class SubmissionProcessIsDoneHelperTestCase(ValidateTestMixin,
             self.url,
             data={
                 '_viewflow_activation-started': '2000-01-01',
-                'validated': True,
+                'new_analysis_tags': 'candida',
+                'new_experiment_tags': 'msms/time',
             },
             follow=True,
         )
@@ -91,7 +92,7 @@ class SubmissionProcessIsDoneHelperTestCase(ValidateTestMixin,
         self.assertTrue(self.process.is_done)
 
 
-class SubmissionProcessHasFailedHelperTestCase(ValidateTestMixin,
+class SubmissionProcessHasFailedHelperTestCase(TagsTestMixin,
                                                AsyncImportMixin,
                                                TransactionTestCase):
 
@@ -111,7 +112,8 @@ class SubmissionProcessHasFailedHelperTestCase(ValidateTestMixin,
             self.url,
             data={
                 '_viewflow_activation-started': '2000-01-01',
-                'validated': True,
+                'new_analysis_tags': 'candida',
+                'new_experiment_tags': 'msms/time',
             },
             follow=True,
         )
