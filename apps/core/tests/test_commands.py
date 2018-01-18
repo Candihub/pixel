@@ -3,12 +3,21 @@ from django.core.management.base import CommandError
 from django.test import TestCase, override_settings
 from django.utils.six import StringIO
 
-from ..management.commands.make_development_fixtures import DEFAULT_N_PIXELSETS
-from ..models import PixelSet
+from ..management.commands.make_development_fixtures import (
+    DEFAULT_N_EXPERIMENTS,
+    DEFAULT_N_PIXELS_PER_SET,
+    DEFAULT_N_PIXELSETS,
+)
+from .. import models
 
 
 @override_settings(DEBUG=True)
 class MakeDevelopmentFixturesCommandTestCase(TestCase):
+
+    fixtures = [
+        'apps/data/fixtures/initial_data.json',
+        'apps/core/fixtures/initial_data.json',
+    ]
 
     def test_command(self):
 
@@ -18,25 +27,77 @@ class MakeDevelopmentFixturesCommandTestCase(TestCase):
             with self.assertRaises(CommandError):
                 call_command('make_development_fixtures', stdout=output)
 
-        self.assertEqual(PixelSet.objects.count(), 0)
+        self.assertEqual(models.PixelSet.objects.count(), 0)
+        self.assertEqual(models.Experiment.objects.count(), 0)
+        self.assertEqual(models.Pixel.objects.count(), 0)
+
         call_command('make_development_fixtures', stdout=output)
-        self.assertEqual(PixelSet.objects.count(), DEFAULT_N_PIXELSETS)
+
+        n_pixelsets = models.PixelSet.objects.count()
+        self.assertEqual(
+            n_pixelsets,
+            DEFAULT_N_PIXELSETS
+        )
+        self.assertEqual(
+            models.Experiment.objects.count(),
+            DEFAULT_N_EXPERIMENTS
+        )
+        self.assertEqual(
+            models.Pixel.objects.count(),
+            n_pixelsets * DEFAULT_N_PIXELS_PER_SET
+        )
 
         expected_output = (
-            'Will generate {} pixel sets…\n'
+            'Will generate {} experiments and {} pixel sets with {} '
+            'pixels each…\n'
             'Successfully generated fixtures'
-        ).format(DEFAULT_N_PIXELSETS)
+        ).format(
+            DEFAULT_N_EXPERIMENTS,
+            DEFAULT_N_PIXELSETS,
+            DEFAULT_N_PIXELS_PER_SET
+        )
         self.assertIn(expected_output, output.getvalue())
 
-    def test_command_with_custom_pixelset(self):
+    def test_command_with_custom_options(self):
 
         output = StringIO()
 
         n_pixel_sets = 5
-        self.assertEqual(PixelSet.objects.count(), 0)
+        n_experiments = 2
+        n_pixels_per_set = 2
+
+        self.assertEqual(models.PixelSet.objects.count(), 0)
+        self.assertEqual(models.Experiment.objects.count(), 0)
+        self.assertEqual(models.Pixel.objects.count(), 0)
+
         call_command(
             'make_development_fixtures',
             pixel_sets=n_pixel_sets,
+            experiments=n_experiments,
+            pixels=n_pixels_per_set,
             stdout=output
         )
-        self.assertEqual(PixelSet.objects.count(), n_pixel_sets)
+
+        self.assertEqual(
+            models.PixelSet.objects.count(),
+            n_pixel_sets
+        )
+        self.assertEqual(
+            models.Experiment.objects.count(),
+            n_experiments
+        )
+        self.assertEqual(
+            models.Pixel.objects.count(),
+            n_pixels_per_set * n_pixel_sets
+        )
+
+        expected_output = (
+            'Will generate {} experiments and {} pixel sets with {} '
+            'pixels each…\n'
+            'Successfully generated fixtures'
+        ).format(
+            n_experiments,
+            n_pixel_sets,
+            n_pixels_per_set
+        )
+        self.assertIn(expected_output, output.getvalue())
