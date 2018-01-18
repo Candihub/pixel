@@ -24,7 +24,9 @@
         & > a[aria-selected="true"] {
           background-color: inherit;
           color: inherit;
+          cursor: not-allowed;
           font-weight: bolder;
+          pointer-events: none;
         }
       }
     }
