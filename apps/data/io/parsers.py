@@ -1,17 +1,19 @@
 import pandas
 
+from django.utils.translation import ugettext
 from hashlib import blake2b
 
 from ..models import Entry, Repository
 
 
 class ChrFeatureParser(object):
-    def __init__(self, file_path, database_name, root_url):
+    def __init__(self, file_path, database_name, root_url, skip_rows=0):
 
         self.file_path = file_path
         self.database_name = database_name
         self.root_url = root_url
         self.features = None
+        self.skip_rows = skip_rows
         self.entries = {
             'new': [],
             'update': [],
@@ -29,7 +31,9 @@ class ChrFeatureParser(object):
             - name
         """
         raise NotImplementedError(
-            _("You should define the _get_headers() method on your parser.")
+            ugettext(
+                "You should define the _get_headers() method on your parser."
+            )
         )
 
     def parse(self):
@@ -37,7 +41,7 @@ class ChrFeatureParser(object):
             self.file_path,
             header=None,
             names=self._get_headers(),
-            skiprows=8
+            skiprows=self.skip_rows
         )
 
     def _to_entries(self, ignore_aliases):
@@ -45,7 +49,9 @@ class ChrFeatureParser(object):
         if self.features is None:
             return
 
-        repository, _ = Repository.objects.get_or_create(name=self.database_name)
+        repository, _ = Repository.objects.get_or_create(
+            name=self.database_name
+        )
         known_entries = repository.entries.values_list('identifier', flat=True)
         entries = {
             'update': [],
@@ -134,7 +140,10 @@ class CGDParser(ChrFeatureParser):
         super().__init__(
             file_path,
             database_name='CGD',
-            root_url='http://www.candidagenome.org/cgi-bin/locus.pl?dbid='
+            root_url='http://www.candidagenome.org/cgi-bin/locus.pl?dbid=',
+            # A CGD file contains a "header" content at the top of the file (8
+            # lines)
+            skip_rows=8
         )
 
     def _get_headers(self):
@@ -157,4 +166,54 @@ class CGDParser(ChrFeatureParser):
             'reserved',  # P
             'is_standard',  # Q
             'orthologs',  # R
+        )
+
+
+class SGDParser(ChrFeatureParser):
+    """
+    Expected columns:
+
+    (A) 1.   Primary SGDID (mandatory)
+    (B) 2.   Feature type (mandatory)
+    (C) 3.   Feature qualifier (optional)
+    (D) 4.   Feature name (optional)
+    (E) 5.   Standard gene name (optional)
+    (F) 6.   Alias (optional, multiples separated by |)
+    (G) 7.   Parent feature name (optional)
+    (H) 8.   Secondary SGDID (optional, multiples separated by |)
+    (I) 9.   Chromosome (optional)
+    (J) 10.  Start_coordinate (optional)
+    (K) 11.  Stop_coordinate (optional)
+    (L) 12.  Strand (optional)
+    (M) 13.  Genetic position (optional)
+    (N) 14.  Coordinate version (optional)
+    (O) 15.  Sequence version (optional)
+    (P) 16.  Description (optional)
+    """
+
+    def __init__(self, file_path):
+        super().__init__(
+            file_path,
+            database_name='SGD',
+            root_url='https://www.yeastgenome.org/locus/'
+        )
+
+    def _get_headers(self):
+        return (
+            'id',  # A (sgdid)
+            'feature_type',  # B
+            'feature_qualifier',  # C
+            'name',  # D (feature name)
+            'gene_name',  # E
+            'aliases',  # F (alias)
+            'parent_feature_name',  # G
+            'sgdid_2',  # H
+            'chromosome',  # I
+            'start',  # J
+            'stop',  # K
+            'strand',  # L
+            'position',  # M
+            'coordinate_version',  # N
+            'sequence_version',  # O
+            'description',  # P
         )

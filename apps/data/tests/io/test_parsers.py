@@ -6,10 +6,30 @@ from django.test import TestCase
 
 from ...factories import EntryFactory, RepositoryFactory
 from ...models import Entry
-from ...io.parsers import CGDParser
+from ...io.parsers import CGDParser, SGDParser
 
 
-class CGDParserTestCase(TestCase):
+class ChrFeatureParserTestMixin(object):
+
+    def test_init(self):
+
+        with pytest.raises(TypeError):
+            self.ChrParserClass()
+
+        parser = self.ChrParserClass(self.file_path)
+        assert parser.file_path == self.file_path
+        assert parser.features is None
+        assert parser.entries == {'new': [], 'update': []}
+
+    def test__get_headers(self):
+        parser = self.ChrParserClass(file_path='')
+        headers = parser._get_headers()
+        assert set(['id', 'name', 'aliases', 'description']).issubset(headers)
+
+
+class CGDParserTestCase(ChrFeatureParserTestMixin, TestCase):
+
+    ChrParserClass = CGDParser
 
     def setUp(self):
 
@@ -19,19 +39,9 @@ class CGDParserTestCase(TestCase):
             'C_glabrata_CBS138_current_chromosomal_feature_10.tab'
         )
 
-    def test_init(self):
-
-        with pytest.raises(TypeError):
-            CGDParser()
-
-        parser = CGDParser(self.file_path)
-        assert parser.file_path == self.file_path
-        assert parser.features is None
-        assert parser.entries == {'new': [], 'update': []}
-
     def test_parse(self):
 
-        parser = CGDParser(self.file_path)
+        parser = self.ChrParserClass(self.file_path)
         assert parser.features is None
 
         parser.parse()
@@ -55,7 +65,7 @@ class CGDParserTestCase(TestCase):
     def test__to_entries(self):
 
         defaults = {'new': [], 'update': []}
-        parser = CGDParser(self.file_path)
+        parser = self.ChrParserClass(self.file_path)
         assert parser.entries == defaults
 
         parser._to_entries(ignore_aliases=True)
@@ -108,7 +118,7 @@ class CGDParserTestCase(TestCase):
             repository=repository
         )
 
-        parser = CGDParser(self.file_path)
+        parser = self.ChrParserClass(self.file_path)
         parser.parse()
         parser._to_entries(ignore_aliases=True)
 
@@ -122,7 +132,7 @@ class CGDParserTestCase(TestCase):
 
     def test__to_entries_with_aliases(self):
 
-        parser = CGDParser(self.file_path)
+        parser = self.ChrParserClass(self.file_path)
         parser.parse()
         parser._to_entries(ignore_aliases=False)
 
@@ -131,7 +141,7 @@ class CGDParserTestCase(TestCase):
 
     def test_save(self):
 
-        parser = CGDParser(self.file_path)
+        parser = self.ChrParserClass(self.file_path)
         parser.parse()
 
         assert Entry.objects.count() == 0
@@ -158,7 +168,7 @@ class CGDParserTestCase(TestCase):
         )
         assert Entry.objects.count() == 1
 
-        parser = CGDParser(self.file_path)
+        parser = self.ChrParserClass(self.file_path)
         parser.parse()
         parser.save()
         assert Entry.objects.count() == 10
@@ -171,7 +181,7 @@ class CGDParserTestCase(TestCase):
 
     def test_save_with_aliases(self):
 
-        parser = CGDParser(self.file_path)
+        parser = self.ChrParserClass(self.file_path)
         parser.parse()
 
         assert Entry.objects.count() == 0
@@ -183,3 +193,47 @@ class CGDParserTestCase(TestCase):
         assert entry.url == (
             'http://www.candidagenome.org/cgi-bin/locus.pl?dbid=CAL0126541'
         )
+
+
+class SGDParserTestCase(ChrFeatureParserTestMixin, TestCase):
+
+    ChrParserClass = SGDParser
+
+    def setUp(self):
+
+        self.file_path = Path(
+            'apps/data/fixtures/'
+        ) / Path(
+            'SGD_feature_S000002143.tab'
+        )
+
+    def test_init(self):
+
+        with pytest.raises(TypeError):
+            self.ChrParserClass()
+
+        parser = self.ChrParserClass(self.file_path)
+        assert parser.file_path == self.file_path
+        assert parser.features is None
+        assert parser.entries == {'new': [], 'update': []}
+
+    def test_parse(self):
+
+        parser = self.ChrParserClass(self.file_path)
+        assert parser.features is None
+
+        parser.parse()
+        assert len(parser.features) == 10
+
+        first_feature = parser.features.iloc[0]
+        assert first_feature['name'] == 'YAL069W'
+        assert first_feature['description'] == (
+            'Dubious open reading frame; unlikely to encode a functional '
+            'protein, based on available experimental and comparative '
+            'sequence data'
+        )
+        assert first_feature['id'] == 'S000002143'
+
+        last_feature = parser.features.iloc[-1]
+        assert last_feature['name'] == 'MPR2'
+        assert last_feature['id'] == 'S000150108'
