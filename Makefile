@@ -122,6 +122,10 @@ lint:  ## lint the code
 	@$(COMPOSE_TEST_RUN_WEB) flake8
 .PHONY: lint
 
+rebuild-test: ## rebuild the test container
+	@$(COMPOSE_TEST) build web
+.PHONY: rebuild-test
+
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 .PHONY: help

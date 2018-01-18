@@ -79,6 +79,13 @@ or use the following `Makefile` rule:
 $ make test
 ```
 
+When dependencies are updated, you have to rebuild the `test` container. Use the
+following `Makefile` rule to do so:
+
+```bash
+$ make rebuild-test
+```
+
 ### `staging`
 
 This section is covered in [the deployment documentation](deployment.md).
