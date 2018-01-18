@@ -1,7 +1,10 @@
 from pathlib import Path
 
 from django.utils.timezone import get_default_timezone
-from factory import Faker, Iterator, PostGenerationMethodCall, SubFactory
+from factory import (
+    Faker, Iterator, PostGenerationMethodCall,
+    post_generation as fb_post_generation, SubFactory
+)
 from factory.django import DjangoModelFactory, FileField as fb_FileField
 
 from apps.data.factories import EntryFactory, RepositoryFactory
@@ -35,7 +38,7 @@ class StrainFactory(DjangoModelFactory):
 
     name = Faker('word')
     description = Faker('text', max_nb_chars=300)
-    species = SubFactory(SpeciesFactory)
+    species = Iterator(models.Species.objects.all())
     reference = SubFactory(EntryFactory)
 
     class Meta:
@@ -56,8 +59,8 @@ class OmicsUnitTypeFactory(DjangoModelFactory):
 class OmicsUnitFactory(DjangoModelFactory):
 
     reference = SubFactory(EntryFactory)
-    strain = SubFactory(StrainFactory)
-    type = SubFactory(OmicsUnitTypeFactory)
+    strain = Iterator(models.Strain.objects.all())
+    type = Iterator(models.OmicsUnitType.objects.all())
     status = Iterator(s[0] for s in models.OmicsUnit.STATUS_CHOICES)
 
     class Meta:
@@ -97,11 +100,11 @@ class OmicsAreaFactory(DjangoModelFactory):
 
 class ExperimentFactory(DjangoModelFactory):
 
-    omics_area = SubFactory(OmicsAreaFactory)
+    omics_area = Iterator(models.OmicsArea.objects.all())
     description = Faker('text', max_nb_chars=300)
-    created_at = Faker('date_time', tzinfo=get_default_timezone())
     completed_at = Faker('date')
     released_at = Faker('date')
+    created_at = Faker('date_time', tzinfo=get_default_timezone())
     saved_at = Faker('date_time', tzinfo=get_default_timezone())
 
     class Meta:
@@ -127,16 +130,14 @@ class AnalysisFactory(DjangoModelFactory):
         model = 'core.Analysis'
         django_get_or_create = ('description', 'pixeler')
 
-    @factory.post_generation
-    def experiments(self, create, extracted, **kwargs):
-        if not create:
+    @fb_post_generation
+    def experiments(self, create, experiments, **kwargs):
+        if not create or not experiments:
             # Simple build, do nothing.
             return
 
-        if extracted:
-            # A list of groups were passed in, use them
-            for experiment in extracted:
-                self.experiments.add(experiment)
+        for experiment in experiments:
+            self.experiments.add(experiment)
 
 
 class PixelSetFactory(DjangoModelFactory):
