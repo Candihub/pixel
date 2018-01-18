@@ -1,7 +1,9 @@
+from unittest.mock import Mock
 from pathlib import Path
 
 from django.test import TestCase, TransactionTestCase
 from django.urls import reverse
+from viewflow.activation import STATUS
 
 from ..models import SubmissionProcess
 from ..templatetags import submission
@@ -94,6 +96,18 @@ class CoreTasksFilterTestCase(TagsTestMixin,
             tasks,
             expected
         )
+
+
+class IsCompletedTestCase(TestCase):
+
+    def test_is_completed(self):
+
+        self.assertTrue(submission.is_completed(Mock(status=STATUS.DONE)))
+        self.assertTrue(submission.is_completed(Mock(status=STATUS.ERROR)))
+        self.assertTrue(submission.is_completed(Mock(status=STATUS.CANCELED)))
+        self.assertFalse(submission.is_completed(Mock(status=STATUS.ASSIGNED)))
+        self.assertFalse(submission.is_completed(Mock(status=STATUS.NEW)))
+        self.assertFalse(submission.is_completed(Mock(status='whatever')))
 
 
 class SubmissionRatioTestCase(StartTestMixin,

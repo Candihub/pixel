@@ -1,12 +1,13 @@
 {% extends "submission/submission/task_detail.html" %}
 
 {% load i18n %}
+{% load submission %}
 
 {% block body_class %}{{ block.super }} import{% endblock %}
 
 {% block step_content %}
 
-{% if activation.task.status == 'DONE' %}
+{% if activation.task|is_completed %}
   {{ block.super }}
 {% else %}
   <div class="disclaimer">

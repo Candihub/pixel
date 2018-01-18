@@ -42,6 +42,19 @@ def core_tasks(tasks):
     return filtered
 
 
+@register.filter
+def is_completed(task):
+    """Check if a task has been completed.
+
+    Note that a failed task is considered as completed.
+
+    Returns: True if status is ended or error
+    """
+    if task.status in (STATUS.DONE, STATUS.ERROR, STATUS.CANCELED):
+        return True
+    return False
+
+
 @register.simple_tag
 def submission_ratio(process):
     """Calculates achived tasks ratio for a given submission process
