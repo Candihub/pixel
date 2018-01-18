@@ -36,6 +36,33 @@ $ docker-compose -p pixel-production exec web pipenv run python ./manage.py [COM
 $ docker-compose -p pixel-production exec web pipenv run python ./manage.py migrate data
 ```
 
+## Initial data
+
+In order to submit new datasets to Pixel, you will need to import initial data
+first via:
+
+* development: the `make bootstrap` command will do the hard work for you, but
+  you still can import initial data via:
+
+```bash
+$ bin/manage loaddata apps/data/fixtures/initial_data.json
+$ bin/manage loaddata apps/core/fixtures/initial_data.json
+```
+
+* staging:
+
+```bash
+$ docker-compose -p pixel-staging exec web pipenv run python ./manage.py loaddata apps/data/fixtures/initial_data.json
+$ docker-compose -p pixel-staging exec web pipenv run python ./manage.py loaddata apps/core/fixtures/initial_data.json
+```
+
+* production:
+
+```bash
+$ docker-compose -p pixel-production exec web pipenv run python ./manage.py loaddata apps/data/fixtures/initial_data.json
+$ docker-compose -p pixel-production exec web pipenv run python ./manage.py loaddata apps/core/fixtures/initial_data.json
+```
+
 ## `load_entries`
 
 The `data` Django application adds the `load_entries` management command. This

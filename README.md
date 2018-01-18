@@ -32,14 +32,22 @@ $ git clone git@github.com:Candihub/pixel.git
 $ cd pixel
 # Install front-end and back-end dependencies (production & development)
 $ make bootstrap
-# Create a development database
-$ make migrate-db
 # Run the Django development server & css build watcher
 $ make dev
+
+# or run the Django development server and the css build watcher separately
+$ make run-server
+$ make watch-css
 ```
 
-Open your favourite browser with the following url: http://127.0.0.1:8000 and it
+Open your favorite browser with the following url: http://127.0.0.1:8000 and it
 should work™.
+
+You can check application logs via:
+
+```bash
+$ make logs
+```
 
 ## Build css
 
