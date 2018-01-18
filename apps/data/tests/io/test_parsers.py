@@ -6,7 +6,7 @@ from django.test import TestCase
 
 from ...factories import EntryFactory, RepositoryFactory
 from ...models import Entry
-from ...io.parsers import CGDParser, SGDParser
+from ...io.parsers import ChrFeatureParser, CGDParser, SGDParser
 
 
 class ChrFeatureParserTestMixin(object):
@@ -25,6 +25,20 @@ class ChrFeatureParserTestMixin(object):
         parser = self.ChrParserClass(file_path='')
         headers = parser._get_headers()
         assert set(['id', 'name', 'aliases', 'description']).issubset(headers)
+
+
+class ChrFeatureParserTest(TestCase):
+
+    def test__get_headers(self):
+
+        class ParserWithNoGetHeader(ChrFeatureParser):
+
+            def __init__(self):
+                pass
+
+        with pytest.raises(NotImplementedError):
+            parser = ParserWithNoGetHeader()
+            parser._get_headers()
 
 
 class CGDParserTestCase(ChrFeatureParserTestMixin, TestCase):
