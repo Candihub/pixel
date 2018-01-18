@@ -3,7 +3,7 @@ from pathlib import Path
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.translation import ugettext as _
 
-from ...io.cgd import ChrFeatureParser
+from ...io.parsers import CGDParser
 
 
 class Command(BaseCommand):
@@ -33,7 +33,7 @@ class Command(BaseCommand):
                 )
             )
 
-        cgd_parser = ChrFeatureParser(Path(cgd))
+        cgd_parser = CGDParser(Path(cgd))
         cgd_parser.parse()
         cgd_parser.save(ignore_aliases=ignore_aliases)
 

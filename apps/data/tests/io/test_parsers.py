@@ -6,10 +6,10 @@ from django.test import TestCase
 
 from ...factories import EntryFactory, RepositoryFactory
 from ...models import Entry
-from ...io.cgd import ChrFeatureParser
+from ...io.parsers import CGDParser
 
 
-class ChrFeatureParserTestCase(TestCase):
+class CGDParserTestCase(TestCase):
 
     def setUp(self):
 
@@ -22,16 +22,16 @@ class ChrFeatureParserTestCase(TestCase):
     def test_init(self):
 
         with pytest.raises(TypeError):
-            ChrFeatureParser()
+            CGDParser()
 
-        parser = ChrFeatureParser(self.file_path)
+        parser = CGDParser(self.file_path)
         assert parser.file_path == self.file_path
         assert parser.features is None
         assert parser.entries == {'new': [], 'update': []}
 
     def test_parse(self):
 
-        parser = ChrFeatureParser(self.file_path)
+        parser = CGDParser(self.file_path)
         assert parser.features is None
 
         parser.parse()
@@ -40,7 +40,7 @@ class ChrFeatureParserTestCase(TestCase):
         first_feature = parser.features.iloc[0]
         assert first_feature['name'] == 'CAGL0A00105g'
         assert first_feature['description'] == 'Protein of unknown function'
-        assert first_feature['cgdid'] == 'CAL0000210339'
+        assert first_feature['id'] == 'CAL0000210339'
 
         last_feature = parser.features.iloc[-1]
         assert last_feature['name'] == 'CAGL0A02321g'
@@ -50,12 +50,12 @@ class ChrFeatureParserTestCase(TestCase):
             'transmembrane transporter activity and role in fructose import '
             'across plasma membrane, glucose import across plasma membrane'
         )
-        assert last_feature['cgdid'] == 'CAL0126815'
+        assert last_feature['id'] == 'CAL0126815'
 
     def test__to_entries(self):
 
         defaults = {'new': [], 'update': []}
-        parser = ChrFeatureParser(self.file_path)
+        parser = CGDParser(self.file_path)
         assert parser.entries == defaults
 
         parser._to_entries(ignore_aliases=True)
@@ -108,7 +108,7 @@ class ChrFeatureParserTestCase(TestCase):
             repository=repository
         )
 
-        parser = ChrFeatureParser(self.file_path)
+        parser = CGDParser(self.file_path)
         parser.parse()
         parser._to_entries(ignore_aliases=True)
 
@@ -122,7 +122,7 @@ class ChrFeatureParserTestCase(TestCase):
 
     def test__to_entries_with_aliases(self):
 
-        parser = ChrFeatureParser(self.file_path)
+        parser = CGDParser(self.file_path)
         parser.parse()
         parser._to_entries(ignore_aliases=False)
 
@@ -131,7 +131,7 @@ class ChrFeatureParserTestCase(TestCase):
 
     def test_save(self):
 
-        parser = ChrFeatureParser(self.file_path)
+        parser = CGDParser(self.file_path)
         parser.parse()
 
         assert Entry.objects.count() == 0
@@ -158,7 +158,7 @@ class ChrFeatureParserTestCase(TestCase):
         )
         assert Entry.objects.count() == 1
 
-        parser = ChrFeatureParser(self.file_path)
+        parser = CGDParser(self.file_path)
         parser.parse()
         parser.save()
         assert Entry.objects.count() == 10
@@ -171,7 +171,7 @@ class ChrFeatureParserTestCase(TestCase):
 
     def test_save_with_aliases(self):
 
-        parser = ChrFeatureParser(self.file_path)
+        parser = CGDParser(self.file_path)
         parser.parse()
 
         assert Entry.objects.count() == 0
