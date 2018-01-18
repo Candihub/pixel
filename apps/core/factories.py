@@ -1,9 +1,7 @@
 from pathlib import Path
 
 from django.utils.timezone import get_default_timezone
-from factory import (
-    Faker, Iterator, LazyAttribute, PostGenerationMethodCall, SubFactory
-)
+from factory import Faker, Iterator, PostGenerationMethodCall, SubFactory
 from factory.django import DjangoModelFactory, FileField as fb_FileField
 
 from apps.data.factories import EntryFactory, RepositoryFactory
