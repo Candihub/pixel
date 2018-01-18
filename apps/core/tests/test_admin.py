@@ -16,6 +16,23 @@ class UUIDModelAdminMixinTestCase(TestCase):
         self.assertEqual(mixin.get_short_uuid(omics_unit), str(omics_unit))
 
 
+class TagsModelAdminMixinTestCase(TestCase):
+
+    def test_get_tags(self):
+
+        tags = 'foo/bar, lol'
+        analysis = factories.AnalysisFactory(
+            secondary_data__from_path=factories.SECONDARY_DATA_DEFAULT_PATH,
+            notebook__from_path=factories.NOTEBOOK_DEFAULT_PATH,
+        )
+        analysis.tags = tags
+        analysis.save()
+
+        mixin = admin.TagsModelAdminMixin()
+
+        self.assertEqual(mixin.get_tags(analysis), tags)
+
+
 class OmicsUnitAdminTestCase(TestCase):
 
     def setUp(self):
