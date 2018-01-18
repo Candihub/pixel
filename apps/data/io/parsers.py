@@ -63,9 +63,9 @@ class ChrFeatureParser(object):
             aliases = []
 
             if not pandas.isna(feature['aliases']) and not ignore_aliases:
-                aliases = feature['aliases'].split('|')
+                aliases = map(str, feature['aliases'].split('|'))
 
-            for identifier in (feature['name'], *aliases):
+            for identifier in (str(feature['name']), *aliases):
 
                 # The Entry primary key is precomputed given an identifier and
                 # a repository. By doing so, we will be able to create a set()

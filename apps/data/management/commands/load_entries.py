@@ -1,18 +1,28 @@
 from pathlib import Path
 
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from django.utils.translation import ugettext as _
 
-from ...io.parsers import CGDParser
+from ...io.parsers import CGDParser, SGDParser
 
 
 class Command(BaseCommand):
+    SUPPORTED_DATABASES = (
+        'CGD',
+        'SGD',
+    )
     help = _("Load entries from various repositories")
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--cgd',
-            help=_("Load entries from CGD chromosome features (.tab)")
+            'filename',
+            help=_("Path to the file containing chromosome features (.tab)")
+        )
+        parser.add_argument(
+            '--database',
+            choices=self.SUPPORTED_DATABASES,
+            required=True,
+            help=_("The database related to the file (REQUIRED)")
         )
         parser.add_argument(
             '--ignore-aliases',
@@ -21,24 +31,20 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-
-        cgd = options.get('cgd', None)
+        filename = options.get('filename')
+        database = options.get('database')
         ignore_aliases = options.get('ignore_aliases', False)
 
-        if cgd is None:
-            raise CommandError(
-                _(
-                    "You need to provide at least one cgd file to import. "
-                    "See usage (-h)."
-                )
-            )
+        if database == 'CGD':
+            chrParser = CGDParser(Path(filename))
+        elif database == 'SGD':
+            chrParser = SGDParser(Path(filename))
 
-        cgd_parser = CGDParser(Path(cgd))
-        cgd_parser.parse()
-        cgd_parser.save(ignore_aliases=ignore_aliases)
+        chrParser.parse()
+        chrParser.save(ignore_aliases=ignore_aliases)
 
         self.stdout.write(
             self.style.SUCCESS(
-                _("Successfully imported CGD file: {}".format(cgd))
+                _("Successfully imported file: {}".format(filename))
             )
         )
