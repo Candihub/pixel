@@ -1,8 +1,10 @@
 from pathlib import Path
 
-from factory import Faker, Iterator, PostGenerationMethodCall, SubFactory
-from factory.django import DjangoModelFactory, FileField as fb_FileField
 from django.utils.timezone import get_default_timezone
+from factory import (
+    Faker, Iterator, LazyAttribute, PostGenerationMethodCall, SubFactory
+)
+from factory.django import DjangoModelFactory, FileField as fb_FileField
 
 from apps.data.factories import EntryFactory, RepositoryFactory
 from . import models
@@ -114,10 +116,10 @@ class AnalysisFactory(DjangoModelFactory):
     description = Faker('text', max_nb_chars=300)
     pixeler = SubFactory(PixelerFactory)
     notebook = fb_FileField(
-        from_path=Faker('file_path', depth=1, category=None, extension=None)
+        filename=Faker('file_path', depth=0, extension='R')
     )
     secondary_data = fb_FileField(
-        from_path=Faker('file_path', depth=1, category=None, extension=None)
+        filename=Faker('file_path', depth=0, extension='csv')
     )
     completed_at = Faker('date')
     created_at = Faker('date_time', tzinfo=get_default_timezone())
@@ -131,14 +133,10 @@ class AnalysisFactory(DjangoModelFactory):
 class PixelSetFactory(DjangoModelFactory):
 
     pixels_file = fb_FileField(
-        from_path=Faker('file_path', depth=1, category=None, extension=None)
+        filename=Faker('file_path', depth=0, extension='csv')
     )
     description = Faker('text', max_nb_chars=300)
-    analysis = SubFactory(
-        AnalysisFactory,
-        secondary_data__from_path=SECONDARY_DATA_DEFAULT_PATH,
-        notebook__from_path=NOTEBOOK_DEFAULT_PATH,
-    )
+    analysis = SubFactory(AnalysisFactory)
 
     class Meta:
         model = 'core.PixelSet'
