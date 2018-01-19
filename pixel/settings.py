@@ -235,3 +235,41 @@ class Test(Base):
     INSTALLED_APPS = Base.INSTALLED_APPS + [
         'apps.core.tests.mixins',
     ]
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'formatters': {
+            'verbose': {
+                'format': '%(levelname)s %(asctime)s %(name)s %(message)s'
+            },
+            'simple': {
+                'format': '%(levelname)s %(message)s'
+            },
+        },
+        'handlers': {
+            'console': {
+                'class': 'logging.StreamHandler',
+                'formatter': 'simple'
+            },
+            'mail_admins': {
+                'level': 'ERROR',
+                'class': 'django.utils.log.AdminEmailHandler',
+                'formatter': 'verbose',
+            }
+        },
+        'loggers': {
+            'apps': {
+                'handlers': ['console'],
+                'level': 'ERROR',
+            },
+            'apps.submission': {
+                'handlers': ['console'],
+                'level': 'DEBUG',
+                'propagate': False
+            },
+            'factory': {
+                'handlers': ['console'],
+                'level': 'ERROR',
+            },
+        },
+    }

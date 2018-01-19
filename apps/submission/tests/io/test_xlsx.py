@@ -2,13 +2,14 @@ import datetime
 from pathlib import Path
 
 import pytest
-from django.test import TestCase
+
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import (
     Alignment, Border, Color, Font, PatternFill, Side, colors
 )
 
 from apps.core.models import OmicsArea, OmicsUnitType, Strain
+from apps.core.tests import CoreFixturesTestCase
 from apps.data.models import Repository
 from apps.submission.io.xlsx import (
     generate_template, get_template_version, parse_template, sha256_checksum,
@@ -75,12 +76,7 @@ def test_get_template_version():
     assert version == expected
 
 
-class XLSXTemplateTestCase(TestCase):
-
-    fixtures = [
-        'apps/data/fixtures/initial_data.json',
-        'apps/core/fixtures/initial_data.json',
-    ]
+class XLSXTemplateTestCase(CoreFixturesTestCase):
 
     @pytest.fixture(autouse=True)
     def set_tmpdir(self, tmpdir):
@@ -125,12 +121,7 @@ class XLSXTemplateTestCase(TestCase):
             assert ws[cell].fill.fgColor == expected_user_data_fg_color
 
 
-class ParseXLSXTemplateTestCase(TestCase):
-
-    fixtures = [
-        'apps/data/fixtures/initial_data.json',
-        'apps/core/fixtures/initial_data.json',
-    ]
+class ParseXLSXTemplateTestCase(CoreFixturesTestCase):
 
     def test_parse_template(self):
 
