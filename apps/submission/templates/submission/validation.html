@@ -29,3 +29,23 @@
     </form>
   </div>
 {% endblock step_content %}
+
+{% block javascript %}
+<script>
+  (function () {
+    var $btn = document.querySelector('input[name="_continue"]');
+    var $checkbox = document.querySelector('#id_validated');
+
+    // Disable by default.
+    $btn.setAttribute('disabled', 'disabled');
+
+    $checkbox.addEventListener('click', function (event) {
+      if (event.target.checked) {
+        $btn.removeAttribute('disabled');
+      } else {
+        $btn.setAttribute('disabled', 'disabled');
+      }
+    });
+  })();
+</script>
+{% endblock %}
