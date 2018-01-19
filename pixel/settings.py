@@ -120,7 +120,7 @@ class Base(Configuration):
         },
     ]
     AUTH_USER_MODEL = 'core.Pixeler'
-    LOGIN_REDIRECT_URL = 'core:home'
+    LOGIN_REDIRECT_URL = 'explorer:pixelset_list'
 
     # Internationalization
     LANGUAGE_CODE = 'en-us'
