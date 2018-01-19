@@ -83,7 +83,7 @@ restart-server: ## re-start the development server
 	@$(COMPOSE) restart web
 .PHONY: restart-server
 
-dev: ; ${MAKE} -j2 watch-css run-server ## start the dev environment
+dev: ; ${MAKE} -j2 watch-css run-server ## start the development environment
 .PHONY: dev
 
 down-test: ## cleanup docker test containers
@@ -94,7 +94,7 @@ down-dev: ## cleanup docker development containers
 	@$(COMPOSE) down
 .PHONY: down-dev
 
-down: ## cleanup docker development containers
+down: ## cleanup docker development and test containers
 	${MAKE} down-dev && ${MAKE} down-test
 .PHONY: down
 
@@ -121,6 +121,14 @@ coverage-ci:  ## publish coverage statistics (CI context)
 lint:  ## lint the code
 	@$(COMPOSE_TEST_RUN_WEB) flake8
 .PHONY: lint
+
+rebuild: ## rebuild docker development and test containers
+	${MAKE} rebuild-dev && ${MAKE} rebuild-test
+.PHONY: rebuild
+
+rebuild-dev: ## rebuild the development container
+	@$(COMPOSE) build web
+.PHONY: rebuild-dev
 
 rebuild-test: ## rebuild the test container
 	@$(COMPOSE_TEST) build web

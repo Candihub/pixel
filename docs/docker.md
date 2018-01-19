@@ -61,6 +61,13 @@ or use the following `Makefile` rule:
 $ make run-server
 ```
 
+When dependencies are updated, you have to rebuild the `dev` container. Use the
+following `Makefile` rule to do so:
+
+```bash
+$ make rebuild-dev
+```
+
 ### `test`
 
 Test configuration (see [`docker-compose.test.yml`](../docker-compose.test.yml))
