@@ -231,6 +231,24 @@ class PixelSet(UUIDModelMixin, models.Model):
         related_query_name='pixelset',
     )
 
+    def get_omics_areas(self):
+        return self.analysis.experiments.values_list(
+            'omics_area__name',
+            flat=True
+        ).distinct()
+
+    def get_omics_unit_types(self):
+        return self.pixels.values_list(
+            'omics_unit__type__name',
+            flat=True
+        ).distinct()
+
+    def get_species(self):
+        return self.pixels.values_list(
+            'omics_unit__strain__species__name',
+            flat=True
+        ).distinct()
+
 
 class Pixel(UUIDModelMixin, models.Model):
     """A pixel is the smallest measurement unit for an Omics study
