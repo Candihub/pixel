@@ -44,6 +44,7 @@ bootstrap: ## install development dependencies
 		${MAKE} migrate-db; \
 		$(MANAGE) loaddata apps/data/fixtures/initial_data.json; \
 		$(MANAGE) loaddata apps/core/fixtures/initial_data.json; \
+		$(MANAGE) make_development_fixtures; \
 	fi
 	@if [ -z "$$CI" ] || [ -n "$$CI_BUILD_FRONTEND" ]; then $(YARN_RUN) install -D; ${MAKE} build-css; fi
 .PHONY: bootstrap
