@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.0 (2018/01/19)
+
+* Add full-featured data importation workflow
+* Add support for analysis & experiment tagging during submission
+* Allow to import SGD data
+* Various improvements to make Pixel's admin more user-friendly
+* Minor UI improvements
+
 ## 1.2.1 (2017/12/22)
 
 * Fix command to deploy to production
