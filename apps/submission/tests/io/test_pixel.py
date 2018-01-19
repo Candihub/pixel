@@ -8,7 +8,7 @@ from apps.core.factories import (
 )
 from apps.core.models import OmicsUnit, Pixel
 from apps.data.factories import EntryFactory
-from apps.data.io.cgd import ChrFeatureParser
+from apps.data.io.parsers import CGDParser
 from apps.data.models import Repository
 from apps.submission.io.pixel import PixelSetParser
 from ...exceptions import PixelSetParserError, PixelSetParserSaveError
@@ -23,7 +23,7 @@ class LoadCGDMixin(object):
         ) / Path(
             'C_glabrata_CBS138_current_chromosomal_feature_required.tab'
         )
-        cgd_parser = ChrFeatureParser(cgd_path)
+        cgd_parser = CGDParser(cgd_path)
         cgd_parser.parse()
         cgd_parser.save(ignore_aliases=False)
 
