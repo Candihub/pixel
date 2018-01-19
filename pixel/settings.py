@@ -24,7 +24,7 @@ class Base(Configuration):
 
     DEBUG = False
 
-    ADMINS = [('Julien Maupetit', 'julien@tailordev.fr'), ]
+    ADMINS = [('The Pixel Team', 'pixel@candihub.eu'), ]
 
     ALLOWED_HOSTS = []
 
