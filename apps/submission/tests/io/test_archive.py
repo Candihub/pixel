@@ -5,14 +5,13 @@ from pathlib import Path
 from unittest.mock import MagicMock
 from zipfile import ZipFile
 
-from django.test import TestCase
-
 from apps.core.factories import (
     AnalysisFactory, ExperimentFactory, PixelerFactory
 )
 from apps.core.models import (
     Analysis, Experiment, OmicsArea, OmicsUnitType, Pixel, Strain
 )
+from apps.core.tests import CoreFixturesTestCase
 from apps.data.factories import EntryFactory
 from apps.data.models import Repository
 from apps.submission.io.archive import META_FILENAME, PixelArchive
@@ -20,12 +19,7 @@ from ... import exceptions, signals
 from .test_pixel import LoadCGDMixin
 
 
-class PixelArchiveTestCase(LoadCGDMixin, TestCase):
-
-    fixtures = [
-        'apps/data/fixtures/initial_data.json',
-        'apps/core/fixtures/initial_data.json',
-    ]
+class PixelArchiveTestCase(LoadCGDMixin, CoreFixturesTestCase):
 
     def setUp(self):
 

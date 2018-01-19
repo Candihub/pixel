@@ -1,6 +1,6 @@
 from django.core.management import call_command
 from django.core.management.base import CommandError
-from django.test import TestCase, override_settings
+from django.test import override_settings
 from django.utils.six import StringIO
 
 from ..management.commands.make_development_fixtures import (
@@ -9,15 +9,11 @@ from ..management.commands.make_development_fixtures import (
     DEFAULT_N_PIXELSETS,
 )
 from .. import models
+from . import CoreFixturesTestCase
 
 
 @override_settings(DEBUG=True)
-class MakeDevelopmentFixturesCommandTestCase(TestCase):
-
-    fixtures = [
-        'apps/data/fixtures/initial_data.json',
-        'apps/core/fixtures/initial_data.json',
-    ]
+class MakeDevelopmentFixturesCommandTestCase(CoreFixturesTestCase):
 
     def test_command(self):
 

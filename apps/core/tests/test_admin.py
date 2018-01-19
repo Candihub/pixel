@@ -1,12 +1,12 @@
 from django.contrib.admin.sites import AdminSite
-from django.test import TestCase
 
 from .. import admin
 from .. import factories
 from .. import models
+from . import CoreFixturesTestCase
 
 
-class UUIDModelAdminMixinTestCase(TestCase):
+class UUIDModelAdminMixinTestCase(CoreFixturesTestCase):
 
     def test_get_short_uuid(self):
 
@@ -16,7 +16,7 @@ class UUIDModelAdminMixinTestCase(TestCase):
         self.assertEqual(mixin.get_short_uuid(omics_unit), str(omics_unit))
 
 
-class TagsModelAdminMixinTestCase(TestCase):
+class TagsModelAdminMixinTestCase(CoreFixturesTestCase):
 
     def test_get_tags(self):
 
@@ -33,7 +33,7 @@ class TagsModelAdminMixinTestCase(TestCase):
         self.assertEqual(mixin.get_tags(analysis), tags)
 
 
-class OmicsUnitAdminTestCase(TestCase):
+class OmicsUnitAdminTestCase(CoreFixturesTestCase):
 
     def setUp(self):
         site = AdminSite()
@@ -55,7 +55,7 @@ class OmicsUnitAdminTestCase(TestCase):
         )
 
 
-class StrainAdminTestCase(TestCase):
+class StrainAdminTestCase(CoreFixturesTestCase):
 
     def setUp(self):
         site = AdminSite()
@@ -82,7 +82,7 @@ class StrainAdminTestCase(TestCase):
         )
 
 
-class PixelAdminTestCase(TestCase):
+class PixelAdminTestCase(CoreFixturesTestCase):
 
     def setUp(self):
         site = AdminSite()

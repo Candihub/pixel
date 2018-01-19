@@ -1,12 +1,11 @@
 from pathlib import Path
 
-from django.test import TestCase
-
 from apps.core.factories import (
     NOTEBOOK_DEFAULT_PATH, SECONDARY_DATA_DEFAULT_PATH, AnalysisFactory,
     OmicsUnitFactory, OmicsUnitTypeFactory, PixelFactory, StrainFactory
 )
 from apps.core.models import OmicsUnit, Pixel
+from apps.core.tests import CoreFixturesTestCase
 from apps.data.factories import EntryFactory
 from apps.data.io.parsers import CGDParser
 from apps.data.models import Repository
@@ -28,7 +27,7 @@ class LoadCGDMixin(object):
         cgd_parser.save(ignore_aliases=False)
 
 
-class PixelTestCase(LoadCGDMixin, TestCase):
+class PixelTestCase(LoadCGDMixin, CoreFixturesTestCase):
 
     def setUp(self):
 

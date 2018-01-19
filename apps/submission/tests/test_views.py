@@ -13,6 +13,7 @@ from viewflow.base import Flow
 
 from apps.core.factories import PIXELER_PASSWORD, PixelerFactory
 from apps.core.models import Tag
+from apps.core.tests import CoreFixturesTestCase
 from ..flows import SubmissionFlow
 from ..io.archive import PixelArchive
 from ..io.xlsx import (
@@ -421,13 +422,9 @@ class DownloadXLSXTemplateViewTestCase(DownloadTestMixin, TestCase):
         self.assertEqual(ws.title, 'Import information for Pixel')
 
 
-class UploadArchiveViewTestCase(UploadTestMixin, TestCase):
+class UploadArchiveViewTestCase(UploadTestMixin, CoreFixturesTestCase):
 
     template = 'submission/upload_archive.html'
-    fixtures = [
-        'apps/data/fixtures/initial_data.json',
-        'apps/core/fixtures/initial_data.json',
-    ]
 
     def test_get(self):
 
