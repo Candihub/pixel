@@ -46,6 +46,7 @@ class Base(Configuration):
         # Pixel apps
         'apps.core',
         'apps.data',
+        'apps.explorer',
         'apps.submission',
     ]
 
