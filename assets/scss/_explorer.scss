@@ -1,0 +1,37 @@
+.explorer {
+
+  &.pixelsets {
+    table.pixelsets {
+      @include table;
+      @include table-scroll;
+      @include table-hover;
+
+      tbody {
+        tr {
+          td {
+            vertical-align: top;
+
+            &.filename {
+              font-family: $font-family-monospace;
+            }
+
+            &.analysis,
+            &.experiments {
+              font-size: 0.8rem;
+            }
+
+            span {
+              &.species {
+                font-style: italic;
+              }
+
+              &.experiment {
+
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
