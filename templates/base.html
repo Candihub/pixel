@@ -33,6 +33,11 @@
           </li>
           {% endif %}
           <li>
+            <a class="explore" href="{% url 'explorer:pixelset_list' %}">
+              <i class="fa fa-search" aria-hidden="true"></i>
+            </a>
+          </li>
+          <li>
             <a class="submit" href="{% url 'submission:index' %}">
               <i class="fa fa-plus-circle" aria-hidden="true"></i>
             </a>
