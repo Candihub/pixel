@@ -66,13 +66,16 @@ $ docker-compose -p pixel-production exec web pipenv run python ./manage.py load
 ## `load_entries`
 
 The `data` Django application adds the `load_entries` management command. This
-command is meant to be used as a loader for repository entries.
+command is meant to be used as a loader for repository entries. This command
+takes a file as required argument and the `--database` option must also be
+specified (to determine how to read the given file):
 
-### Options
-
-* `--cgd [TAB FILE]`: load chromosome features from a
+* `--database CGD`: load chromosome features from a
   [CGD](http://www.candidagenome.org) tab file (see [this example
   file](http://www.candidagenome.org/download/chromosomal_feature_files/C_glabrata_CBS138/C_glabrata_CBS138_current_chromosomal_feature.tab))
+* `--database SGD`: load chromosome features from a
+  [SGD](https://www.yeastgenome.org/) tab file (see [this example
+  file](https://downloads.yeastgenome.org/curation/chromosomal_feature/SGD_features.tab))
 
 ### Example
 
@@ -91,5 +94,5 @@ $ docker-compose -p pixel-staging exec web bash
 # Download chromosome features file
 app@container:~/pixel$ wget http://www.candidagenome.org/download/chromosomal_feature_files/C_glabrata_CBS138/C_glabrata_CBS138_current_chromosomal_feature.tab -O /tmp/cgd_features.tab
 # Load entries from downloaded file
-app@container:~/pixel$ pipenv run python ./manage.py load_entries --cgd /tmp/cgd_features.tab
+app@container:~/pixel$ pipenv run python ./manage.py load_entries --database CGD /tmp/cgd_features.tab
 ```
