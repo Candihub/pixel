@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import pandas
 import pytest
 
 from django.test import TestCase
@@ -237,7 +238,7 @@ class SGDParserTestCase(ChrFeatureParserTestMixin, TestCase):
         assert parser.features is None
 
         parser.parse()
-        assert len(parser.features) == 10
+        assert len(parser.features) == 11
 
         first_feature = parser.features.iloc[0]
         assert first_feature['name'] == 'YAL069W'
@@ -249,5 +250,29 @@ class SGDParserTestCase(ChrFeatureParserTestMixin, TestCase):
         assert first_feature['id'] == 'S000002143'
 
         last_feature = parser.features.iloc[-1]
-        assert last_feature['name'] == 'MPR2'
-        assert last_feature['id'] == 'S000150108'
+        assert pandas.isna(last_feature['name'])
+        assert last_feature['id'] == 'S000002143'
+
+    def test_save_skips_long_aliases(self):
+        # L4 of the fixtures file has a very long alias
+        parser = self.ChrParserClass(self.file_path)
+        assert parser.features is None
+
+        parser.parse()
+
+        assert Entry.objects.count() == 0
+
+        parser.save(ignore_aliases=False)
+        assert Entry.objects.count() == 10
+
+    def test_save_skips_na_names(self):
+        # L11 of the fixtures file has no name
+        parser = self.ChrParserClass(self.file_path)
+        assert parser.features is None
+
+        parser.parse()
+
+        assert Entry.objects.count() == 0
+
+        parser.save(ignore_aliases=False)
+        assert Entry.objects.count() == 10
