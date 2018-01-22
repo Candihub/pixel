@@ -70,10 +70,20 @@ class ChrFeatureParser(object):
                 continue
 
             if not pandas.isna(feature['aliases']) and not ignore_aliases:
-                aliases = filter(
-                    lambda a: len(a) <= 100,
-                    map(str, feature['aliases'].split('|'))
+                splitted_aliases = feature['aliases'].split('|')
+                aliases = list(
+                    filter(
+                        lambda a: len(a) <= 100,
+                        map(str, splitted_aliases)
+                    )
                 )
+
+                if len(aliases) != len(splitted_aliases):
+                    logger.warning(
+                        'Ignored long aliases (100+ chars) in {}'.format(
+                            feature['aliases']
+                        )
+                    )
 
             for identifier in (str(feature['name']), *aliases):
 
