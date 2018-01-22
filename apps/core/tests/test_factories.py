@@ -1,4 +1,4 @@
-from .. import factories
+from .. import factories, models
 from . import CoreFixturesTestCase
 
 
@@ -15,8 +15,13 @@ class AnalysisFactoryTestCase(CoreFixturesTestCase):
         # create
         analysis = factories.AnalysisFactory(experiments=experiments)
 
-        experiments_ids = list(
-            analysis.experiments.values_list('id', flat=True)
+        experiments_ids = analysis.experiments.values_list(
+            'id', flat=True
         )
-        expected_experiments_ids = [e.id for e in experiments]
-        self.assertEqual(experiments_ids, expected_experiments_ids)
+        expected_experiments_ids = models.Experiment.objects.values_list(
+            'id', flat=True
+        )
+        self.assertEqual(
+            list(experiments_ids),
+            list(expected_experiments_ids)
+        )
