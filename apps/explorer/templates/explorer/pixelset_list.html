@@ -17,6 +17,16 @@
 {% endblock %}
 
 {% block content %}
+  <div class="filters">
+    <div class="form-error">
+        {{ form.non_field_errors }}
+    </div>
+    <form action="" method="get" class="pixelset-filters-form">
+      {% include "foundation/form_fields.html" %}
+      <button type="submit" class="hollow button">{% trans "filter" %}</button>
+    </form>
+  </div>
+
   <table class="pixelsets">
     <thead>
       <tr>
