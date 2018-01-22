@@ -64,7 +64,7 @@ class LoadEntriesCommandTestCase(TestCase):
             *args,
             stdout=output
         )
-        self.assertEqual(Entry.objects.count(), 11)
+        self.assertEqual(Entry.objects.count(), 10)
 
         expected_output = 'Successfully imported file: {}'.format(
             self.sgd_file
@@ -102,7 +102,7 @@ class LoadEntriesCommandTestCase(TestCase):
             ignore_aliases=True,
             stdout=output
         )
-        self.assertEqual(Entry.objects.count(), 9)
+        self.assertEqual(Entry.objects.count(), 8)
 
         expected_output = 'Successfully imported file: {}'.format(
             self.sgd_file

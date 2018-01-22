@@ -1,9 +1,12 @@
+import logging
 import pandas
 
 from django.utils.translation import ugettext
 from hashlib import blake2b
 
 from ..models import Entry, Repository
+
+logger = logging.getLogger(__name__)
 
 
 class ChrFeatureParser(object):
@@ -62,8 +65,15 @@ class ChrFeatureParser(object):
             url = '{}{}'.format(self.root_url, feature['id'])
             aliases = []
 
+            if pandas.isna(feature['name']):
+                logger.warning(f'Invalid feature name for id={id}')
+                continue
+
             if not pandas.isna(feature['aliases']) and not ignore_aliases:
-                aliases = map(str, feature['aliases'].split('|'))
+                aliases = filter(
+                    lambda a: len(a) <= 100,
+                    map(str, feature['aliases'].split('|'))
+                )
 
             for identifier in (str(feature['name']), *aliases):
 
