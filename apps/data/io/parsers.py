@@ -66,7 +66,7 @@ class ChrFeatureParser(object):
             aliases = []
 
             if pandas.isna(feature['name']):
-                logger.warning(f'Invalid feature name for id={id}')
+                logger.warning(f"Invalid feature name for id={feature['id']}")
                 continue
 
             if not pandas.isna(feature['aliases']) and not ignore_aliases:
