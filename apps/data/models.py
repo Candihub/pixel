@@ -31,6 +31,7 @@ class Repository(models.Model):
     )
 
     class Meta:
+        ordering = ('name', )
         verbose_name = _("Repository")
         verbose_name_plural = _("Repositories")
 
@@ -72,6 +73,7 @@ class Entry(UUIDModelMixin, models.Model):
     )
 
     class Meta:
+        ordering = ('repository', 'identifier')
         unique_together = (
             ('identifier', 'repository'),
         )
