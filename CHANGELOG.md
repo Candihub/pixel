@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.1.0 (2018/01/22)
+
+* Fix SGD/CGD data import
+* Add explorer view for Pixel sets
+
 ## 2.0.0 (2018/01/19)
 
 * Add full-featured data importation workflow
