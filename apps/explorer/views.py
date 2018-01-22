@@ -10,6 +10,9 @@ class PixelSetListView(LoginRequiredMixin, ListView):
     paginate_by = 10
     queryset = PixelSet.objects.all().prefetch_related(
         'analysis__experiments__omics_area',
+        'analysis__experiments__tags',
+        'analysis__pixeler',
+        'analysis__tags',
         'pixels__omics_unit__type',
         'pixels__omics_unit__strain__species',
     )
