@@ -5,6 +5,7 @@ from django.test import TestCase
 
 from apps.data.factories import EntryFactory, RepositoryFactory
 from .. import models, factories
+from . import CoreFixturesTestCase
 
 
 class SpeciesTestCase(TestCase):
@@ -302,7 +303,18 @@ class OmicsUnitTestCase(TestCase):
         self.assertEqual(qs.count(), 1)
 
 
-class PixelSetTestCase(TestCase):
+class PixelSetTestCase(CoreFixturesTestCase):
+
+    def setUp(self):
+
+        self.experiment = factories.ExperimentFactory()
+        self.pixel_set = factories.PixelSetFactory()
+        self.n_pixels = 10
+        self.pixel_set.analysis.experiments.add(self.experiment)
+        factories.PixelFactory.create_batch(
+            self.n_pixels,
+            pixel_set=self.pixel_set
+        )
 
     def test_can_create_pixel_set(self):
 
@@ -344,6 +356,40 @@ class PixelSetTestCase(TestCase):
         )
 
         self.assertEqual(upload_path, expected)
+
+    def test_get_omics_areas(self):
+
+        expected = [self.experiment.omics_area.name, ]
+        self.assertEqual(
+            list(self.pixel_set.get_omics_areas()),
+            expected
+        )
+
+        # Test distinct
+        new_experiment = factories.ExperimentFactory(
+            omics_area=self.experiment.omics_area
+        )
+        self.pixel_set.analysis.experiments.add(new_experiment)
+        self.assertEqual(
+            list(self.pixel_set.get_omics_areas()),
+            expected
+        )
+
+    def test_get_omics_unit_types(self):
+
+        expected = models.OmicsUnitType.objects.values_list('name', flat=True)
+        self.assertEqual(
+            list(self.pixel_set.get_omics_unit_types()),
+            list(expected),
+        )
+
+    def test_get_species(self):
+
+        expected = models.Species.objects.values_list('name', flat=True)
+        self.assertEqual(
+            list(self.pixel_set.get_species()),
+            list(expected),
+        )
 
 
 class PixelTestCase(TestCase):

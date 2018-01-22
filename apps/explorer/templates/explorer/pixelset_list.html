@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% load files %}
+
+{% block title %}{% trans "Pixel sets" %}{% endblock %}
+{% block body_class %}{{ block.super }} explorer pixelsets{% endblock %}
+
+{% block header %}
+<h1>
+  {% trans "Pixel sets" %}
+</h1>
+<span class="subheader">
+  {% trans "total:" %} {{ paginator.count }}<br/>
+  {% trans "displayed:" %} {{ pixelset_list.count }}
+</span>
+{% endblock %}
+
+{% block content %}
+  <table class="pixelsets">
+    <thead>
+      <tr>
+        <th>{% trans "Pixel set" %}</th>
+        <th>{% trans "Species" %}</th>
+        <th>{% trans "Omics Unit type" %}</th>
+        <th>{% trans "Omics area" %}</th>
+        <th>{% trans "Pixeler" %}</th>
+        <th>{% trans "Analysis" %}</th>
+        <th>{% trans "Experiment" %}</th>
+        <th>{% trans "Tags" %}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for pixelset in pixelset_list %}
+      <tr class="pixelset">
+        <td class="filename">
+          <!-- Pixel set file name -->
+          {{ pixelset.pixels_file.name|filename }}
+        </td>
+        <td class="species">
+          <!-- Species-->
+          {% for species in pixelset.get_species %}
+            <span class="species">{{ species }}</span>
+          {% endfor %}
+        </td>
+        <td class="omics-unit-types">
+          <!-- Omics Unit Type -->
+          {% for type in pixelset.get_omics_unit_types %}
+            <span class="omics-unit-type">{{ type }}</span>
+          {% endfor %}
+        </td>
+        <td class="omics-areas">
+          <!-- Omics Area -->
+          {% for area in pixelset.get_omics_areas %}
+            <span class="omics-area">{{ area }}</span>
+          {% endfor %}
+        </td>
+        <td class="pixeler">
+          <!-- Pixeler -->
+          {{ pixelset.analysis.pixeler.get_full_name }}
+        </td>
+        <td class="analysis">
+          <!-- Analysis -->
+          {{ pixelset.analysis.description }}
+        </td>
+        <td class="experiments">
+          <!-- Experiment -->
+          {% for experiment in pixelset.analysis.experiments.all %}
+            <span class="experiment">
+              {{ experiment.description }}
+            </span>
+          {% endfor %}
+        </td>
+        <td class="tags">
+          <!-- Tags -->
+          {% for tag in pixelset.analysis.tags.all %}
+            <span class="tag analysis">{{ tag }}</span>
+          {% endfor %}
+          {% for experiment in pixelset.analysis.experiments.all %}
+            {% for tag in experiment.tags.all %}
+              <span class="tag experiment">{{ tag }}</span>
+            {% endfor %}
+          {% endfor %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="8" class="empty">
+          {% trans "No pixel set has been submitted yet" %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% include "foundation/pagination.html" %}
+{% endblock content %}

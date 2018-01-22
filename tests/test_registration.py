@@ -40,7 +40,7 @@ class RegistrationTestCase(TestCase):
             follow=True,
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'core/home.html')
+        self.assertTemplateUsed(response, 'explorer/pixelset_list.html')
 
     def test_login_with_wrong_credentials(self):
 
@@ -92,7 +92,7 @@ class RegistrationTestCase(TestCase):
             follow=True,
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'core/home.html')
+        self.assertTemplateUsed(response, 'explorer/pixelset_list.html')
 
     def test_login_with_inactive_user(self):
 

@@ -52,6 +52,7 @@ class Species(models.Model):
     )
 
     class Meta:
+        ordering = ('name', )
         verbose_name = _("Species")
         verbose_name_plural = _("Species")
 
@@ -96,6 +97,7 @@ class Strain(models.Model):
     )
 
     class Meta:
+        ordering = ('name', )
         verbose_name = _("Strain")
         verbose_name_plural = _("Strains")
         unique_together = (
@@ -128,6 +130,7 @@ class OmicsUnitType(models.Model):
     )
 
     class Meta:
+        ordering = ('name', )
         verbose_name = _("Omics unit type")
         verbose_name_plural = _("Omics unit types")
 
@@ -181,6 +184,7 @@ class OmicsUnit(UUIDModelMixin, models.Model):
     )
 
     class Meta:
+        ordering = ('strain', 'reference')
         verbose_name = _("Omics Unit")
         verbose_name_plural = _("Omics Units")
         unique_together = (
@@ -231,6 +235,32 @@ class PixelSet(UUIDModelMixin, models.Model):
         related_query_name='pixelset',
     )
 
+    class Meta:
+        ordering = ('analysis', 'pixels_file')
+        verbose_name = _("Pixel set")
+        verbose_name_plural = _("Pixel sets")
+
+    def get_omics_areas(self):
+        return OmicsArea.objects.filter(
+            experiment__in=self.analysis.experiments.all()
+        ).distinct().values_list(
+            'name', flat=True
+        )
+
+    def get_omics_unit_types(self):
+        return OmicsUnitType.objects.filter(
+            omics_unit__pixel__in=self.pixels.all()
+        ).distinct().values_list(
+            'name', flat=True
+        )
+
+    def get_species(self):
+        return Species.objects.filter(
+            strain__omics_unit__pixel__in=self.pixels.all()
+        ).distinct().values_list(
+            'name', flat=True
+        )
+
 
 class Pixel(UUIDModelMixin, models.Model):
     """A pixel is the smallest measurement unit for an Omics study
@@ -269,6 +299,7 @@ class Pixel(UUIDModelMixin, models.Model):
     )
 
     class Meta:
+        ordering = ('pixel_set', 'omics_unit')
         verbose_name = _("Pixel")
         verbose_name_plural = _("Pixels")
 
@@ -333,6 +364,7 @@ class Experiment(UUIDModelMixin, models.Model):
     )
 
     class Meta:
+        ordering = ('completed_at', 'released_at')
         verbose_name = _("Experiment")
         verbose_name_plural = _("Experiments")
 
@@ -415,6 +447,7 @@ class Analysis(UUIDModelMixin, models.Model):
     )
 
     class Meta:
+        ordering = ('pixeler', 'completed_at')
         verbose_name = _("Analysis")
         verbose_name_plural = _("Analyses")
 
@@ -450,6 +483,7 @@ class OmicsArea(MPTTModel):
     )
 
     class Meta:
+        ordering = ('name', )
         verbose_name = _("Omics area")
         verbose_name_plural = _("Omics areas")
 

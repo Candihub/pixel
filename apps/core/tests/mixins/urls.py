@@ -18,6 +18,10 @@ urlpatterns = [
         r'^submission/',
         include('apps.submission.urls', namespace='submission')
     ),
+    url(
+        r'^explorer/',
+        include('apps.explorer.urls', namespace='explorer')
+    ),
     # Test app views
     url(
         r'^foo$',

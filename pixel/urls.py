@@ -19,6 +19,10 @@ urlpatterns = [
         include('apps.core.urls', namespace='core')
     ),
     url(
+        r'^explorer/',
+        include('apps.explorer.urls', namespace='explorer')
+    ),
+    url(
         r'^submission/',
         include('apps.submission.urls', namespace='submission')
     ),

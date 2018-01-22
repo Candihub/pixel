@@ -35,7 +35,6 @@ def make_development_fixtures(n_pixel_sets=DEFAULT_N_PIXELSETS,
     pixel_sets = factories.PixelSetFactory.create_batch(n_pixel_sets)
 
     for pixel_set in pixel_sets:
-        print(pixel_set)
 
         # Link analysis to experiment
         experiment = experiments[randint(0, len(experiments) - 1)]
