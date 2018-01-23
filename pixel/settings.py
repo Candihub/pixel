@@ -38,9 +38,10 @@ class Base(Configuration):
         'django.contrib.staticfiles',
 
         # third party
-        'mptt',
-        'tagulous',
         'django_extensions',
+        'mptt',
+        'spurl',
+        'tagulous',
         'viewflow',
 
         # Pixel apps
