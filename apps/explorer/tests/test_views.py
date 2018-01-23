@@ -35,7 +35,7 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
 
         expected = (
             '<td colspan="8" class="empty">'
-            'No pixel set has been submitted yet'
+            'No pixel set matches your query'
             '</td>'
         )
         self.assertContains(response, expected, html=True)
