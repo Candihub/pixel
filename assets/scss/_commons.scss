@@ -69,10 +69,5 @@ i {
 }
 
 .tag {
-  display: inline-block;
-  margin-right: 0.2rem;
-  margin-bottom: 0.5rem;
-  padding: 0.5rem 0.8rem;
-  border-radius: $global-radius;
-  background-color: $body-background-alt;
+  @include tag;
 }
