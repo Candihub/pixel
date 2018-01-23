@@ -1,9 +1,48 @@
 .explorer {
 
-  &.pixelsets {
+  aside.sidebar-left {
+    @include xy-cell($size: 2.5, $gutter-output: false);
+
+    .filters {
+
+      form {
+        .field {
+          label {
+            font-weight: bold;
+
+            ul {
+              max-height: 200px;
+              margin-left: 0;
+              list-style: none;
+              overflow-y: auto;
+
+              &#id_tags {
+                li {
+                  @include tag;
+                }
+              }
+
+              li > label {
+                font-weight: normal;
+                overflow-wrap: break-word;
+
+                input {
+                  margin-bottom: 0;
+                }
+              }
+            }
+          }
+
+        }
+      }
+    }
+  }
+
+  main.content {
+    @include xy-cell($size: 9.5, $gutter-position: 'left');
+
     table.pixelsets {
       @include table;
-      @include table-scroll;
       @include table-hover;
 
       tbody {

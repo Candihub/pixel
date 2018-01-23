@@ -16,17 +16,23 @@
 </span>
 {% endblock %}
 
-{% block content %}
+{% block sidebar-left %}
   <div class="filters">
+    <h4>{% trans "Filters" %}</h4>
+
     <div class="form-error">
         {{ form.non_field_errors }}
     </div>
-    <form action="" method="get" class="pixelset-filters-form">
+    <form action="" method="get" id="pixelset-filters-form">
       {% include "foundation/form_fields.html" %}
-      <button type="submit" class="hollow button">{% trans "filter" %}</button>
+      <button type="submit" class="button">
+        {% trans "Apply filters" %}
+      </button>
     </form>
   </div>
+{% endblock sidebar-left %}
 
+{% block content %}
   <table class="pixelsets">
     <thead>
       <tr>
@@ -96,7 +102,7 @@
       {% empty %}
       <tr>
         <td colspan="8" class="empty">
-          {% trans "No pixel set has been submitted yet" %}
+          {% trans "No pixel set matches your query" %}
         </td>
       </tr>
       {% endfor %}
