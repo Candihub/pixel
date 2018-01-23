@@ -18,6 +18,7 @@ openpyxl = "*"
 django-viewflow = "*"
 pandas = "*"
 background = "*"
+django-spurl = "*"
 
 
 [dev-packages]
@@ -27,7 +28,7 @@ pytest-django = "*"
 pytest-cov = "*"
 "flake8" = "*"
 coveralls = "*"
-factory_boy = "*"
+factory-boy = "*"
 django-debug-toolbar = "*"
 
 
