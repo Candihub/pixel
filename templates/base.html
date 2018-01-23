@@ -76,9 +76,21 @@
       {% block header %}{% endblock %}
     </header>
 
-    <main class="page-content">
-      {% block content %}{% endblock %}
-    </main>
+    <div class="page-content-wrapper">
+      <div class="page-content">
+        <aside class="sidebar-left">
+          {% block sidebar-left %}{% endblock %}
+        </aside>
+
+        <main class="content">
+          {% block content %}{% endblock %}
+        </main>
+
+        <aside class="sidebar-right">
+          {% block sidebar-right %}{% endblock %}
+        </aside>
+      </div>
+    </div>
 
     <footer class="page-footer">
       {% block footer %}
