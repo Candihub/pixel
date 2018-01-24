@@ -35,3 +35,16 @@ class PixelSetFiltersForm(forms.Form):
         widget=forms.CheckboxSelectMultiple,
         required=False,
     )
+
+    search = forms.CharField(
+        label=_("Search"),
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': _("CAGL0A02321g"),
+            }
+        ),
+        help_text=_(
+            "Type a gene name or a key word, e.g. CAGL0A02321g or LIMMA"
+        ),
+        required=False,
+    )

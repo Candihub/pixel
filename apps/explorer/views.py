@@ -1,5 +1,7 @@
 from django.db.models import Q
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.postgres.aggregates import StringAgg
+from django.contrib.postgres.search import SearchVector
 from django.views.generic import ListView
 from django.views.generic.edit import FormMixin
 
@@ -59,6 +61,21 @@ class PixelSetListView(LoginRequiredMixin, FormMixin, ListView):
                     Q(analysis__tags__id__in=tags) |
                     Q(analysis__experiments__tags__id__in=tags)
                 )
+
+            search = form.cleaned_data.get('search')
+            if len(search):
+                qs = qs.annotate(
+                    search=(
+                        SearchVector('analysis__description') +
+                        SearchVector(
+                            StringAgg(
+                                'analysis__experiments__description',
+                                delimiter=' '
+                            )
+                        ) +
+                        SearchVector('pixel__omics_unit__reference__identifier')  # noqa
+                    )
+                ).filter(search=search)
 
         return qs.distinct().prefetch_related(
             'analysis__experiments__omics_area',
