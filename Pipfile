@@ -19,10 +19,12 @@ django-viewflow = "*"
 pandas = "*"
 background = "*"
 django-spurl = "*"
+pyyaml = "*"
 
 
 [dev-packages]
 
+django = "<2.0"
 pytest = "*"
 pytest-django = "*"
 pytest-cov = "*"
