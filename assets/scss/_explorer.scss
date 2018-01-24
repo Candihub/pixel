@@ -5,22 +5,22 @@
 
     .filters {
 
-      form {
+      #pixelset-filters-form {
         .field {
           label {
             font-weight: bold;
+
+            ul#id_tags {
+              li {
+                @include tag;
+              }
+            }
 
             ul {
               max-height: 200px;
               margin-left: 0;
               list-style: none;
               overflow-y: auto;
-
-              &#id_tags {
-                li {
-                  @include tag;
-                }
-              }
 
               li > label {
                 font-weight: normal;
