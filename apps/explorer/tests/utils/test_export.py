@@ -1,4 +1,5 @@
 import pandas
+import pytest
 import yaml
 
 from apps.core import factories
@@ -11,7 +12,7 @@ from ...utils import (
 )
 
 
-class ExportPixelsSetTestCase(CoreFixturesTestCase):
+class ExportPixelSetsTestCase(CoreFixturesTestCase):
 
     def _assert_archive_is_valid(self, zip_archive):
 
@@ -19,7 +20,7 @@ class ExportPixelsSetTestCase(CoreFixturesTestCase):
         assert PIXELSET_EXPORT_META_FILENAME in zip_archive.namelist()
         assert PIXELSET_EXPORT_PIXELS_FILENAME in zip_archive.namelist()
 
-    def test_export_pixels_without_pixelsets(self):
+    def test_export_without_pixelsets(self):
 
         zip_archive = export_pixelsets(PixelSet.objects.none())
         self._assert_archive_is_valid(zip_archive)
@@ -35,7 +36,7 @@ class ExportPixelsSetTestCase(CoreFixturesTestCase):
             # Only the 'Omics Unit' column is present
             assert len(pixels_csv) == 1
 
-    def test_export_pixels_without_pixels(self):
+    def test_export_pixelset_without_pixels(self):
 
         pixel_sets = factories.PixelSetFactory.create_batch(1)
 
@@ -53,7 +54,7 @@ class ExportPixelsSetTestCase(CoreFixturesTestCase):
             # 'Omics Unit' column + 2 columns per pixel set
             assert len(pixels_csv) == (2 * len(pixel_sets)) + 1
 
-    def test_export_pixels(self):
+    def test_export_pixelsets(self):
 
         pixel_sets = factories.PixelSetFactory.create_batch(1)
         for pixel_set in pixel_sets:
@@ -80,7 +81,7 @@ class ExportPixelsSetTestCase(CoreFixturesTestCase):
             # 'Omics Unit' column + 2 columns per pixel set
             assert len(pixels_csv) == 2 * len(pixel_sets) + 1
 
-    def test_export_pixels_merge_ensures_unique_omics_unit_rows(self):
+    def test_export_merged_pixelsets_ensures_unique_omics_unit_rows(self):
 
         pixel_sets = factories.PixelSetFactory.create_batch(1)
         for pixel_set in pixel_sets:
@@ -100,15 +101,13 @@ class ExportPixelsSetTestCase(CoreFixturesTestCase):
             # 'Omics Unit' column + 2 columns per pixel set
             assert len(pixels_csv) == 2 * len(pixel_sets) + 1
 
-    def test_export_pixels_merge_multiple_sets(self):
+    def test_export_merged_pixelsets(self):
 
         pixel_sets = factories.PixelSetFactory.create_batch(3)
         pixels = factories.PixelFactory.create_batch(3)
 
         # we add pixels on the same set
-        pixel_sets[0].pixels.add(pixels[0])
-        pixel_sets[0].pixels.add(pixels[1])
-        pixel_sets[0].pixels.add(pixels[2])
+        pixel_sets[0].pixels.add(*pixels)
 
         zip_archive = export_pixelsets(list(pixel_sets))
         self._assert_archive_is_valid(zip_archive)
@@ -168,3 +167,13 @@ class ExportPixelsSetTestCase(CoreFixturesTestCase):
                         pixels_csv[column_name].values()
                     )
                 )
+
+            for pixel in pixels:
+                # pixels are not ordered in the pixel set, so we have to find
+                # the corresponding row index for each pixel.
+                row = [index for index, value in pixels_csv[col_0].items() if
+                       value == pixel.omics_unit.reference.identifier][0]
+
+                assert pixels_csv[col_1][row] == pytest.approx(pixel.value)
+                assert (pixels_csv[col_2][row] ==
+                        pytest.approx(pixel.quality_score))
