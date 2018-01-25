@@ -277,3 +277,85 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
             '<tr class="pixelset">',
             count=1
         )
+
+    def test_unexpected_filter_value(self):
+
+        # Create 8 pixelset
+        make_development_fixtures(
+            n_pixel_sets=8,
+            n_pixels_per_set=1
+        )
+
+        # no filter
+        response = self.client.get(self.url)
+        self.assertContains(
+            response,
+            '<tr class="pixelset">',
+            count=8
+        )
+        self.assertNotContains(
+            response,
+            '<small class="error">\'fakeid\' is not a valid UUID.</small>',
+            html=True,
+        )
+
+        # odd filter query
+        data = {
+            'species': ['fakeid', ],
+        }
+        response = self.client.get(self.url, data)
+        self.assertContains(
+            response,
+            '<tr class="pixelset">',
+            count=8
+        )
+        print(response.content)
+        self.assertContains(
+            response,
+            (
+                '<small class="error">'
+                '&#39;fakeid&#39; is not a valid UUID.'
+                '</small>'
+            ),
+            html=True,
+        )
+
+    def test_filters_with_no_match(self):
+
+        # Create 8 pixelset
+        make_development_fixtures(
+            n_pixel_sets=8,
+            n_pixels_per_set=1
+        )
+
+        # Create a new species
+        species = factories.SpeciesFactory()
+
+        # no filter
+        response = self.client.get(self.url)
+        self.assertContains(
+            response,
+            '<tr class="pixelset">',
+            count=8
+        )
+
+        # filter with no possible result
+        data = {
+            'species': [species.id, ]
+        }
+        response = self.client.get(self.url, data)
+        self.assertContains(
+            response,
+            '<tr class="pixelset">',
+            count=0
+        )
+        self.assertContains(
+            response,
+            (
+                '<td colspan="8" class="empty">'
+                'No pixel set matches your query'
+                '</td>'
+            ),
+            count=1,
+            html=True,
+        )
