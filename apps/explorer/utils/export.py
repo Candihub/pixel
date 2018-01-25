@@ -24,8 +24,8 @@ def export_pixelsets(pixel_sets):
 
     Returns
     -------
-    zipfile.ZipFile
-        A ZipFile archive.
+    io.BytesIO
+        A Binary I/O containing the ZIP archive.
 
     """
 
@@ -65,8 +65,9 @@ def export_pixelsets(pixel_sets):
             ] = pixel.quality_score
 
     # create in-memory archive
+    stream = BytesIO()
     archive = zipfile.ZipFile(
-        BytesIO(),
+        stream,
         mode='w',
         compression=zipfile.ZIP_DEFLATED
     )
@@ -87,4 +88,6 @@ def export_pixelsets(pixel_sets):
     # add `pixels.csv` file
     archive.writestr(PIXELSET_EXPORT_PIXELS_FILENAME, csv.getvalue())
 
-    return archive
+    archive.close()
+
+    return stream
