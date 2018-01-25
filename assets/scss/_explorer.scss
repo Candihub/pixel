@@ -32,7 +32,6 @@
               }
             }
           }
-
         }
       }
     }
@@ -45,29 +44,21 @@
       @include table;
       @include table-hover;
 
-      tbody {
-        tr {
-          td {
-            vertical-align: top;
+      td {
+        vertical-align: top;
 
-            &.filename {
-              font-family: $font-family-monospace;
-            }
+        &.filename {
+          font-family: $font-family-monospace;
+        }
 
-            &.analysis,
-            &.experiments {
-              font-size: 0.8rem;
-            }
+        &.analysis,
+        &.experiments {
+          font-size: 0.8rem;
+        }
 
-            span {
-              &.species {
-                font-style: italic;
-              }
-
-              &.experiment {
-
-              }
-            }
+        span {
+          &.species {
+            font-style: italic;
           }
         }
       }
