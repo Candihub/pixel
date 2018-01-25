@@ -130,8 +130,25 @@
         {% trans "Download an archive (.zip) with the selected Pixel sets" %}
       </button>
     </div>
+
+    <hr>
     {% endif %}
   </form>
 
   {% include "foundation/pagination.html" %}
 {% endblock content %}
+
+{% block javascript %}
+<script>
+  (function (document) {
+    $rows = document.querySelectorAll('.pixelset');
+
+    $rows.forEach(function ($row) {
+      $row.addEventListener('click', function () {
+        var $checkbox = this.querySelector('input[type="checkbox"]');
+        $checkbox.checked = !$checkbox.checked;
+      });
+    });
+  })(document);
+</script>
+{% endblock %}
