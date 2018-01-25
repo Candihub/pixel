@@ -40,28 +40,38 @@
   main.content {
     @include xy-cell($size: 9.5, $gutter-position: 'left');
 
+    .pixelsets-wrapper {
+      @include table-scroll;
+    }
+
     table.pixelsets {
       @include table;
       @include table-hover;
 
+      width: 200%;
+
       td {
         vertical-align: top;
-
-        &.filename {
-          font-family: $font-family-monospace;
-        }
-
-        &.analysis,
-        &.experiments {
-          font-size: 0.8rem;
-        }
-
-        span {
-          &.species {
-            font-style: italic;
-          }
-        }
       }
+
+      .filename {
+        font-family: $font-family-monospace;
+      }
+
+      .analysis,
+      .experiments {
+        font-size: 0.8rem;
+      }
+
+      span.species {
+        font-style: italic;
+      }
+    }
+
+    .actions {
+      margin-bottom: 10px;
+      padding: 20px 20px 5px;
+      text-align: center;
     }
   }
 }

@@ -37,92 +37,98 @@
     {{ export_form.non_field_errors }}
   </div>
 
-  <form action="{% url 'explorer:pixelset_export' %}" method="post">
+  <form action="{% url 'explorer:pixelset_export' %}" method="post" id="export-form">
     {% csrf_token %}
     <input type="hidden" name="redirect_to" value="{{ request.build_absolute_uri }}">
 
-    <table class="pixelsets">
-      <thead>
-        <tr>
-          <th colspan="2">{% trans "Pixel set" %}</th>
-          <th>{% trans "Species" %}</th>
-          <th>{% trans "Omics Unit type" %}</th>
-          <th>{% trans "Omics area" %}</th>
-          <th>{% trans "Pixeler" %}</th>
-          <th>{% trans "Analysis" %}</th>
-          <th>{% trans "Experiment" %}</th>
-          <th>{% trans "Tags" %}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for pixelset in pixelset_list %}
-        <tr class="pixelset">
-          <td>
-            <input name="pixel_sets" value="{{ pixelset.id }}" type="checkbox">
-          </td>
-          <td class="filename">
-            <!-- Pixel set file name -->
-            {{ pixelset.pixels_file.name|filename }}
-          </td>
-          <td class="species">
-            <!-- Species-->
-            {% for species in pixelset.get_species %}
-              <span class="species">{{ species }}</span>
-            {% endfor %}
-          </td>
-          <td class="omics-unit-types">
-            <!-- Omics Unit Type -->
-            {% for type in pixelset.get_omics_unit_types %}
-              <span class="omics-unit-type">{{ type }}</span>
-            {% endfor %}
-          </td>
-          <td class="omics-areas">
-            <!-- Omics Area -->
-            {% for area in pixelset.get_omics_areas %}
-              <span class="omics-area">{{ area }}</span>
-            {% endfor %}
-          </td>
-          <td class="pixeler">
-            <!-- Pixeler -->
-            {{ pixelset.analysis.pixeler.get_full_name }}
-          </td>
-          <td class="analysis">
-            <!-- Analysis -->
-            {{ pixelset.analysis.description }}
-          </td>
-          <td class="experiments">
-            <!-- Experiment -->
-            {% for experiment in pixelset.analysis.experiments.all %}
+    <div class="pixelsets-wrapper">
+      <table class="pixelsets">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>{% trans "Pixel set" %}</th>
+            <th>{% trans "Species" %}</th>
+            <th>{% trans "Omics Unit type" %}</th>
+            <th>{% trans "Omics area" %}</th>
+            <th>{% trans "Pixeler" %}</th>
+            <th>{% trans "Analysis" %}</th>
+            <th>{% trans "Experiment" %}</th>
+            <th>{% trans "Tags" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for pixelset in pixelset_list %}
+          <tr class="pixelset">
+            <td>
+              <input name="pixel_sets" value="{{ pixelset.id }}" type="checkbox">
+            </td>
+            <td class="filename">
+              <!-- Pixel set file name -->
+              {{ pixelset.pixels_file.name|filename }}
+            </td>
+            <td class="species">
+              <!-- Species-->
+              {% for species in pixelset.get_species %}
+                <span class="species">{{ species }}</span>
+              {% endfor %}
+            </td>
+            <td class="omics-unit-types">
+              <!-- Omics Unit Type -->
+              {% for type in pixelset.get_omics_unit_types %}
+                <span class="omics-unit-type">{{ type }}</span>
+              {% endfor %}
+            </td>
+            <td class="omics-areas">
+              <!-- Omics Area -->
+              {% for area in pixelset.get_omics_areas %}
+                <span class="omics-area">{{ area }}</span>
+              {% endfor %}
+            </td>
+            <td class="pixeler">
+              <!-- Pixeler -->
+              {{ pixelset.analysis.pixeler.get_full_name }}
+            </td>
+            <td class="analysis">
+              <!-- Analysis -->
+              {{ pixelset.analysis.description }}
+            </td>
+            <td class="experiments">
+              <!-- Experiment -->
+              {% for experiment in pixelset.analysis.experiments.all %}
               <span class="experiment">
                 {{ experiment.description }}
               </span>
-            {% endfor %}
-          </td>
-          <td class="tags">
-            <!-- Tags -->
-            {% for tag in pixelset.analysis.tags.all %}
-              <span class="tag analysis">{{ tag }}</span>
-            {% endfor %}
-            {% for experiment in pixelset.analysis.experiments.all %}
-              {% for tag in experiment.tags.all %}
-                <span class="tag experiment">{{ tag }}</span>
               {% endfor %}
-            {% endfor %}
-          </td>
-        </tr>
-        {% empty %}
-        <tr>
-          <td colspan="8" class="empty">
-            {% trans "No pixel set matches your query" %}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+            </td>
+            <td class="tags">
+              <!-- Tags -->
+              {% for tag in pixelset.analysis.tags.all %}
+                <span class="tag analysis">{{ tag }}</span>
+              {% endfor %}
+              {% for experiment in pixelset.analysis.experiments.all %}
+                {% for tag in experiment.tags.all %}
+                  <span class="tag experiment">{{ tag }}</span>
+                {% endfor %}
+              {% endfor %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="8" class="empty">
+              {% trans "No pixel set matches your query" %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
 
-    <button type="submit" class="button">
-      {% trans "Export" %}
-    </button>
+    <div class="actions">
+      <button type="submit" class="button">
+        <i class="fa fa-download" aria-hidden="true"></i>
+        {% trans "Download an archive (.zip) with the selected Pixel sets" %}
+      </button>
+    </div>
   </form>
 
   {% include "foundation/pagination.html" %}
