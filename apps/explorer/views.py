@@ -1,10 +1,14 @@
 from django.db.models import Q
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import ListView
+from django.http import HttpResponse, HttpResponseRedirect
+from django.urls.base import reverse
+from django.views.generic import ListView, FormView
 from django.views.generic.edit import FormMixin
 
 from apps.core.models import PixelSet
-from .forms import PixelSetFiltersForm
+from .forms import PixelSetFiltersForm, PixelSetExportForm
+from .utils import export_pixelsets
 
 
 class PixelSetListView(LoginRequiredMixin, FormMixin, ListView):
@@ -81,3 +85,39 @@ class PixelSetListView(LoginRequiredMixin, FormMixin, ListView):
         )
 
         return qs.distinct()
+
+    def get_context_data(self, **kwargs):
+
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'export_form': PixelSetExportForm(),
+        })
+        return context
+
+
+class PixelSetExportView(LoginRequiredMixin, FormView):
+
+    form_class = PixelSetExportForm
+
+    def form_valid(self, form):
+
+        zip = export_pixelsets(form.cleaned_data['pixel_sets'])
+
+        response = HttpResponse(zip.getvalue(), content_type='application/zip')
+        response['Content-Disposition'] = 'attachment; filename=pixelsets.zip'
+        return response
+
+    def form_invalid(self, form):
+
+        messages.error(
+            self.request,
+            "\n".join([
+                errors[0].message for errors in form.errors.as_data().values()
+            ])
+        )
+
+        redirect_to = self.request.POST.get(
+            'redirect_to',
+            reverse('explorer:pixelset_list')
+        )
+        return HttpResponseRedirect(redirect_to)

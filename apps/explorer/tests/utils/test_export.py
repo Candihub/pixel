@@ -93,7 +93,9 @@ class ExportPixelSetsTestCase(CoreFixturesTestCase):
         for pixel_set in pixel_sets:
             factories.PixelFactory.create_batch(3, pixel_set=pixel_set)
 
-        zip_archive = self._export_pixelsets([*list(pixel_sets), *list(pixel_sets)])
+        zip_archive = self._export_pixelsets(
+            [*list(pixel_sets), *list(pixel_sets)]
+        )
         self._assert_archive_is_valid(zip_archive)
 
         with zip_archive.open(PIXELSET_EXPORT_META_FILENAME) as meta_file:
