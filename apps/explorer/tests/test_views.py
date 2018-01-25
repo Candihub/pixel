@@ -1,4 +1,6 @@
 from django.core.urlresolvers import reverse
+from io import BytesIO
+from zipfile import ZipFile
 
 from apps.core import factories, models
 from apps.core.templatetags.files import filename
@@ -66,7 +68,7 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
         )
         self.assertContains(
             response,
-            '<button type="submit" class="button button-export">',
+            '<button type="submit" class="button">',
         )
 
     def test_species_filter(self):
@@ -498,3 +500,66 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
             count=1,
             html=True,
         )
+
+
+class PixelSetExportViewTestCase(CoreFixturesTestCase):
+
+    def setUp(self):
+
+        self.user = factories.PixelerFactory(
+            is_active=True,
+            is_staff=True,
+            is_superuser=True,
+        )
+        self.client.login(
+            username=self.user.username,
+            password=factories.PIXELER_PASSWORD,
+        )
+        self.url = reverse('explorer:pixelset_export')
+
+    def test_redirects_to_list_view_when_invalid(self):
+
+        response = self.client.post(self.url)
+
+        self.assertRedirects(response, reverse('explorer:pixelset_list'))
+
+    def test_redirects_to_previous_url_if_provided_when_invalid(self):
+
+        redirect_to = '/?q=123'
+        response = self.client.post(self.url, {'redirect_to': redirect_to})
+
+        self.assertRedirects(response, redirect_to)
+
+    def test_displays_message_after_redirect_when_invalid(self):
+
+        response = self.client.post(self.url, follow=True)
+
+        self.assertContains(
+            response,
+            (
+                '<div class="message error">'
+                'You must select at least one Pixel Set.'
+                '</div>'
+            ),
+            html=True
+        )
+
+    def test_returns_zip_file(self):
+
+        pixel_sets = factories.PixelSetFactory.create_batch(1)
+        response = self.client.post(self.url, {
+            'pixel_sets': [pixel_sets[0].id]
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/zip')
+        self.assertEqual(
+            response['Content-Disposition'],
+            'attachment; filename=pixelsets.zip'
+        )
+
+        try:
+            zip = ZipFile(BytesIO(response.content), 'r')
+            self.assertIsNone(zip.testzip())
+        finally:
+            zip.close()
