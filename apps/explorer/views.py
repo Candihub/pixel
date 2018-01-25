@@ -96,6 +96,7 @@ class PixelSetListView(LoginRequiredMixin, FormMixin, ListView):
 
 
 class PixelSetExportView(LoginRequiredMixin, FormView):
+    ATTACHEMENT_FILENAME = 'pixelsets.zip'
 
     form_class = PixelSetExportForm
 
@@ -104,7 +105,9 @@ class PixelSetExportView(LoginRequiredMixin, FormView):
         zip = export_pixelsets(form.cleaned_data['pixel_sets'])
 
         response = HttpResponse(zip.getvalue(), content_type='application/zip')
-        response['Content-Disposition'] = 'attachment; filename=pixelsets.zip'
+        response['Content-Disposition'] = 'attachment; filename={}'.format(
+            self.ATTACHEMENT_FILENAME
+        )
         return response
 
     def form_invalid(self, form):

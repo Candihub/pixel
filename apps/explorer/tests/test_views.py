@@ -8,6 +8,7 @@ from apps.core.tests import CoreFixturesTestCase
 from apps.core.management.commands.make_development_fixtures import (
     make_development_fixtures
 )
+from apps.explorer.views import PixelSetExportView
 
 
 class PixelSetListViewTestCase(CoreFixturesTestCase):
@@ -555,7 +556,9 @@ class PixelSetExportViewTestCase(CoreFixturesTestCase):
         self.assertEqual(response['Content-Type'], 'application/zip')
         self.assertEqual(
             response['Content-Disposition'],
-            'attachment; filename=pixelsets.zip'
+            'attachment; filename={}'.format(
+                PixelSetExportView.ATTACHEMENT_FILENAME
+            )
         )
 
         try:
