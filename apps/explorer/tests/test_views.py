@@ -122,7 +122,7 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
         self.assertContains(
             response,
             '<tr class="pixelset">',
-            count=int(n_pixel_sets / 2)
+            count=(n_pixel_sets // 2)
         )
 
     def test_omics_areas_filter(self):
@@ -309,7 +309,6 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
             '<tr class="pixelset">',
             count=8
         )
-        print(response.content)
         self.assertContains(
             response,
             (
