@@ -1,0 +1,37 @@
+from django import forms
+from django.utils.translation import ugettext as _
+from mptt.forms import TreeNodeMultipleChoiceField
+
+from apps.core import models
+
+
+class PixelSetFiltersForm(forms.Form):
+
+    species = forms.ModelMultipleChoiceField(
+        label=_("Species"),
+        queryset=models.Species.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+    )
+
+    omics_unit_types = forms.ModelMultipleChoiceField(
+        label=_("Omics Unit Types"),
+        queryset=models.OmicsUnitType.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+    )
+
+    omics_areas = TreeNodeMultipleChoiceField(
+        label=_("Omics Areas"),
+        queryset=models.OmicsArea.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        level_indicator='—',
+        required=False,
+    )
+
+    tags = forms.ModelMultipleChoiceField(
+        label=_("Tags"),
+        queryset=models.Tag.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+    )

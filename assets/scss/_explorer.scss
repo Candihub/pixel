@@ -1,34 +1,64 @@
 .explorer {
 
-  &.pixelsets {
+  aside.sidebar-left {
+    @include xy-cell($size: 2.5, $gutter-output: false);
+
+    .filters {
+
+      #pixelset-filters-form {
+        .field {
+          label {
+            font-weight: bold;
+
+            ul#id_tags {
+              li {
+                @include tag;
+              }
+            }
+
+            ul {
+              max-height: 200px;
+              margin-left: 0;
+              list-style: none;
+              overflow-y: auto;
+
+              li > label {
+                font-weight: normal;
+                overflow-wrap: break-word;
+
+                input {
+                  margin-bottom: 0;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  main.content {
+    @include xy-cell($size: 9.5, $gutter-position: 'left');
+
     table.pixelsets {
       @include table;
-      @include table-scroll;
       @include table-hover;
 
-      tbody {
-        tr {
-          td {
-            vertical-align: top;
+      td {
+        vertical-align: top;
 
-            &.filename {
-              font-family: $font-family-monospace;
-            }
+        &.filename {
+          font-family: $font-family-monospace;
+        }
 
-            &.analysis,
-            &.experiments {
-              font-size: 0.8rem;
-            }
+        &.analysis,
+        &.experiments {
+          font-size: 0.8rem;
+        }
 
-            span {
-              &.species {
-                font-style: italic;
-              }
-
-              &.experiment {
-
-              }
-            }
+        span {
+          &.species {
+            font-style: italic;
           }
         }
       }

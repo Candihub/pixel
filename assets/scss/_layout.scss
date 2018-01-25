@@ -66,10 +66,18 @@
     margin-bottom: 2rem;
   }
 
-  .page-content {
+  .page-content-wrapper {
     @include xy-grid-container;
-    flex: 1;
-    width: 100%;
+
+    .page-content {
+      @include xy-grid($wrap: false);
+
+      .sidebar-left {}
+
+      .content {}
+
+      .sidebar-right {}
+    }
   }
 
   .page-footer {

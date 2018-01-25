@@ -23,6 +23,7 @@ $global-flexbox: true;
 @include foundation-xy-grid-classes;
 
 /* -- Pixel -- */
+@import 'mixins';
 @import 'commons';
 @import 'explorer';
 @import 'layout';
