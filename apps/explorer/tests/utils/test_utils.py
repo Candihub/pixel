@@ -1,52 +1,60 @@
 import pandas
 import yaml
 
-from ...utils import export_pixelsets
+from apps.core import factories
 from apps.core.models import PixelSet
 from apps.core.tests import CoreFixturesTestCase
-from apps.core import factories
+
+from ...utils import (
+    PIXELSET_EXPORT_META_FILENAME, PIXELSET_EXPORT_PIXELS_FILENAME,
+    export_pixelsets
+)
 
 
 class ExportPixelsSetTestCase(CoreFixturesTestCase):
 
     def _assert_archive_is_valid(self, zip_archive):
-        assert len(zip_archive.namelist()) == 2
-        assert 'meta.yaml' in zip_archive.namelist()
-        assert 'pixels.csv' in zip_archive.namelist()
 
-    def test_export_no_pixels(self):
+        assert len(zip_archive.namelist()) == 2
+        assert PIXELSET_EXPORT_META_FILENAME in zip_archive.namelist()
+        assert PIXELSET_EXPORT_PIXELS_FILENAME in zip_archive.namelist()
+
+    def test_export_pixels_without_pixelsets(self):
+
         zip_archive = export_pixelsets(PixelSet.objects.none())
         self._assert_archive_is_valid(zip_archive)
 
-        with zip_archive.open('meta.yaml') as meta_file:
+        with zip_archive.open(PIXELSET_EXPORT_META_FILENAME) as meta_file:
             meta_yaml = yaml.load(meta_file)
 
             assert len(meta_yaml['pixelsets']) == 0
 
-        with zip_archive.open('pixels.csv') as pixels_file:
+        with zip_archive.open(PIXELSET_EXPORT_PIXELS_FILENAME) as pixels_file:
             pixels_csv = pandas.read_csv(pixels_file).to_dict()
 
             # Only the 'Omics Unit' column is present
             assert len(pixels_csv) == 1
 
-    def test_export_pixels_without_analyses(self):
+    def test_export_pixels_without_pixels(self):
+
         pixel_sets = factories.PixelSetFactory.create_batch(1)
 
         zip_archive = export_pixelsets(pixel_sets)
         self._assert_archive_is_valid(zip_archive)
 
-        with zip_archive.open('meta.yaml') as meta_file:
+        with zip_archive.open(PIXELSET_EXPORT_META_FILENAME) as meta_file:
             meta_yaml = yaml.load(meta_file)
 
             assert len(meta_yaml['pixelsets']) == 1
 
-        with zip_archive.open('pixels.csv') as pixels_file:
+        with zip_archive.open(PIXELSET_EXPORT_PIXELS_FILENAME) as pixels_file:
             pixels_csv = pandas.read_csv(pixels_file).to_dict()
 
             # 'Omics Unit' column + 2 columns per pixel set
-            assert len(pixels_csv) == 2 * len(pixel_sets) + 1
+            assert len(pixels_csv) == (2 * len(pixel_sets)) + 1
 
     def test_export_pixels(self):
+
         pixel_sets = factories.PixelSetFactory.create_batch(1)
         for pixel_set in pixel_sets:
             factories.PixelFactory.create_batch(3, pixel_set=pixel_set)
@@ -54,7 +62,7 @@ class ExportPixelsSetTestCase(CoreFixturesTestCase):
         zip_archive = export_pixelsets(pixel_sets)
         self._assert_archive_is_valid(zip_archive)
 
-        with zip_archive.open('meta.yaml') as meta_file:
+        with zip_archive.open(PIXELSET_EXPORT_META_FILENAME) as meta_file:
             meta_yaml = yaml.load(meta_file)
 
             assert len(meta_yaml['pixelsets']) == 1
@@ -66,13 +74,14 @@ class ExportPixelsSetTestCase(CoreFixturesTestCase):
             # columns are 0-based numbered
             assert meta_yaml['pixelsets'][0]['columns'] == [1, 2]
 
-        with zip_archive.open('pixels.csv') as pixels_file:
+        with zip_archive.open(PIXELSET_EXPORT_PIXELS_FILENAME) as pixels_file:
             pixels_csv = pandas.read_csv(pixels_file).to_dict()
 
             # 'Omics Unit' column + 2 columns per pixel set
             assert len(pixels_csv) == 2 * len(pixel_sets) + 1
 
     def test_export_pixels_merge_ensures_unique_omics_unit_rows(self):
+
         pixel_sets = factories.PixelSetFactory.create_batch(1)
         for pixel_set in pixel_sets:
             factories.PixelFactory.create_batch(3, pixel_set=pixel_set)
@@ -80,18 +89,19 @@ class ExportPixelsSetTestCase(CoreFixturesTestCase):
         zip_archive = export_pixelsets([*list(pixel_sets), *list(pixel_sets)])
         self._assert_archive_is_valid(zip_archive)
 
-        with zip_archive.open('meta.yaml') as meta_file:
+        with zip_archive.open(PIXELSET_EXPORT_META_FILENAME) as meta_file:
             meta_yaml = yaml.load(meta_file)
 
             assert len(meta_yaml['pixelsets']) == 1
 
-        with zip_archive.open('pixels.csv') as pixels_file:
+        with zip_archive.open(PIXELSET_EXPORT_PIXELS_FILENAME) as pixels_file:
             pixels_csv = pandas.read_csv(pixels_file).to_dict()
 
             # 'Omics Unit' column + 2 columns per pixel set
             assert len(pixels_csv) == 2 * len(pixel_sets) + 1
 
     def test_export_pixels_merge_multiple_sets(self):
+
         pixel_sets = factories.PixelSetFactory.create_batch(3)
         pixels = factories.PixelFactory.create_batch(3)
 
@@ -103,7 +113,7 @@ class ExportPixelsSetTestCase(CoreFixturesTestCase):
         zip_archive = export_pixelsets(list(pixel_sets))
         self._assert_archive_is_valid(zip_archive)
 
-        with zip_archive.open('meta.yaml') as meta_file:
+        with zip_archive.open(PIXELSET_EXPORT_META_FILENAME) as meta_file:
             meta_yaml = yaml.load(meta_file)
 
             assert len(meta_yaml['pixelsets']) == 3
@@ -119,7 +129,7 @@ class ExportPixelsSetTestCase(CoreFixturesTestCase):
             assert meta_yaml['pixelsets'][1]['columns'] == [3, 4]
             assert meta_yaml['pixelsets'][2]['columns'] == [5, 6]
 
-        with zip_archive.open('pixels.csv') as pixels_file:
+        with zip_archive.open(PIXELSET_EXPORT_PIXELS_FILENAME) as pixels_file:
             pixels_csv = pandas.read_csv(pixels_file).to_dict()
 
             # 'Omics Unit' column + 2 columns per pixel set

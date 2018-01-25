@@ -6,7 +6,29 @@ import zipfile
 from io import BytesIO, StringIO
 
 
+PIXELSET_EXPORT_META_FILENAME = 'meta.yaml'
+PIXELSET_EXPORT_PIXELS_FILENAME = 'pixels.csv'
+
+
 def export_pixelsets(pixel_sets):
+    """This function exports a list of PixelSet objects as a ZIP archive.
+
+    The (in-memory) ZIP archive contains a `meta.yaml` file and a `pixels.csv`
+    file according to this spec: https://github.com/Candihub/pixel/issues/144.
+
+    Parameters
+    ----------
+    pixel_sets : iterable
+        A sequence, an iterator, or some other object which supports iteration,
+        containing PixelSet objects.
+
+    Returns
+    -------
+    zipfile.ZipFile
+        A ZipFile archive.
+
+    """
+
     pixelsets_meta = {}
 
     omics_unit_col = 'Omics Unit'
@@ -19,7 +41,7 @@ def export_pixelsets(pixel_sets):
         pixelsets_meta[pixel_set_id] = {
             'pixelset': pixel_set_id,
             'description': pixel_set.description,
-            'columns': [index * 2 + 1, index * 2 + 2],
+            'columns': [(index * 2) + 1, (index * 2) + 2],
         }
 
         value_col = f'Value {pixel_set_id}'
@@ -51,7 +73,7 @@ def export_pixelsets(pixel_sets):
 
     # add `meta.yaml` file
     archive.writestr(
-        'meta.yaml',
+        PIXELSET_EXPORT_META_FILENAME,
         yaml.dump({'pixelsets': list(pixelsets_meta.values())})
     )
 
@@ -59,11 +81,10 @@ def export_pixelsets(pixel_sets):
     df.to_csv(
         path_or_buf=csv,
         na_rep='NA',
-        float_format='%.2f',
         index=False,
     )
 
     # add `pixels.csv` file
-    archive.writestr('pixels.csv', csv.getvalue())
+    archive.writestr(PIXELSET_EXPORT_PIXELS_FILENAME, csv.getvalue())
 
     return archive
