@@ -41,6 +41,19 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
         )
         self.assertContains(response, expected, html=True)
 
+    def test_does_not_render_export_button_when_no_pixelsets(self):
+
+        response = self.client.get(self.url)
+
+        expected = (
+            '<button type="submit" class="button">',
+            '<i class="fa fa-download" aria-hidden="true"></i>'
+            'Download an archive (.zip) with the selected Pixel sets',
+            '</button>'
+        )
+
+        self.assertNotContains(response, expected, html=True)
+
     def test_renders_pixelset_list(self):
 
         make_development_fixtures(n_pixel_sets=12)
@@ -50,6 +63,10 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
             response,
             '<tr class="pixelset">',
             count=10
+        )
+        self.assertContains(
+            response,
+            '<button type="submit" class="button button-export">',
         )
 
     def test_species_filter(self):

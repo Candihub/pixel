@@ -123,12 +123,14 @@
       </table>
     </div>
 
+    {% if pixelset_list %}
     <div class="actions">
       <button type="submit" class="button">
         <i class="fa fa-download" aria-hidden="true"></i>
         {% trans "Download an archive (.zip) with the selected Pixel sets" %}
       </button>
     </div>
+    {% endif %}
   </form>
 
   {% include "foundation/pagination.html" %}
