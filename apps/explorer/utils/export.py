@@ -91,3 +91,38 @@ def export_pixelsets(pixel_sets):
     archive.close()
 
     return stream
+
+
+def export_pixels(pixel_set, output=StringIO()):
+    """This function exports the Pixels of a given PixelSet as a CSV file.
+
+    Parameters
+    ----------
+    pixel_set : apps.core.models.PixelSet
+        A PixelSet object.
+    output : String or File handler, optional
+        A string or file handler to write the CSV content.
+
+    Returns
+    -------
+    io.StringIO
+        A String I/O containing the CSV file if `output` is not specified,
+        `output` otherwise.
+
+    """
+
+    data = list(
+        pixel_set.pixels.select_related('omics_unit__reference').all()
+        .values_list('omics_unit__reference__identifier', 'value',
+                     'quality_score')
+    )
+
+    df = pandas.DataFrame(data, columns=['Omics Unit', 'Value', 'QS'])
+
+    df.to_csv(
+        path_or_buf=output,
+        na_rep='NA',
+        index=False,
+    )
+
+    return output

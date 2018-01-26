@@ -149,7 +149,11 @@
     $rows = document.querySelectorAll('.pixelset');
 
     $rows.forEach(function ($row) {
-      $row.addEventListener('click', function () {
+      $row.addEventListener('click', function (e) {
+        if (e.target.nodeName !== 'TD') {
+          return;
+        }
+
         var $checkbox = this.querySelector('input[type="checkbox"]');
         $checkbox.checked = !$checkbox.checked;
       });
