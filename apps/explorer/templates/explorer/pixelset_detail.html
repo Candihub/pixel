@@ -2,6 +2,7 @@
 
 {% load i18n %}
 {% load files %}
+{% load spurl %}
 
 {% block title %}{% trans "Pixel set" %} {{ pixelset.id }}{% endblock %}
 {% block body_class %}{{ block.super }} explorer pixelset detail{% endblock %}
@@ -101,12 +102,17 @@
             <th>{% trans "Tags" %}</th>
             <td class="tags">
               <!-- Tags -->
+              {% url 'explorer:pixelset_list' as pixelset_list_base_url %}
               {% for tag in pixelset.analysis.tags.all %}
-                <span class="tag analysis">{{ tag }}</span>
+                <a href="{% spurl base=pixelset_list_base_url set_query="tags={{ tag.id }}" %}">
+                  <span class="tag analysis">{{ tag }}</span>
+                </a>
               {% endfor %}
               {% for experiment in pixelset.analysis.experiments.all %}
                 {% for tag in experiment.tags.all %}
-                  <span class="tag experiment">{{ tag }}</span>
+                  <a href="{% spurl base=pixelset_list_base_url set_query="tags={{ tag.id }}" %}">
+                    <span class="tag experiment">{{ tag }}</span>
+                  </a>
                 {% endfor %}
               {% endfor %}
             </td>
