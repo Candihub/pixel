@@ -10,6 +10,7 @@
 
 $global-flexbox: true;
 
+@include foundation-badge;
 @include foundation-button;
 @include foundation-callout;
 @include foundation-forms;

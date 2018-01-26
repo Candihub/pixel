@@ -1,7 +1,36 @@
 .explorer {
 
+  /* layout */
+  &.pixelsets {
+    aside.sidebar-left {
+      @include xy-cell($size: 2.5, $gutter-output: false);
+    }
+
+    main.content {
+      @include xy-cell($size: 9.5, $gutter-position: 'left');
+    }
+  }
+
+  &.pixelset {
+    main.content {
+      @include xy-cell($size: 12, $gutter-output: false);
+
+      .pixelset-overview {
+        @include xy-grid($wrap: false);
+
+        .meta {
+          @include xy-cell($size: 6, $gutter-output: false);
+        }
+
+        .selection {
+          @include xy-cell($size: 6, $gutter-position: 'left');
+        }
+      }
+    }
+  }
+
+  /* pixelset list */
   aside.sidebar-left {
-    @include xy-cell($size: 2.5, $gutter-output: false);
 
     .filters {
 
@@ -37,45 +66,68 @@
     }
   }
 
-  main.content {
-    @include xy-cell($size: 9.5, $gutter-position: 'left');
+  .pixelsets-wrapper {
+    @include table-scroll;
+  }
 
-    .pixelsets-wrapper {
-      @include table-scroll;
+  table {
+    @include table;
+    @include table-hover;
+
+    .pixelset {
+      cursor: pointer;
     }
 
-    table.pixelsets {
-      @include table;
-      @include table-hover;
+    td {
+      vertical-align: top;
+    }
 
-      width: 200%;
+    .filename {
+      font-family: $font-family-monospace;
+    }
 
-      .pixelset {
-        cursor: pointer;
-      }
+    .analysis,
+    .experiments {
+      font-size: 0.8rem;
+    }
 
-      td {
-        vertical-align: top;
-      }
+    span.species {
+      font-style: italic;
+    }
+  }
 
-      .filename {
-        font-family: $font-family-monospace;
-      }
+  .actions {
+    margin-bottom: 10px;
+    padding: 20px 20px 5px;
+    text-align: center;
+  }
 
-      .analysis,
-      .experiments {
-        font-size: 0.8rem;
-      }
+  table.pixelsets {
+    width: 200%;
+  }
 
-      span.species {
-        font-style: italic;
+  /* pixel set detail */
+  .pixelset-overview {
+
+    .meta {
+      table {
+        th {
+          text-align: left;
+        }
       }
     }
 
-    .actions {
-      margin-bottom: 10px;
-      padding: 20px 20px 5px;
-      text-align: center;
+    .selection {
+      p.help-text {
+        margin-top: 0.4rem;
+      }
+    }
+  }
+
+  table.pixels {
+    .value,
+    .quality-score {
+      font-family: $font-family-monospace;
     }
   }
 }

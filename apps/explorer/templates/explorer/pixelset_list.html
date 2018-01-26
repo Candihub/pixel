@@ -64,7 +64,12 @@
             </td>
             <td class="filename">
               <!-- Pixel set file name -->
-              {{ pixelset.pixels_file.name|filename }}
+              <a
+                href="{{ pixelset.get_absolute_url }}"
+                title="{% trans "Click for details about this pixel set" %}"
+              >
+                {{ pixelset.pixels_file.name|filename }}
+              </a>
             </td>
             <td class="species">
               <!-- Species-->
