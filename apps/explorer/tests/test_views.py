@@ -565,9 +565,7 @@ class PixelSetExportViewTestCase(CoreFixturesTestCase):
             self.assertEqual(
                 response['Content-Disposition'],
                 'attachment; filename={}'.format(
-                    PixelSetExportView.ATTACHEMENT_FILENAME.format(
-                        date_time=fake_dt.strftime('%Y%m%d_%Hh%Mm%Ss')
-                    )
+                    PixelSetExportView.get_export_archive_filename()
                 )
             )
 

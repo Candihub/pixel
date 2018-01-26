@@ -101,8 +101,9 @@ class PixelSetExportView(LoginRequiredMixin, FormView):
 
     form_class = PixelSetExportForm
 
-    def _get_export_archive_filename(self):
-        return self.ATTACHEMENT_FILENAME.format(
+    @staticmethod
+    def get_export_archive_filename():
+        return PixelSetExportView.ATTACHEMENT_FILENAME.format(
             date_time=timezone.now().strftime('%Y%m%d_%Hh%Mm%Ss')
         )
 
@@ -112,7 +113,7 @@ class PixelSetExportView(LoginRequiredMixin, FormView):
 
         response = HttpResponse(content, content_type='application/zip')
         response['Content-Disposition'] = 'attachment; filename={}'.format(
-            self._get_export_archive_filename()
+            self.get_export_archive_filename()
         )
         return response
 
