@@ -1,15 +1,20 @@
+import re
+
 from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls.base import reverse
 from django.utils import timezone
+from django.utils.translation import ugettext as _
 from django.views.generic import DetailView, FormView, ListView
+from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import FormMixin
 
 from apps.core.models import PixelSet
-from .forms import PixelSetFiltersForm, PixelSetExportForm
-from .utils import export_pixelsets
+from .forms import (PixelSetFiltersForm, PixelSetExportForm,
+                    PixelSetExportPixelsForm)
+from .utils import export_pixelsets, export_pixels
 
 
 class PixelSetListView(LoginRequiredMixin, FormMixin, ListView):
@@ -150,5 +155,38 @@ class PixelSetDetailView(LoginRequiredMixin, DetailView):
         context.update({
             'pixels': pixels,
             'pixels_limit': self.pixels_limit,
+            'export_form': PixelSetExportPixelsForm(),
         })
         return context
+
+
+class PixelSetExportPixelsView(LoginRequiredMixin, SingleObjectMixin,
+                               FormView):
+
+    form_class = PixelSetExportPixelsForm
+    model = PixelSet
+
+    def form_valid(self, form):
+
+        omics_units = set([omics_unit.strip() for omics_unit in re.split(
+            '\s*,\s*|\s+|\n', form.cleaned_data['omics_units'])])
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename=pixels.csv'
+
+        export_pixels(
+            self.get_object(),
+            omics_units=omics_units,
+            output=response
+        )
+
+        return response
+
+    def form_invalid(self, form):
+
+        messages.error(self.request, _('You must select a subset of pixels.'))
+
+        return HttpResponseRedirect(reverse(
+            'explorer:pixelset_detail',
+            kwargs={'pk': self.kwargs['pk']}
+        ))

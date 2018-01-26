@@ -131,7 +131,11 @@
         {% endblocktrans %}
       </p>
 
-      <form action="" method="post" id="pixel-selection-form">
+      <div class="form-error">
+        {{ export_form.non_field_errors }}
+      </div>
+
+      <form action="{{ pixelset.get_export_pixels_url }}" method="post" id="pixel-selection-form">
         {% csrf_token %}
 
         <label>
@@ -149,9 +153,7 @@
         </p>
         <button
           type="submit"
-          name="select"
           class="button"
-          disabled
         >
           {% trans "Select" %}
         </button>

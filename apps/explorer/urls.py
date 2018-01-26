@@ -26,4 +26,9 @@ urlpatterns = [
         views.PixelSetExportView.as_view(),
         name='pixelset_export'
     ),
+    url(
+        r'^pixelset/(?P<pk>{})/export$'.format(UUID_REGEX),
+        views.PixelSetExportPixelsView.as_view(),
+        name='pixelset_export_pixels'
+    ),
 ]
