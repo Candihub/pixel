@@ -4,6 +4,7 @@ import mptt
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 from django.db import models
+from django.urls import reverse
 from django.utils.translation import ugettext as _
 from mptt.fields import TreeForeignKey
 from mptt.models import MPTTModel
@@ -239,6 +240,12 @@ class PixelSet(UUIDModelMixin, models.Model):
         ordering = ('analysis', 'pixels_file')
         verbose_name = _("Pixel set")
         verbose_name_plural = _("Pixel sets")
+
+    def get_absolute_url(self):
+        return reverse(
+            'explorer:pixelset_detail',
+            kwargs={'pk': str(self.id)}
+        )
 
     def get_omics_areas(self):
         return set(self.analysis.experiments.values_list(
