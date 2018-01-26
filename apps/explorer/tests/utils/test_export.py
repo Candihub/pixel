@@ -1,6 +1,7 @@
 import pandas
 import pytest
 import yaml
+import zipfile
 
 from apps.core import factories
 from apps.core.models import PixelSet
@@ -14,6 +15,11 @@ from ...utils import (
 
 class ExportPixelSetsTestCase(CoreFixturesTestCase):
 
+    def _export_pixelsets(self, pixel_sets):
+
+        stream = export_pixelsets(pixel_sets)
+        return zipfile.ZipFile(stream, mode='r')
+
     def _assert_archive_is_valid(self, zip_archive):
 
         assert len(zip_archive.namelist()) == 2
@@ -22,7 +28,7 @@ class ExportPixelSetsTestCase(CoreFixturesTestCase):
 
     def test_export_without_pixelsets(self):
 
-        zip_archive = export_pixelsets(PixelSet.objects.none())
+        zip_archive = self._export_pixelsets(PixelSet.objects.none())
         self._assert_archive_is_valid(zip_archive)
 
         with zip_archive.open(PIXELSET_EXPORT_META_FILENAME) as meta_file:
@@ -40,7 +46,7 @@ class ExportPixelSetsTestCase(CoreFixturesTestCase):
 
         pixel_sets = factories.PixelSetFactory.create_batch(1)
 
-        zip_archive = export_pixelsets(pixel_sets)
+        zip_archive = self._export_pixelsets(pixel_sets)
         self._assert_archive_is_valid(zip_archive)
 
         with zip_archive.open(PIXELSET_EXPORT_META_FILENAME) as meta_file:
@@ -60,7 +66,7 @@ class ExportPixelSetsTestCase(CoreFixturesTestCase):
         for pixel_set in pixel_sets:
             factories.PixelFactory.create_batch(3, pixel_set=pixel_set)
 
-        zip_archive = export_pixelsets(pixel_sets)
+        zip_archive = self._export_pixelsets(pixel_sets)
         self._assert_archive_is_valid(zip_archive)
 
         with zip_archive.open(PIXELSET_EXPORT_META_FILENAME) as meta_file:
@@ -87,7 +93,9 @@ class ExportPixelSetsTestCase(CoreFixturesTestCase):
         for pixel_set in pixel_sets:
             factories.PixelFactory.create_batch(3, pixel_set=pixel_set)
 
-        zip_archive = export_pixelsets([*list(pixel_sets), *list(pixel_sets)])
+        zip_archive = self._export_pixelsets(
+            [*list(pixel_sets), *list(pixel_sets)]
+        )
         self._assert_archive_is_valid(zip_archive)
 
         with zip_archive.open(PIXELSET_EXPORT_META_FILENAME) as meta_file:
@@ -109,7 +117,7 @@ class ExportPixelSetsTestCase(CoreFixturesTestCase):
         # we add pixels on the same set
         pixel_sets[0].pixels.add(*pixels)
 
-        zip_archive = export_pixelsets(list(pixel_sets))
+        zip_archive = self._export_pixelsets(list(pixel_sets))
         self._assert_archive_is_valid(zip_archive)
 
         with zip_archive.open(PIXELSET_EXPORT_META_FILENAME) as meta_file:

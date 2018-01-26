@@ -48,3 +48,14 @@ class PixelSetFiltersForm(forms.Form):
         ),
         required=False,
     )
+
+
+class PixelSetExportForm(forms.Form):
+
+    pixel_sets = forms.ModelMultipleChoiceField(
+        queryset=models.PixelSet.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        error_messages={
+            'required': _('You must select at least one Pixel Set.'),
+        },
+    )

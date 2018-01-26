@@ -1,4 +1,10 @@
+import datetime
+
 from django.core.urlresolvers import reverse
+from django.utils import timezone
+from io import BytesIO
+from unittest.mock import patch
+from zipfile import ZipFile
 
 from apps.core import factories, models
 from apps.core.templatetags.files import filename
@@ -6,6 +12,7 @@ from apps.core.tests import CoreFixturesTestCase
 from apps.core.management.commands.make_development_fixtures import (
     make_development_fixtures
 )
+from apps.explorer.views import PixelSetExportView
 
 
 class PixelSetListViewTestCase(CoreFixturesTestCase):
@@ -41,6 +48,19 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
         )
         self.assertContains(response, expected, html=True)
 
+    def test_does_not_render_export_button_when_no_pixelsets(self):
+
+        response = self.client.get(self.url)
+
+        expected = (
+            '<button type="submit" class="button">',
+            '<i class="fa fa-download" aria-hidden="true"></i>'
+            'Download an archive (.zip) with the selected Pixel sets',
+            '</button>'
+        )
+
+        self.assertNotContains(response, expected, html=True)
+
     def test_renders_pixelset_list(self):
 
         make_development_fixtures(n_pixel_sets=12)
@@ -50,6 +70,10 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
             response,
             '<tr class="pixelset">',
             count=10
+        )
+        self.assertContains(
+            response,
+            '<button type="submit" class="button">',
         )
 
     def test_species_filter(self):
@@ -481,3 +505,72 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
             count=1,
             html=True,
         )
+
+
+class PixelSetExportViewTestCase(CoreFixturesTestCase):
+
+    def setUp(self):
+
+        self.user = factories.PixelerFactory(
+            is_active=True,
+            is_staff=True,
+            is_superuser=True,
+        )
+        self.client.login(
+            username=self.user.username,
+            password=factories.PIXELER_PASSWORD,
+        )
+        self.url = reverse('explorer:pixelset_export')
+
+    def test_redirects_to_list_view_when_invalid(self):
+
+        response = self.client.post(self.url)
+
+        self.assertRedirects(response, reverse('explorer:pixelset_list'))
+
+    def test_redirects_to_previous_url_if_provided_when_invalid(self):
+
+        redirect_to = '/?q=123'
+        response = self.client.post(self.url, {'redirect_to': redirect_to})
+
+        self.assertRedirects(response, redirect_to)
+
+    def test_displays_message_after_redirect_when_invalid(self):
+
+        response = self.client.post(self.url, follow=True)
+
+        self.assertContains(
+            response,
+            (
+                '<div class="message error">'
+                'You must select at least one Pixel Set.'
+                '</div>'
+            ),
+            html=True
+        )
+
+    def test_returns_zip_file(self):
+
+        fake_dt = timezone.make_aware(datetime.datetime(2018, 1, 12, 11, 00))
+
+        with patch.object(timezone, 'now', return_value=fake_dt):
+            pixel_sets = factories.PixelSetFactory.create_batch(1)
+
+            response = self.client.post(self.url, {
+                'pixel_sets': [pixel_sets[0].id]
+            })
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response['Content-Type'], 'application/zip')
+            self.assertEqual(
+                response['Content-Disposition'],
+                'attachment; filename={}'.format(
+                    PixelSetExportView.get_export_archive_filename()
+                )
+            )
+
+            try:
+                zip = ZipFile(BytesIO(response.content), 'r')
+                self.assertIsNone(zip.testzip())
+            finally:
+                zip.close()

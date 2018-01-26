@@ -1,10 +1,15 @@
 from django.db.models import Q
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import ListView
+from django.http import HttpResponse, HttpResponseRedirect
+from django.urls.base import reverse
+from django.utils import timezone
+from django.views.generic import ListView, FormView
 from django.views.generic.edit import FormMixin
 
 from apps.core.models import PixelSet
-from .forms import PixelSetFiltersForm
+from .forms import PixelSetFiltersForm, PixelSetExportForm
+from .utils import export_pixelsets
 
 
 class PixelSetListView(LoginRequiredMixin, FormMixin, ListView):
@@ -81,3 +86,48 @@ class PixelSetListView(LoginRequiredMixin, FormMixin, ListView):
         )
 
         return qs.distinct()
+
+    def get_context_data(self, **kwargs):
+
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'export_form': PixelSetExportForm(),
+        })
+        return context
+
+
+class PixelSetExportView(LoginRequiredMixin, FormView):
+    ATTACHEMENT_FILENAME = 'pixelsets_{date_time}.zip'
+
+    form_class = PixelSetExportForm
+
+    @staticmethod
+    def get_export_archive_filename():
+        return PixelSetExportView.ATTACHEMENT_FILENAME.format(
+            date_time=timezone.now().strftime('%Y%m%d_%Hh%Mm%Ss')
+        )
+
+    def form_valid(self, form):
+
+        content = export_pixelsets(form.cleaned_data['pixel_sets']).getvalue()
+
+        response = HttpResponse(content, content_type='application/zip')
+        response['Content-Disposition'] = 'attachment; filename={}'.format(
+            self.get_export_archive_filename()
+        )
+        return response
+
+    def form_invalid(self, form):
+
+        messages.error(
+            self.request,
+            "\n".join([
+                errors[0].message for errors in form.errors.as_data().values()
+            ])
+        )
+
+        redirect_to = self.request.POST.get(
+            'redirect_to',
+            reverse('explorer:pixelset_list')
+        )
+        return HttpResponseRedirect(redirect_to)
