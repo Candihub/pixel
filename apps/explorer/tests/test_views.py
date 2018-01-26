@@ -1,5 +1,9 @@
+import datetime
+
 from django.core.urlresolvers import reverse
+from django.utils import timezone
 from io import BytesIO
+from unittest.mock import patch
 from zipfile import ZipFile
 
 from apps.core import factories, models
@@ -547,22 +551,28 @@ class PixelSetExportViewTestCase(CoreFixturesTestCase):
 
     def test_returns_zip_file(self):
 
-        pixel_sets = factories.PixelSetFactory.create_batch(1)
-        response = self.client.post(self.url, {
-            'pixel_sets': [pixel_sets[0].id]
-        })
+        fake_dt = timezone.make_aware(datetime.datetime(2018, 1, 12, 11, 00))
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response['Content-Type'], 'application/zip')
-        self.assertEqual(
-            response['Content-Disposition'],
-            'attachment; filename={}'.format(
-                PixelSetExportView.ATTACHEMENT_FILENAME
+        with patch.object(timezone, 'now', return_value=fake_dt):
+            pixel_sets = factories.PixelSetFactory.create_batch(1)
+
+            response = self.client.post(self.url, {
+                'pixel_sets': [pixel_sets[0].id]
+            })
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response['Content-Type'], 'application/zip')
+            self.assertEqual(
+                response['Content-Disposition'],
+                'attachment; filename={}'.format(
+                    PixelSetExportView.ATTACHEMENT_FILENAME.format(
+                        date_time=fake_dt.strftime('%Y%m%d_%Hh%Mm%Ss')
+                    )
+                )
             )
-        )
 
-        try:
-            zip = ZipFile(BytesIO(response.content), 'r')
-            self.assertIsNone(zip.testzip())
-        finally:
-            zip.close()
+            try:
+                zip = ZipFile(BytesIO(response.content), 'r')
+                self.assertIsNone(zip.testzip())
+            finally:
+                zip.close()

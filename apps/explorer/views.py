@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls.base import reverse
+from django.utils import timezone
 from django.views.generic import ListView, FormView
 from django.views.generic.edit import FormMixin
 
@@ -96,17 +97,22 @@ class PixelSetListView(LoginRequiredMixin, FormMixin, ListView):
 
 
 class PixelSetExportView(LoginRequiredMixin, FormView):
-    ATTACHEMENT_FILENAME = 'pixelsets.zip'
+    ATTACHEMENT_FILENAME = 'pixelsets_{date_time}.zip'
 
     form_class = PixelSetExportForm
 
+    def _get_export_archive_filename(self):
+        return self.ATTACHEMENT_FILENAME.format(
+            date_time=timezone.now().strftime('%Y%m%d_%Hh%Mm%Ss')
+        )
+
     def form_valid(self, form):
 
-        zip = export_pixelsets(form.cleaned_data['pixel_sets'])
+        content = export_pixelsets(form.cleaned_data['pixel_sets']).getvalue()
 
-        response = HttpResponse(zip.getvalue(), content_type='application/zip')
+        response = HttpResponse(content, content_type='application/zip')
         response['Content-Disposition'] = 'attachment; filename={}'.format(
-            self.ATTACHEMENT_FILENAME
+            self._get_export_archive_filename()
         )
         return response
 
