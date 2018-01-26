@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls.base import reverse
 from django.utils import timezone
-from django.views.generic import ListView, FormView
+from django.views.generic import DetailView, FormView, ListView
 from django.views.generic.edit import FormMixin
 
 from apps.core.models import PixelSet
@@ -131,3 +131,9 @@ class PixelSetExportView(LoginRequiredMixin, FormView):
             reverse('explorer:pixelset_list')
         )
         return HttpResponseRedirect(redirect_to)
+
+
+class PixelSetDetailView(LoginRequiredMixin, DetailView):
+
+    model = PixelSet
+    template_name = 'explorer/pixelset_detail.html'
