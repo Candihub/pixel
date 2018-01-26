@@ -423,6 +423,7 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
                 '>'
                 '<!-- Pixel set file name -->'
                 f'{filename(pixel_set.pixels_file.name)}'
+                '</a>'
                 '</td>'
             ),
             count=1,
@@ -495,6 +496,7 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
                 '>'
                 '<!-- Pixel set file name -->'
                 f'{filename(first_pixel_set.pixels_file.name)}'
+                '</a>'
                 '</td>'
             ),
             count=1,
@@ -510,6 +512,7 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
                 '>'
                 '<!-- Pixel set file name -->'
                 f'{filename(second_pixel_set.pixels_file.name)}'
+                '</a>'
                 '</td>'
             ),
             count=1,
