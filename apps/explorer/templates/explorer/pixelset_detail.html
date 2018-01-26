@@ -132,6 +132,7 @@
           Omics units
           <textarea
             name="omics_units"
+            rows="15"
             placeholder="CAGL0F02695g, CAGL0D06336g, CAGL0G06666g"
           ></textarea>
         </label>
@@ -140,7 +141,14 @@
             Type omics units separated by a coma, a carriage return or a space
           {% endblocktrans %}
         </p>
-        <button type="submit" name="select" class="button">{% trans "Select" %}</button>
+        <button
+          type="submit"
+          name="select"
+          class="button"
+          disabled
+        >
+          {% trans "Select" %}
+        </button>
       </form>
 
       <hr>
@@ -165,6 +173,13 @@
       </span>
     </h4>
 
+    <div class="callout secondary">
+      {% blocktrans %}
+        The following table is an overview of pixels from the pixel set. Only
+        the first <strong>{{ pixels_limit }}</strong> are showned.
+      {% endblocktrans %}
+    </div>
+
     <table class="pixels">
       <thead>
         <tr>
@@ -174,7 +189,7 @@
         </tr>
       </thead>
       <tbody>
-        {% for pixel in pixelset.pixels.all %}
+        {% for pixel in pixels %}
           <tr class="pixel">
             <td class="omics-unit">
               <a
