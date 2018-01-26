@@ -9,7 +9,7 @@ from apps.core.tests import CoreFixturesTestCase
 
 from ...utils import (
     PIXELSET_EXPORT_META_FILENAME, PIXELSET_EXPORT_PIXELS_FILENAME,
-    export_pixelsets
+    export_pixelsets, export_pixels,
 )
 
 
@@ -185,3 +185,43 @@ class ExportPixelSetsTestCase(CoreFixturesTestCase):
                 assert pixels_csv[col_1][row] == pytest.approx(pixel.value)
                 assert (pixels_csv[col_2][row] ==
                         pytest.approx(pixel.quality_score))
+
+
+class ExportPixelsTestCase(CoreFixturesTestCase):
+
+    def _export_pixels(self, pixel_set):
+
+        csv = export_pixels(pixel_set)
+        csv.seek(0)
+        return pandas.read_csv(csv).to_dict()
+
+    def test_export_empty_pixelset(self):
+
+        pixel_set = factories.PixelSetFactory.create()
+
+        pixels_csv = self._export_pixels(pixel_set)
+
+        assert len(pixels_csv) == 3
+
+        assert 'Omics Unit' in pixels_csv
+        assert 'Value' in pixels_csv
+        assert 'QS' in pixels_csv
+
+    def test_export_pixels(self):
+
+        pixel_set = factories.PixelSetFactory.create()
+        pixels = factories.PixelFactory.create_batch(3, pixel_set=pixel_set)
+
+        pixels_csv = self._export_pixels(pixel_set)
+
+        assert len(pixels_csv) == 3
+
+        print(pixels_csv)
+        for pixel in pixels:
+            # pixels are not ordered in the pixel set, so we have to find
+            # the corresponding row index for each pixel.
+            row = [index for index, value in pixels_csv['Omics Unit'].items()
+                   if value == pixel.omics_unit.reference.identifier][0]
+
+            assert pixels_csv['Value'][row] == str(pixel.value)
+            assert pixels_csv['QS'][row] == str(pixel.quality_score)
