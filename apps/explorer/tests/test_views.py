@@ -417,11 +417,13 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
             response,
             (
                 '<td class="filename">'
+                '<a'
+                f'  href="{pixel_set.get_absolute_url()}"'
+                '  title="Click for details about this pixel set"'
+                '>'
                 '<!-- Pixel set file name -->'
-                '{}'
+                f'{filename(pixel_set.pixels_file.name)}'
                 '</td>'
-            ).format(
-                filename(pixel_set.pixels_file.name)
             ),
             count=1,
             html=True,
@@ -487,6 +489,10 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
             response,
             (
                 '<td class="filename">'
+                '<a'
+                f'  href="{first_pixel_set.get_absolute_url()}"'
+                '  title="Click for details about this pixel set"'
+                '>'
                 '<!-- Pixel set file name -->'
                 f'{filename(first_pixel_set.pixels_file.name)}'
                 '</td>'
@@ -498,6 +504,10 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
             response,
             (
                 '<td class="filename">'
+                '<a'
+                f'  href="{second_pixel_set.get_absolute_url()}"'
+                '  title="Click for details about this pixel set"'
+                '>'
                 '<!-- Pixel set file name -->'
                 f'{filename(second_pixel_set.pixels_file.name)}'
                 '</td>'
