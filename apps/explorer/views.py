@@ -137,18 +137,18 @@ class PixelSetDetailView(LoginRequiredMixin, DetailView):
 
     model = PixelSet
     template_name = 'explorer/pixelset_detail.html'
+    pixels_limit = 100
 
     def get_context_data(self, **kwargs):
 
         context = super().get_context_data(**kwargs)
 
-        pixels_limit = 100
         pixels = self.object.pixels.prefetch_related(
             'omics_unit__reference'
-        )[:pixels_limit]
+        )[:self.pixels_limit]
 
         context.update({
             'pixels': pixels,
-            'pixels_limit': pixels_limit,
+            'pixels_limit': self.pixels_limit,
         })
         return context
