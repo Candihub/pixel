@@ -12,7 +12,7 @@ from apps.core.tests import CoreFixturesTestCase
 from apps.core.management.commands.make_development_fixtures import (
     make_development_fixtures
 )
-from apps.explorer.views import PixelSetExportView
+from apps.explorer.views import PixelSetDetailView, PixelSetExportView
 
 
 class PixelSetListViewTestCase(CoreFixturesTestCase):
@@ -587,3 +587,60 @@ class PixelSetExportViewTestCase(CoreFixturesTestCase):
                 self.assertIsNone(zip.testzip())
             finally:
                 zip.close()
+
+
+class PixelSetDetailViewTestCase(CoreFixturesTestCase):
+
+    def setUp(self):
+
+        self.user = factories.PixelerFactory(
+            is_active=True,
+            is_staff=True,
+            is_superuser=True,
+        )
+        self.client.login(
+            username=self.user.username,
+            password=factories.PIXELER_PASSWORD,
+        )
+
+        self.pixel_set = factories.PixelSetFactory()
+        self.pixel_set.analysis.experiments.add(
+            factories.ExperimentFactory()
+        )
+        self.n_pixels = 20
+        factories.PixelFactory.create_batch(
+            self.n_pixels,
+            pixel_set=self.pixel_set
+        )
+
+        self.url = self.pixel_set.get_absolute_url()
+
+    def test_renders_pixelset_detail_template(self):
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'explorer/pixelset_detail.html')
+
+    def test_pixels_limit(self):
+
+        response = self.client.get(self.url)
+        self.assertContains(
+            response,
+            '<tr class="pixel">',
+            count=self.n_pixels
+        )
+
+        # Generate a new pixelset with limit+ pixels
+        n_pixels = 101
+        pixel_set = factories.PixelSetFactory()
+        factories.PixelFactory.create_batch(
+            n_pixels,
+            pixel_set=pixel_set
+        )
+        response = self.client.get(pixel_set.get_absolute_url())
+        self.assertContains(
+            response,
+            '<tr class="pixel">',
+            count=PixelSetDetailView.pixels_limit
+        )
