@@ -9,20 +9,196 @@
 {% block header %}
 <h1>
   {% trans "Pixel set" %}
+  <span class="subheader">
+    {{ pixelset.get_short_uuid }}
+  </span>
 </h1>
-<span class="subheader">
-  {{ pixelset.id }}
-</span>
+
 {% endblock %}
 
 
 {% block content %}
 
-  Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-  tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-  quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-  consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-  cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-  proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+  <section class="pixelset-overview">
+    <div class="meta">
+      <h4>{% trans "Properties" %}</h4>
 
+      <table>
+        <tbody>
+          <tr>
+            <th>{% trans "ID" %}</th>
+            <td>
+              <!-- ID -->
+              {{ pixelset.id }}
+            </td>
+          </tr>
+          <tr>
+            <th>{% trans "Filename" %}</th>
+            <td class="filename">
+              <!-- Pixel set file name -->
+              {{ pixelset.pixels_file.name|filename }}
+              <a
+                href="{{ pixelset.pixels_file.url }}"
+                title="{% trans "Download original data" %}"
+              >
+                <i class="fa fa-download" aria-hidden="true"></i>
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <th>{% trans "Species" %}</th>
+            <td class="species">
+              <!-- Species-->
+              {% for species in pixelset.get_species %}
+                <span class="species">{{ species }}</span>
+              {% endfor %}
+            </td>
+          </tr>
+          <tr>
+            <th>{% trans "Omics Unit types" %}</th>
+            <td class="omics-unit-types">
+              <!-- Omics Unit Type -->
+              {% for type in pixelset.get_omics_unit_types %}
+                <span class="omics-unit-type">{{ type }}</span>
+              {% endfor %}
+            </td>
+          </tr>
+          <tr>
+            <th>{% trans "Omics Areas" %}</th>
+            <td class="omics-areas">
+              <!-- Omics Area -->
+              {% for area in pixelset.get_omics_areas %}
+                <span class="omics-area">{{ area }}</span>
+              {% endfor %}
+            </td>
+          </tr>
+          <tr>
+            <th>{% trans "Pixeler" %}</th>
+            <td class="pixeler">
+              <!-- Pixeler -->
+              {{ pixelset.analysis.pixeler.get_full_name }}
+            </td>
+          </tr>
+          <tr>
+            <th>{% trans "Analysis" %}</th>
+            <td class="analysis">
+              <!-- Analysis -->
+              {{ pixelset.analysis.description }}
+            </td>
+          </tr>
+          <tr>
+            <th>{% trans "Experiments" %}</th>
+            <td class="experiments">
+              <!-- Experiment -->
+              {% for experiment in pixelset.analysis.experiments.all %}
+                <span class="experiment">
+                  {{ experiment.description }}
+                </span>
+              {% endfor %}
+            </td>
+          </tr>
+          <tr>
+            <th>{% trans "Tags" %}</th>
+            <td class="tags">
+              <!-- Tags -->
+              {% for tag in pixelset.analysis.tags.all %}
+                <span class="tag analysis">{{ tag }}</span>
+              {% endfor %}
+              {% for experiment in pixelset.analysis.experiments.all %}
+                {% for tag in experiment.tags.all %}
+                  <span class="tag experiment">{{ tag }}</span>
+                {% endfor %}
+              {% endfor %}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="selection">
+      <h4>{% trans "Subset selection" %}</h4>
+
+      <p>
+        {% blocktrans %}
+          Copy/paste a list of omics units to select a subset of pixels in this
+          pixel set. You'll be able to export them further.
+        {% endblocktrans %}
+      </p>
+
+      <form action="" method="post" id="pixel-selection-form">
+        {% csrf_token %}
+
+        <label>
+          Omics units
+          <textarea
+            name="omics_units"
+            placeholder="CAGL0F02695g, CAGL0D06336g, CAGL0G06666g"
+          ></textarea>
+        </label>
+        <p class="help-text">
+          {% blocktrans %}
+            Type omics units separated by a coma, a carriage return or a space
+          {% endblocktrans %}
+        </p>
+        <button type="submit" name="select" class="button">{% trans "Select" %}</button>
+      </form>
+
+      <hr>
+
+      <p>
+        {% blocktrans with selected=pixelset.pixels.count total=pixelset.pixels.count %}
+          You have selected
+          <span class="badge success">{{ selected }}</span> pixels
+          among a grand total of
+          <span class="badge secondary">{{ total }}</span> pixels.
+        {% endblocktrans %}
+      </p>
+
+    </div>
+  </section>
+
+  <section class="pixels-wrapper">
+    <h4>
+      {% trans "Pixels" %}
+      <span class="subheader">
+        {{ pixelset.pixels.count }}
+      </span>
+    </h4>
+
+    <table class="pixels">
+      <thead>
+        <tr>
+          <th>{% trans "Omics Unit" %}</th>
+          <th>{% trans "Value" %}</th>
+          <th>{% trans "Quality score" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for pixel in pixelset.pixels.all %}
+          <tr class="pixel">
+            <td class="omics-unit">
+              <a
+                href="{{ pixel.omics_unit.reference.url }}"
+                title="{% trans "Check out omics unit reference" %}"
+              >
+                {{ pixel.omics_unit.reference.identifier }}
+              </a>
+            </td>
+            <td class="value">
+              {{ pixel.value }}
+            </td>
+            <td class="quality-score">
+              {{ pixel.quality_score }}
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="3" class="empty">
+              {% trans "This pixelset has no pixels (or your selection gave no results)" %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
 {% endblock content %}
