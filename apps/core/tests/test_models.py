@@ -377,11 +377,13 @@ class PixelSetTestCase(CoreFixturesTestCase):
 
     def test_get_omics_unit_types(self):
 
-        expected = models.OmicsUnitType.objects.values_list('name', flat=True)
-        self.assertEqual(
-            list(self.pixel_set.get_omics_unit_types()),
-            list(expected),
+        types = list(self.pixel_set.get_omics_unit_types())
+        types.sort()
+        expected = list(
+            models.OmicsUnitType.objects.values_list('name', flat=True)
         )
+        expected.sort()
+        self.assertEqual(types, expected)
 
     def test_get_species(self):
 

@@ -1,6 +1,7 @@
 from django.core.urlresolvers import reverse
 
 from apps.core import factories, models
+from apps.core.templatetags.files import filename
 from apps.core.tests import CoreFixturesTestCase
 from apps.core.management.commands.make_development_fixtures import (
     make_development_fixtures
@@ -353,6 +354,128 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
             (
                 '<td colspan="8" class="empty">'
                 'No pixel set matches your query'
+                '</td>'
+            ),
+            count=1,
+            html=True,
+        )
+
+    def test_search_filter_with_omics_unit_reference(self):
+
+        # Create 8 pixelset
+        make_development_fixtures(
+            n_pixel_sets=8,
+            n_pixels_per_set=1
+        )
+
+        pixel_set = models.PixelSet.objects.all()[4]
+        reference = pixel_set.pixels.get().omics_unit.reference.identifier
+
+        # no filter
+        response = self.client.get(self.url)
+        self.assertContains(
+            response,
+            '<tr class="pixelset">',
+            count=8
+        )
+
+        # filter with Omics Unit reference identifier search
+        data = {
+            'search': reference
+        }
+        response = self.client.get(self.url, data)
+        self.assertContains(
+            response,
+            '<tr class="pixelset">',
+            count=1
+        )
+        self.assertContains(
+            response,
+            (
+                '<td class="filename">'
+                '<!-- Pixel set file name -->'
+                '{}'
+                '</td>'
+            ).format(
+                filename(pixel_set.pixels_file.name)
+            ),
+            count=1,
+            html=True,
+        )
+
+    def test_search_filter_with_keywords(self):
+
+        # Create 8 pixelset
+        make_development_fixtures(
+            n_pixel_sets=8,
+            n_pixels_per_set=1
+        )
+
+        # Add custom descriptions written in Klingon so that we are pretty
+        # sure nothing will match our query 🤓
+        #
+        # Lorem ipsum source:
+        # http://shooshee.tumblr.com/post/212964026/klingon-lorem-ipsum
+        first_analysis = factories.AnalysisFactory(
+            description=(
+                'Qapla. Dah tlhingan hol mu ghom a dalegh. Qawhaqvam '
+                'chenmohlu di wiqipe diya ohvad ponglu. Ach jinmolvamvad '
+                'Saghbe law tlhingan hol, dis, oh mevmohlu.'
+            )
+        )
+
+        experiment = factories.ExperimentFactory(
+            description=(
+                'Qapla. Dah tlhingan hol mu ghom a dalegh. Qawhaqvam '
+                'chenmohlu di wiqipe diya ohvad ponglu. Ach jinmolvamvad '
+                'Saghbe law tlhingan hol, dis, oh mevmohlu.'
+            )
+        )
+        second_analysis = factories.AnalysisFactory(experiments=[experiment, ])
+
+        first_pixel_set = models.PixelSet.objects.all()[4]
+        first_pixel_set.analysis = first_analysis
+        first_pixel_set.save()
+
+        second_pixel_set = models.PixelSet.objects.all()[6]
+        second_pixel_set.analysis = second_analysis
+        second_pixel_set.save()
+
+        # no filter
+        response = self.client.get(self.url)
+        self.assertContains(
+            response,
+            '<tr class="pixelset">',
+            count=8
+        )
+
+        # filter with keyword search
+        data = {
+            'search': 'jinmolvamvad'
+        }
+        response = self.client.get(self.url, data)
+        self.assertContains(
+            response,
+            '<tr class="pixelset">',
+            count=2
+        )
+        self.assertContains(
+            response,
+            (
+                '<td class="filename">'
+                '<!-- Pixel set file name -->'
+                f'{filename(first_pixel_set.pixels_file.name)}'
+                '</td>'
+            ),
+            count=1,
+            html=True,
+        )
+        self.assertContains(
+            response,
+            (
+                '<td class="filename">'
+                '<!-- Pixel set file name -->'
+                f'{filename(second_pixel_set.pixels_file.name)}'
                 '</td>'
             ),
             count=1,

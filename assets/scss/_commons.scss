@@ -29,6 +29,10 @@ form {
             color: $alert-color;
           }
         }
+
+        input {
+          margin-bottom: 0.2rem;
+        }
       }
 
       p.help-text {

@@ -68,6 +68,7 @@
 
   .page-content-wrapper {
     @include xy-grid-container;
+    flex: 1;
 
     .page-content {
       @include xy-grid($wrap: false);

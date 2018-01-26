@@ -241,25 +241,22 @@ class PixelSet(UUIDModelMixin, models.Model):
         verbose_name_plural = _("Pixel sets")
 
     def get_omics_areas(self):
-        return OmicsArea.objects.filter(
-            experiment__in=self.analysis.experiments.all()
-        ).distinct().values_list(
-            'name', flat=True
-        )
+        return set(self.analysis.experiments.values_list(
+            'omics_area__name',
+            flat=True
+        ))
 
     def get_omics_unit_types(self):
-        return OmicsUnitType.objects.filter(
-            omics_unit__pixel__in=self.pixels.all()
-        ).distinct().values_list(
-            'name', flat=True
-        )
+        return set(self.pixels.values_list(
+            'omics_unit__type__name',
+            flat=True
+        ))
 
     def get_species(self):
-        return Species.objects.filter(
-            strain__omics_unit__pixel__in=self.pixels.all()
-        ).distinct().values_list(
-            'name', flat=True
-        )
+        return set(self.pixels.values_list(
+            'omics_unit__strain__species__name',
+            flat=True
+        ))
 
 
 class Pixel(UUIDModelMixin, models.Model):

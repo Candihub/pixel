@@ -60,11 +60,24 @@ class PixelSetListView(LoginRequiredMixin, FormMixin, ListView):
                     Q(analysis__experiments__tags__id__in=tags)
                 )
 
-        return qs.distinct().prefetch_related(
+            search = form.cleaned_data.get('search')
+            if len(search):
+                qs = qs.filter(
+                    Q(analysis__experiments__description__contains=search) |
+                    Q(analysis__description__contains=search) |
+                    Q(pixel__omics_unit__reference__identifier__exact=search)
+                )
+
+        # optimize db queries
+        qs = qs.select_related(
+            'analysis',
+            'analysis__pixeler',
+        ).prefetch_related(
             'analysis__experiments__omics_area',
             'analysis__experiments__tags',
-            'analysis__pixeler',
             'analysis__tags',
             'pixels__omics_unit__type',
             'pixels__omics_unit__strain__species',
         )
+
+        return qs.distinct()
