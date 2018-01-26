@@ -464,10 +464,8 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
             (
                 '<td class="filename">'
                 '<!-- Pixel set file name -->'
-                '{}'
+                f'{filename(first_pixel_set.pixels_file.name)}'
                 '</td>'
-            ).format(
-                filename(first_pixel_set.pixels_file.name)
             ),
             count=1,
             html=True,
@@ -477,10 +475,8 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
             (
                 '<td class="filename">'
                 '<!-- Pixel set file name -->'
-                '{}'
+                f'{filename(second_pixel_set.pixels_file.name)}'
                 '</td>'
-            ).format(
-                filename(second_pixel_set.pixels_file.name)
             ),
             count=1,
             html=True,
