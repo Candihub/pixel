@@ -96,10 +96,14 @@ def export_pixelsets(pixel_sets):
 def export_pixels(pixel_set, omics_units=[], output=None):
     """This function exports the Pixels of a given PixelSet as a CSV file.
 
+    If the list of `omics_units` is empty, all Pixels will be exported.
+
     Parameters
     ----------
     pixel_set : apps.core.models.PixelSet
         A PixelSet object.
+    omics_units: list, optional
+        A list of omics unit identifiers to export.
     output : String or File handler, optional
         A string or file handler to write the CSV content.
 
