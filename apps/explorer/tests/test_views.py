@@ -13,8 +13,10 @@ from apps.core.tests import CoreFixturesTestCase
 from apps.core.management.commands.make_development_fixtures import (
     make_development_fixtures
 )
-from apps.explorer.views import (PixelSetDetailView, PixelSetExportView,
-                                 PixelSetExportPixelsView, str_to_set)
+from apps.explorer.views import (
+    PixelSetDetailView, PixelSetExportView, PixelSetExportPixelsView,
+    str_to_set
+)
 
 
 class PixelSetListViewTestCase(CoreFixturesTestCase):

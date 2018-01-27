@@ -22,6 +22,7 @@ def str_to_set(input):
     comma or new line. It eliminates duplicates and strips each string.
     """
     return set(
+        # Remove (filter) empty string values
         filter(
             None,
             [part.strip() for part in re.split('\s*,\s*|\s+|\n', input)]
@@ -172,7 +173,8 @@ class PixelSetDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class PixelSetExportPixelsView(LoginRequiredMixin, SingleObjectMixin,
+class PixelSetExportPixelsView(LoginRequiredMixin,
+                               SingleObjectMixin,
                                FormView):
     ATTACHEMENT_FILENAME = 'pixels_{date_time}.zip'
 

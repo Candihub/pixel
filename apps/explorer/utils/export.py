@@ -121,8 +121,13 @@ def export_pixels(pixel_set, omics_units=[], output=None):
     if len(omics_units) > 0:
         qs = qs.filter(omics_unit__reference__identifier__in=omics_units)
 
-    data = list(qs.values_list('omics_unit__reference__identifier', 'value',
-                               'quality_score'))
+    data = list(
+        qs.values_list(
+            'omics_unit__reference__identifier',
+            'value',
+            'quality_score',
+        )
+    )
 
     df = pandas.DataFrame(data, columns=('Omics Unit', 'Value', 'QS', ))
 
