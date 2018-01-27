@@ -162,9 +162,16 @@ class PixelSetDetailView(LoginRequiredMixin, DetailView):
 
 class PixelSetExportPixelsView(LoginRequiredMixin, SingleObjectMixin,
                                FormView):
+    ATTACHEMENT_FILENAME = 'pixels_{date_time}.zip'
 
     form_class = PixelSetExportPixelsForm
     model = PixelSet
+
+    @staticmethod
+    def get_export_archive_filename():
+        return PixelSetExportPixelsView.ATTACHEMENT_FILENAME.format(
+            date_time=timezone.now().strftime('%Y%m%d_%Hh%Mm%Ss')
+        )
 
     def form_valid(self, form):
 
@@ -172,7 +179,9 @@ class PixelSetExportPixelsView(LoginRequiredMixin, SingleObjectMixin,
             '\s*,\s*|\s+|\n', form.cleaned_data['omics_units'])])
 
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename=pixels.csv'
+        response['Content-Disposition'] = 'attachment; filename={}'.format(
+            self.get_export_archive_filename()
+        )
 
         export_pixels(
             self.get_object(),
@@ -186,7 +195,4 @@ class PixelSetExportPixelsView(LoginRequiredMixin, SingleObjectMixin,
 
         messages.error(self.request, _('You must select a subset of pixels.'))
 
-        return HttpResponseRedirect(reverse(
-            'explorer:pixelset_detail',
-            kwargs={'pk': self.kwargs['pk']}
-        ))
+        return HttpResponseRedirect(self.get_object().get_absolute_url())

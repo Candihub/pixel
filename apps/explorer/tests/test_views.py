@@ -12,7 +12,8 @@ from apps.core.tests import CoreFixturesTestCase
 from apps.core.management.commands.make_development_fixtures import (
     make_development_fixtures
 )
-from apps.explorer.views import PixelSetDetailView, PixelSetExportView
+from apps.explorer.views import (PixelSetDetailView, PixelSetExportView,
+                                 PixelSetExportPixelsView)
 
 
 class PixelSetListViewTestCase(CoreFixturesTestCase):
@@ -644,3 +645,69 @@ class PixelSetDetailViewTestCase(CoreFixturesTestCase):
             '<tr class="pixel">',
             count=PixelSetDetailView.pixels_limit
         )
+
+
+class PixelSetExportPixelsViewTestCase(CoreFixturesTestCase):
+
+    def setUp(self):
+
+        self.user = factories.PixelerFactory(
+            is_active=True,
+            is_staff=True,
+            is_superuser=True,
+        )
+        self.client.login(
+            username=self.user.username,
+            password=factories.PIXELER_PASSWORD,
+        )
+
+        self.pixel_set = factories.PixelSetFactory()
+        self.pixel_set.analysis.experiments.add(
+            factories.ExperimentFactory()
+        )
+        self.pixels = factories.PixelFactory.create_batch(
+            10,
+            pixel_set=self.pixel_set
+        )
+
+        self.url = self.pixel_set.get_export_pixels_url()
+
+    def test_redirects_to_detail_view_when_invalid(self):
+
+        response = self.client.post(self.url)
+
+        self.assertRedirects(response, self.pixel_set.get_absolute_url())
+
+    def test_displays_message_after_redirect_when_invalid(self):
+
+        response = self.client.post(self.url, follow=True)
+
+        self.assertContains(
+            response,
+            (
+                '<div class="message error">'
+                'You must select a subset of pixels.'
+                '</div>'
+            ),
+            html=True
+        )
+
+    def test_returns_csv_file(self):
+
+        fake_dt = timezone.make_aware(datetime.datetime(2018, 1, 12, 11, 00))
+
+        with patch.object(timezone, 'now', return_value=fake_dt):
+
+            response = self.client.post(self.url, {
+                'omics_units': self.pixels[0].omics_unit.reference.identifier
+            })
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response['Content-Type'], 'text/csv')
+            self.assertEqual(
+                response['Content-Disposition'],
+                'attachment; filename={}'.format(
+                    PixelSetExportPixelsView.get_export_archive_filename()
+                )
+            )
+            self.assertContains(response, 'Omics Unit,Value,QS')
