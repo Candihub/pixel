@@ -189,9 +189,9 @@ class ExportPixelSetsTestCase(CoreFixturesTestCase):
 
 class ExportPixelsTestCase(CoreFixturesTestCase):
 
-    def _export_pixels(self, pixel_set):
+    def _export_pixels(self, pixel_set, omics_units=[]):
 
-        csv = export_pixels(pixel_set)
+        csv = export_pixels(pixel_set, omics_units=omics_units)
         csv.seek(0)
         return pandas.read_csv(csv).to_dict()
 
@@ -207,7 +207,7 @@ class ExportPixelsTestCase(CoreFixturesTestCase):
         assert 'Value' in pixels_csv
         assert 'QS' in pixels_csv
 
-    def test_export_pixels(self):
+    def test_export_all_pixels_when_no_omics_units_specified(self):
 
         pixel_set = factories.PixelSetFactory.create()
         pixels = factories.PixelFactory.create_batch(3, pixel_set=pixel_set)
@@ -215,13 +215,32 @@ class ExportPixelsTestCase(CoreFixturesTestCase):
         pixels_csv = self._export_pixels(pixel_set)
 
         assert len(pixels_csv) == 3
+        assert len(pixels_csv['Omics Unit'].items()) == 3
 
-        print(pixels_csv)
         for pixel in pixels:
             # pixels are not ordered in the pixel set, so we have to find
             # the corresponding row index for each pixel.
             row = [index for index, value in pixels_csv['Omics Unit'].items()
                    if value == pixel.omics_unit.reference.identifier][0]
 
-            assert pixels_csv['Value'][row] == str(pixel.value)
-            assert pixels_csv['QS'][row] == str(pixel.quality_score)
+            assert pixels_csv['Value'][row] == pytest.approx(pixel.value)
+            assert pixels_csv['QS'][row] == pytest.approx(pixel.quality_score)
+
+    def test_export_pixels_with_specific_omics_units(self):
+
+        pixel_set = factories.PixelSetFactory.create()
+        pixels = factories.PixelFactory.create_batch(3, pixel_set=pixel_set)
+        selected_pixel = pixels[1]
+
+        pixels_csv = self._export_pixels(
+            pixel_set,
+            omics_units=[selected_pixel.omics_unit.reference.identifier]
+        )
+
+        assert len(pixels_csv['Omics Unit'].items()) == 1
+
+        assert (pixels_csv['Omics Unit'][0] ==
+                selected_pixel.omics_unit.reference.identifier)
+        assert pixels_csv['Value'][0] == pytest.approx(selected_pixel.value)
+        assert (pixels_csv['QS'][0] ==
+                pytest.approx(selected_pixel.quality_score))

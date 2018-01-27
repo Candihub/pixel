@@ -93,7 +93,7 @@ def export_pixelsets(pixel_sets):
     return stream
 
 
-def export_pixels(pixel_set, omics_units=[], output=StringIO()):
+def export_pixels(pixel_set, omics_units=[], output=None):
     """This function exports the Pixels of a given PixelSet as a CSV file.
 
     Parameters
@@ -111,16 +111,19 @@ def export_pixels(pixel_set, omics_units=[], output=StringIO()):
 
     """
 
-    data = list(
-        pixel_set.pixels
-        .select_related('omics_unit__reference')
-        .filter(omics_unit__reference__identifier__in=omics_units)
-        .all()
-        .values_list('omics_unit__reference__identifier', 'value',
-                     'quality_score')
-    )
+    qs = pixel_set.pixels.select_related('omics_unit__reference')
 
-    df = pandas.DataFrame(data, columns=['Omics Unit', 'Value', 'QS'])
+    # we only filter by Omics Units when specified.
+    if len(omics_units) > 0:
+        qs = qs.filter(omics_unit__reference__identifier__in=omics_units)
+
+    data = list(qs.values_list('omics_unit__reference__identifier', 'value',
+                               'quality_score'))
+
+    df = pandas.DataFrame(data, columns=('Omics Unit', 'Value', 'QS', ))
+
+    if output is None:
+        output = StringIO()
 
     df.to_csv(
         path_or_buf=output,
