@@ -17,6 +17,18 @@ from .forms import (PixelSetFiltersForm, PixelSetExportForm,
 from .utils import export_pixelsets, export_pixels
 
 
+def str_to_set(input):
+    """Returns a set of strings by splitting the given `input` string on space,
+    comma or new line. It eliminates duplicates and strips each string.
+    """
+    return set(
+        filter(
+            None,
+            [part.strip() for part in re.split('\s*,\s*|\s+|\n', input)]
+        )
+    )
+
+
 class PixelSetListView(LoginRequiredMixin, FormMixin, ListView):
 
     form_class = PixelSetFiltersForm
@@ -175,8 +187,7 @@ class PixelSetExportPixelsView(LoginRequiredMixin, SingleObjectMixin,
 
     def form_valid(self, form):
 
-        omics_units = set([omics_unit.strip() for omics_unit in re.split(
-            '\s*,\s*|\s+|\n', form.cleaned_data['omics_units'])])
+        omics_units = str_to_set(form.cleaned_data['omics_units'])
 
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename={}'.format(
