@@ -174,17 +174,16 @@
   <section class="pixels-wrapper">
     <h4>
       {% trans "Pixels" %}
-      <span class="subheader">
-        {{ pixelset.pixels.count }}
-      </span>
     </h4>
 
-    <div class="callout secondary">
-      {% blocktrans %}
-        The following table is an overview of pixels from the pixel set. Only
-        the first <strong>{{ pixels_limit }}</strong> are shown.
-      {% endblocktrans %}
-    </div>
+    {% if pixels.count >= pixels_limit %}
+      <div class="callout secondary">
+        {% blocktrans %}
+          The following table is an overview of pixels from the pixel set. Only
+          the first <strong>{{ pixels_limit }}</strong> are shown.
+        {% endblocktrans %}
+      </div>
+    {% endif %}
 
     <table class="pixels">
       <thead>
