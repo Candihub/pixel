@@ -59,3 +59,8 @@ class PixelSetExportForm(forms.Form):
             'required': _('You must select at least one Pixel Set.'),
         },
     )
+
+
+class PixelSetExportPixelsForm(forms.Form):
+
+    omics_units = forms.CharField(required=True)

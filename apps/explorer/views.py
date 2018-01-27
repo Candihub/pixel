@@ -1,15 +1,33 @@
+import re
+
 from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls.base import reverse
 from django.utils import timezone
+from django.utils.translation import ugettext as _
 from django.views.generic import DetailView, FormView, ListView
+from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import FormMixin
 
 from apps.core.models import PixelSet
-from .forms import PixelSetFiltersForm, PixelSetExportForm
-from .utils import export_pixelsets
+from .forms import (PixelSetFiltersForm, PixelSetExportForm,
+                    PixelSetExportPixelsForm)
+from .utils import export_pixelsets, export_pixels
+
+
+def str_to_set(input):
+    """Returns a set of strings by splitting the given `input` string on space,
+    comma or new line. It eliminates duplicates and strips each string.
+    """
+    return set(
+        # Remove (filter) empty string values
+        filter(
+            None,
+            [part.strip() for part in re.split('\s*,\s*|\s+|\n', input)]
+        )
+    )
 
 
 class PixelSetListView(LoginRequiredMixin, FormMixin, ListView):
@@ -150,5 +168,44 @@ class PixelSetDetailView(LoginRequiredMixin, DetailView):
         context.update({
             'pixels': pixels,
             'pixels_limit': self.pixels_limit,
+            'export_form': PixelSetExportPixelsForm(),
         })
         return context
+
+
+class PixelSetExportPixelsView(LoginRequiredMixin,
+                               SingleObjectMixin,
+                               FormView):
+    ATTACHEMENT_FILENAME = 'pixels_{date_time}.zip'
+
+    form_class = PixelSetExportPixelsForm
+    model = PixelSet
+
+    @staticmethod
+    def get_export_archive_filename():
+        return PixelSetExportPixelsView.ATTACHEMENT_FILENAME.format(
+            date_time=timezone.now().strftime('%Y%m%d_%Hh%Mm%Ss')
+        )
+
+    def form_valid(self, form):
+
+        omics_units = str_to_set(form.cleaned_data['omics_units'])
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename={}'.format(
+            self.get_export_archive_filename()
+        )
+
+        export_pixels(
+            self.get_object(),
+            omics_units=omics_units,
+            output=response
+        )
+
+        return response
+
+    def form_invalid(self, form):
+
+        messages.error(self.request, _('You must select a subset of pixels.'))
+
+        return HttpResponseRedirect(self.get_object().get_absolute_url())

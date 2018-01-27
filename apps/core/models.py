@@ -247,6 +247,12 @@ class PixelSet(UUIDModelMixin, models.Model):
             kwargs={'pk': str(self.id)}
         )
 
+    def get_export_pixels_url(self):
+        return reverse(
+            'explorer:pixelset_export_pixels',
+            kwargs={'pk': str(self.id)}
+        )
+
     def get_omics_areas(self):
         return set(self.analysis.experiments.values_list(
             'omics_area__name',
