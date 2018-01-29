@@ -199,7 +199,7 @@ class PixelSetDetailView(LoginRequiredMixin, FormMixin, DetailView):
 
 class PixelSetExportPixelsView(LoginRequiredMixin, BaseDetailView):
 
-    ATTACHEMENT_FILENAME = 'pixels_{date_time}.zip'
+    ATTACHEMENT_FILENAME = 'pixels_{date_time}.csv'
 
     model = PixelSet
 
