@@ -2,19 +2,21 @@
 
   /* layout */
   &.pixelsets {
-    aside.sidebar-left {
-      @include xy-cell($size: 2.5, $gutter-output: false);
-    }
+    .page-content-wrapper {
+      .page-content {
+        .sidebar-left {
+          @include xy-cell($size: 2.5, $gutter-output: false);
+        }
 
-    main.content {
-      @include xy-cell($size: 9.5, $gutter-position: 'left');
+        .content {
+          @include xy-cell($size: 9.5, $gutter-position: 'left');
+        }
+      }
     }
   }
 
   &.pixelset {
-    main.content {
-      @include xy-cell($size: 12, $gutter-output: false);
-
+    .content {
       .pixelset-overview {
         @include xy-grid($wrap: false);
 
