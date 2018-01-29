@@ -94,9 +94,13 @@
     }
 
     .completed-at {
-      display: inline-block;
-      padding: 0.2rem 0;
-      font-style: italic;
+      @include label;
+      background-color: $info-color;
+    }
+
+    .released-at {
+      @include label;
+      background-color: darken($info-color, 10%);
     }
 
     span.species {
