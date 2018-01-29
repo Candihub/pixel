@@ -902,6 +902,61 @@ class PixelSetDetailViewTestCase(CoreFixturesTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'explorer/pixelset_detail.html')
 
+    def test_shows_edition_link_for_staff_users(self):
+
+        response = self.client.get(self.url)
+
+        admin_url = reverse(
+            'admin:core_pixelset_change',
+            args=(str(self.pixel_set.id), )
+        )
+        title = 'Edit this pixel set from the admin'
+        expected = (
+            f'<a href="{admin_url}" title="{title}" class="edit">'
+            '<i class="fa fa-pencil" aria-hidden="true"></i>'
+            'edit'
+            '</a>'
+        )
+        self.assertContains(
+            response,
+            expected,
+            html=True,
+            count=1
+        )
+
+    def test_hides_edition_link_for_standard_users(self):
+
+        self.client.logout()
+
+        user = factories.PixelerFactory(
+            is_active=True,
+            is_staff=False,
+            is_superuser=False,
+        )
+        self.client.login(
+            username=user.username,
+            password=factories.PIXELER_PASSWORD,
+        )
+
+        response = self.client.get(self.url)
+
+        admin_url = reverse(
+            'admin:core_pixelset_change',
+            args=(str(self.pixel_set.id), )
+        )
+        title = 'Edit this pixel set from the admin'
+        expected = (
+            f'<a href="{admin_url}" title="{title}" class="edit">'
+            '<i class="fa fa-pencil" aria-hidden="true"></i>'
+            'edit'
+            '</a>'
+        )
+        self.assertNotContains(
+            response,
+            expected,
+            html=True,
+        )
+
     def test_show_description_in_pixels_preview(self):
 
         response = self.client.get(self.url)
