@@ -1,6 +1,7 @@
 import datetime
 
 from django.core.urlresolvers import reverse
+from django.template.defaultfilters import date as date_filter
 from django.utils import timezone
 from io import BytesIO
 from unittest.mock import patch
@@ -76,6 +77,36 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
         self.assertContains(
             response,
             '<button type="submit" class="button">',
+        )
+
+    def test_renders_completion_dates(self):
+
+        make_development_fixtures(n_pixel_sets=1)
+        response = self.client.get(self.url)
+
+        expected = (
+            '<span class="completed-at">'
+            'Completion date: {}'
+            '</span>'
+        )
+
+        pixelset = models.PixelSet.objects.get()
+
+        self.assertContains(
+            response,
+            expected.format(
+                date_filter(pixelset.analysis.completed_at)
+            ),
+            count=1,
+            html=True
+        )
+        self.assertContains(
+            response,
+            expected.format(
+                date_filter(pixelset.analysis.experiments.get().completed_at)
+            ),
+            count=1,
+            html=True
         )
 
     def test_species_filter(self):
