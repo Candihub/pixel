@@ -127,45 +127,44 @@
       <p>
         {% blocktrans %}
           Copy/paste a list of omics units to select a subset of pixels in this
-          pixel set. You'll be able to export them further.
+          pixel set and export them.
         {% endblocktrans %}
       </p>
 
       <div class="form-error">
-        {{ export_form.non_field_errors }}
+        {{ form.non_field_errors }}
       </div>
 
-      <form action="{{ pixelset.get_export_pixels_url }}" method="post" id="pixel-selection-form">
+      <form action="{{ pixelset.get_absolute_url }}" method="post" id="pixel-selection-form">
         {% csrf_token %}
 
-        <label>
-          Omics units
-          <textarea
-            name="omics_units"
-            rows="15"
-            placeholder="CAGL0F02695g, CAGL0D06336g, CAGL0G06666g"
-          ></textarea>
-        </label>
-        <p class="help-text">
-          {% blocktrans %}
-            Type omics units separated by a coma, a carriage return or a space
-          {% endblocktrans %}
-        </p>
-        <button
-          type="submit"
-          class="button"
-        >
-          <i class="fa fa-download" aria-hidden="true"></i>
-          {% trans "Download a CSV file with the selected Pixels" %}
-        </button>
+        {% include "foundation/form.html" %}
+
+        <p>
+          <button type="submit" class="button secondary">
+            {% trans "Preview" %}
+          </button>
+
+          {% if request.session.omics_units and pixels.count > 0 %}
+            <a class="button" href="{{ pixelset.get_export_pixels_url }}">
+              <i class="fa fa-download" aria-hidden="true"></i>
+              {% trans "Download a CSV file with the selected Pixels" %}
+            </a>
+          {% endif %}
+        <p>
       </form>
 
       <hr>
 
       <p>
-        {% blocktrans with selected=pixelset.pixels.count total=pixelset.pixels.count %}
+        {% blocktrans count selected=pixels.count %}
+          You have selected
+          <span class="badge success">{{ selected }}</span> pixel
+          {% plural %}
           You have selected
           <span class="badge success">{{ selected }}</span> pixels
+        {% endblocktrans %}
+        {% blocktrans with total=pixelset.pixels.count %}
           among a grand total of
           <span class="badge secondary">{{ total }}</span> pixels.
         {% endblocktrans %}

@@ -1,7 +1,6 @@
 import datetime
 
 from django.core.urlresolvers import reverse
-from django.test import TestCase
 from django.utils import timezone
 from io import BytesIO
 from unittest.mock import patch
@@ -15,7 +14,6 @@ from apps.core.management.commands.make_development_fixtures import (
 )
 from apps.explorer.views import (
     PixelSetDetailView, PixelSetExportView, PixelSetExportPixelsView,
-    str_to_set
 )
 
 
@@ -724,7 +722,7 @@ class PixelSetDetailViewTestCase(CoreFixturesTestCase):
             factories.ExperimentFactory()
         )
         self.n_pixels = 20
-        factories.PixelFactory.create_batch(
+        self.pixels = factories.PixelFactory.create_batch(
             self.n_pixels,
             pixel_set=self.pixel_set
         )
@@ -760,6 +758,99 @@ class PixelSetDetailViewTestCase(CoreFixturesTestCase):
             '<tr class="pixel">',
             count=PixelSetDetailView.pixels_limit
         )
+        self.assertNotContains(
+            response,
+            'Download a CSV file with the selected Pixels'
+        )
+
+    def test_select_one_pixel(self):
+
+        session = self.client.session
+        omics_unit_id = self.pixels[0].omics_unit.reference.identifier
+
+        self.assertIsNone(session.get('omics_units', None))
+
+        response = self.client.post(self.url, {
+            'omics_units': omics_unit_id,
+        }, follow=True)
+
+        self.assertRedirects(response, self.pixel_set.get_absolute_url())
+        self.assertEqual(
+            self.client.session.get('omics_units'),
+            [omics_unit_id]
+        )
+        self.assertContains(
+            response,
+            '<tr class="pixel">',
+            count=1
+        )
+        self.assertContains(
+            response,
+            'Download a CSV file with the selected Pixels'
+        )
+
+    def test_select_unknown_pixels(self):
+
+        session = self.client.session
+
+        self.assertIsNone(session.get('omics_units', None))
+
+        response = self.client.post(self.url, {
+            'omics_units': 'invalid',
+        }, follow=True)
+
+        self.assertRedirects(response, self.pixel_set.get_absolute_url())
+        self.assertEqual(
+            self.client.session.get('omics_units'),
+            ['invalid']
+        )
+        self.assertContains(
+            response,
+            '<tr class="pixel">',
+            count=0
+        )
+        self.assertNotContains(
+            response,
+            'Download a CSV file with the selected Pixels'
+        )
+
+    def test_select_subset_of_pixels(self):
+
+        session = self.client.session
+        omics_unit_id_1 = self.pixels[0].omics_unit.reference.identifier
+        omics_unit_id_2 = self.pixels[1].omics_unit.reference.identifier
+
+        self.assertIsNone(session.get('omics_units', None))
+
+        response = self.client.post(self.url, {
+            'omics_units': f'{omics_unit_id_1}, {omics_unit_id_2}',
+        }, follow=True)
+
+        self.assertRedirects(response, self.pixel_set.get_absolute_url())
+        self.assertEqual(
+            set(self.client.session.get('omics_units')),
+            set([omics_unit_id_1, omics_unit_id_2])
+        )
+        self.assertContains(
+            response,
+            '<tr class="pixel">',
+            count=2
+        )
+
+    def test_empty_subset_returns_all_pixels(self):
+
+        session = self.client.session
+        self.assertIsNone(session.get('omics_units', None))
+
+        response = self.client.post(self.url, follow=True)
+
+        self.assertRedirects(response, self.pixel_set.get_absolute_url())
+        self.assertIsNone(session.get('omics_units'))
+        self.assertContains(
+            response,
+            '<tr class="pixel">',
+            count=self.n_pixels
+        )
 
 
 class PixelSetExportPixelsViewTestCase(CoreFixturesTestCase):
@@ -780,32 +871,12 @@ class PixelSetExportPixelsViewTestCase(CoreFixturesTestCase):
         self.pixel_set.analysis.experiments.add(
             factories.ExperimentFactory()
         )
-        self.pixels = factories.PixelFactory.create_batch(
+        factories.PixelFactory.create_batch(
             10,
             pixel_set=self.pixel_set
         )
 
         self.url = self.pixel_set.get_export_pixels_url()
-
-    def test_redirects_to_detail_view_when_invalid(self):
-
-        response = self.client.post(self.url)
-
-        self.assertRedirects(response, self.pixel_set.get_absolute_url())
-
-    def test_displays_message_after_redirect_when_invalid(self):
-
-        response = self.client.post(self.url, follow=True)
-
-        self.assertContains(
-            response,
-            (
-                '<div class="message error">'
-                'You must select a subset of pixels.'
-                '</div>'
-            ),
-            html=True
-        )
 
     def test_returns_csv_file(self):
 
@@ -813,9 +884,7 @@ class PixelSetExportPixelsViewTestCase(CoreFixturesTestCase):
 
         with patch.object(timezone, 'now', return_value=fake_dt):
 
-            response = self.client.post(self.url, {
-                'omics_units': self.pixels[0].omics_unit.reference.identifier
-            })
+            response = self.client.get(self.url)
 
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response['Content-Type'], 'text/csv')
@@ -827,69 +896,12 @@ class PixelSetExportPixelsViewTestCase(CoreFixturesTestCase):
             )
             self.assertContains(response, 'Omics Unit,Value,QS')
 
+    def test_get_export_archive_filename(self):
 
-class StrToSetTestCase(TestCase):
+        fake_dt = timezone.make_aware(datetime.datetime(2018, 1, 12, 11, 00))
 
-    def test_empty_input_returns_empty_set(self):
-
-        result = str_to_set('')
-        assert type(result) == set
-        assert len(result) == 0
-
-    def test_returns_set(self):
-
-        result = str_to_set('abc')
-        assert type(result) == set
-        assert len(result) == 1
-        assert 'abc' in result
-
-    def test_split_on_comma(self):
-
-        result = str_to_set('a,b,c')
-        assert len(result) == 3
-        assert 'a' in result
-        assert 'b' in result
-        assert 'c' in result
-
-    def test_split_on_space(self):
-
-        result = str_to_set('a b c')
-        assert len(result) == 3
-        assert 'a' in result
-        assert 'b' in result
-        assert 'c' in result
-
-    def test_split_on_newline(self):
-
-        result = str_to_set('a\nb\nc')
-        assert len(result) == 3
-        assert 'a' in result
-        assert 'b' in result
-        assert 'c' in result
-
-    def test_split_on_mixed_separators(self):
-
-        input = """a,b     c,d
-        e
-        f
-        g   h  , i j
-        """
-
-        result = str_to_set(input)
-        assert len(result) == 10
-        assert 'a' in result
-        assert 'b' in result
-        assert 'c' in result
-        assert 'd' in result
-        assert 'e' in result
-        assert 'f' in result
-        assert 'g' in result
-        assert 'h' in result
-        assert 'i' in result
-        assert 'j' in result
-
-    def test_returns_no_duplicates(self):
-
-        result = str_to_set('a a a')
-        assert len(result) == 1
-        assert 'a' in result
+        with patch.object(timezone, 'now', return_value=fake_dt):
+            self.assertEqual(
+                PixelSetExportPixelsView.get_export_archive_filename(),
+                'pixels_20180112_11h00m00s.csv'
+            )
