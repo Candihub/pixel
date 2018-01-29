@@ -633,6 +633,58 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
             html=True,
         )
 
+    def test_search_is_case_insensitive(self):
+
+        # Create 8 pixelset
+        make_development_fixtures(
+            n_pixel_sets=8,
+            n_pixels_per_set=1
+        )
+
+        first_analysis = factories.AnalysisFactory(
+            description=(
+                'Qapla. Dah tlhingan hol mu ghom a dalegh. Qawhaqvam '
+                'chenmohlu di wiqipe diya ohvad ponglu. Ach jinmolvamvad '
+                'Saghbe law tlhingan hol, dis, oh mevmohlu.'
+            )
+        )
+
+        experiment = factories.ExperimentFactory(
+            description=(
+                'Qapla. Dah tlhingan hol mu ghom a dalegh. Qawhaqvam '
+                'chenmohlu di wiqipe diya ohvad ponglu. Ach jinmolvamvad '
+                'Saghbe law tlhingan hol, dis, oh mevmohlu.'
+            )
+        )
+        second_analysis = factories.AnalysisFactory(experiments=[experiment, ])
+
+        first_pixel_set = models.PixelSet.objects.all()[4]
+        first_pixel_set.analysis = first_analysis
+        first_pixel_set.save()
+
+        second_pixel_set = models.PixelSet.objects.all()[6]
+        second_pixel_set.analysis = second_analysis
+        second_pixel_set.save()
+
+        # no filter
+        response = self.client.get(self.url)
+        self.assertContains(
+            response,
+            '<tr class="pixelset">',
+            count=8
+        )
+
+        # filter with keyword search
+        data = {
+            'search': 'JINMOLVAMVAD'
+        }
+        response = self.client.get(self.url, data)
+        self.assertContains(
+            response,
+            '<tr class="pixelset">',
+            count=2
+        )
+
 
 class PixelSetExportViewTestCase(CoreFixturesTestCase):
 
