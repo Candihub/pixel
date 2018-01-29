@@ -103,7 +103,6 @@
             <td class="analysis">
               <!-- Analysis -->
               {{ pixelset.analysis.description | highlight:form.cleaned_data.search }}
-              <br>
               <span class="completed-at">
                 {% trans "Completion date:" %}
                 {{ pixelset.analysis.completed_at | date }}
