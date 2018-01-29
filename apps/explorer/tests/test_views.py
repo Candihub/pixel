@@ -250,6 +250,118 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
             count=1
         )
 
+    def test_tags_tree_filter(self):
+
+        # Create 8 pixelset
+        make_development_fixtures(
+            n_pixel_sets=8,
+            n_pixels_per_set=1
+        )
+
+        # Create two pixelsets with tags
+        omics_area = factories.OmicsAreaFactory()
+        experiment = factories.ExperimentFactory(
+            omics_area=omics_area
+        )
+        first_analysis = factories.AnalysisFactory(
+            experiments=[experiment, ]
+        )
+        first_analysis_tags = 'candida/glabrata/cbs138'
+        first_analysis.tags = first_analysis_tags
+        first_analysis.save()
+        first_pixelset = factories.PixelSetFactory(
+            analysis=first_analysis
+        )
+        second_analysis = factories.AnalysisFactory(
+            experiments=[experiment, ]
+        )
+        second_analysis_tags = 'candida'
+        second_analysis.tags = second_analysis_tags
+        second_analysis.save()
+        second_pixelset = factories.PixelSetFactory(
+            analysis=second_analysis
+        )
+
+        # no filter
+        response = self.client.get(self.url)
+        self.assertContains(
+            response,
+            '<tr class="pixelset">',
+            count=10
+        )
+
+        # tags filter
+        tag = models.Tag.objects.get(name=first_analysis_tags)
+        data = {
+            'tags': [tag.id, ]
+        }
+        response = self.client.get(self.url, data)
+        self.assertContains(
+            response,
+            '<tr class="pixelset">',
+            count=1
+        )
+
+        self.assertContains(
+            response,
+            (
+                '<td class="filename">'
+                '<a'
+                f'  href="{first_pixelset.get_absolute_url()}"'
+                '  title="Click for details about this pixel set"'
+                '>'
+                '<!-- Pixel set file name -->'
+                f'{filename(first_pixelset.pixels_file.name)}'
+                '</a>'
+                '</td>'
+            ),
+            count=1,
+            html=True,
+        )
+
+        tag = models.Tag.objects.get(name=second_analysis_tags)
+        data = {
+            'tags': [tag.id, ]
+        }
+        response = self.client.get(self.url, data)
+        self.assertContains(
+            response,
+            '<tr class="pixelset">',
+            count=2
+        )
+        self.assertContains(
+            response,
+            (
+                '<td class="filename">'
+                '<a'
+                f'  href="{first_pixelset.get_absolute_url()}"'
+                '  title="Click for details about this pixel set"'
+                '>'
+                '<!-- Pixel set file name -->'
+                f'{filename(first_pixelset.pixels_file.name)}'
+                '</a>'
+                '</td>'
+            ),
+            count=1,
+            html=True,
+        )
+        self.assertContains(
+            response,
+            (
+                '<td class="filename">'
+                '<a'
+                f'  href="{second_pixelset.get_absolute_url()}"'
+                '  title="Click for details about this pixel set"'
+                '>'
+                '<!-- Pixel set file name -->'
+                f'{filename(second_pixelset.pixels_file.name)}'
+                '</a>'
+                '</td>'
+            ),
+            count=1,
+            html=True,
+        )
+
     def test_all_filters(self):
 
         # Create 8 pixelset
