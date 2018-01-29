@@ -138,7 +138,7 @@
       <form action="{{ pixelset.get_absolute_url }}" method="post" id="pixel-selection-form">
         {% csrf_token %}
 
-        {{ form.as_p }}
+        {% include "foundation/form.html" %}
 
         <p>
           <button
