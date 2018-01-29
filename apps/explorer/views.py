@@ -1,33 +1,17 @@
-import re
-
 from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls.base import reverse
 from django.utils import timezone
-from django.utils.translation import ugettext as _
 from django.views.generic import DetailView, FormView, ListView
-from django.views.generic.detail import SingleObjectMixin
+from django.views.generic.detail import BaseDetailView
 from django.views.generic.edit import FormMixin
 
 from apps.core.models import PixelSet, Tag
 from .forms import (PixelSetFiltersForm, PixelSetExportForm,
                     PixelSetExportPixelsForm)
 from .utils import export_pixelsets, export_pixels
-
-
-def str_to_set(input):
-    """Returns a set of strings by splitting the given `input` string on space,
-    comma or new line. It eliminates duplicates and strips each string.
-    """
-    return set(
-        # Remove (filter) empty string values
-        filter(
-            None,
-            [part.strip() for part in re.split('\s*,\s*|\s+|\n', input)]
-        )
-    )
 
 
 class PixelSetListView(LoginRequiredMixin, FormMixin, ListView):
@@ -156,34 +140,67 @@ class PixelSetExportView(LoginRequiredMixin, FormView):
         return HttpResponseRedirect(redirect_to)
 
 
-class PixelSetDetailView(LoginRequiredMixin, DetailView):
+class PixelSetDetailView(LoginRequiredMixin, FormMixin, DetailView):
 
+    form_class = PixelSetExportPixelsForm
+    http_method_names = ['get', 'post']
     model = PixelSet
-    template_name = 'explorer/pixelset_detail.html'
     pixels_limit = 100
+    template_name = 'explorer/pixelset_detail.html'
+
+    def get_omics_units(self):
+
+        return self.request.session.get('omics_units', [])
 
     def get_context_data(self, **kwargs):
 
         context = super().get_context_data(**kwargs)
 
-        pixels = self.object.pixels.prefetch_related(
-            'omics_unit__reference'
-        )[:self.pixels_limit]
+        qs = self.object.pixels.prefetch_related('omics_unit__reference')
+        omics_units = self.get_omics_units()
+
+        if len(omics_units) > 0:
+            qs = qs.filter(omics_unit__reference__identifier__in=omics_units)
+
+        pixels = qs[:self.pixels_limit]
 
         context.update({
             'pixels': pixels,
             'pixels_limit': self.pixels_limit,
-            'export_form': PixelSetExportPixelsForm(),
         })
         return context
 
+    def get_initial(self):
 
-class PixelSetExportPixelsView(LoginRequiredMixin,
-                               SingleObjectMixin,
-                               FormView):
+        initial = super().get_initial()
+
+        initial.update({
+            'omics_units': ' '.join(self.get_omics_units()),
+        })
+        return initial
+
+    def post(self, request, *args, **kwargs):
+
+        self.object = self.get_object()
+        form = self.get_form()
+
+        if form.is_valid():
+            omics_units = form.cleaned_data['omics_units']
+            request.session['omics_units'] = omics_units
+
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def get_success_url(self):
+
+        return self.object.get_absolute_url()
+
+
+class PixelSetExportPixelsView(LoginRequiredMixin, BaseDetailView):
+
     ATTACHEMENT_FILENAME = 'pixels_{date_time}.zip'
 
-    form_class = PixelSetExportPixelsForm
     model = PixelSet
 
     @staticmethod
@@ -192,9 +209,8 @@ class PixelSetExportPixelsView(LoginRequiredMixin,
             date_time=timezone.now().strftime('%Y%m%d_%Hh%Mm%Ss')
         )
 
-    def form_valid(self, form):
-
-        omics_units = str_to_set(form.cleaned_data['omics_units'])
+    def get(self, request, *args, **kwargs):
+        omics_units = request.session.get('omics_units', default=[])
 
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename={}'.format(
@@ -208,9 +224,3 @@ class PixelSetExportPixelsView(LoginRequiredMixin,
         )
 
         return response
-
-    def form_invalid(self, form):
-
-        messages.error(self.request, _('You must select a subset of pixels.'))
-
-        return HttpResponseRedirect(self.get_object().get_absolute_url())

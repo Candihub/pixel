@@ -1,8 +1,23 @@
+import re
+
 from django import forms
 from django.utils.translation import ugettext as _
 from mptt.forms import TreeNodeMultipleChoiceField
 
 from apps.core import models
+
+
+def str_to_set(input):
+    """Returns a set of strings by splitting the given `input` string on space,
+    comma or new line. It eliminates duplicates and strips each string.
+    """
+    return set(
+        # Remove (filter) empty string values
+        filter(
+            None,
+            [part.strip() for part in re.split('\s*,\s*|\s+|\n', input)]
+        )
+    )
 
 
 class PixelSetFiltersForm(forms.Form):
@@ -63,4 +78,19 @@ class PixelSetExportForm(forms.Form):
 
 class PixelSetExportPixelsForm(forms.Form):
 
-    omics_units = forms.CharField(required=True)
+    omics_units = forms.CharField(
+        widget=forms.Textarea(
+            attrs={
+                'placeholder': _('CAGL0F02695g, CAGL0D06336g, CAGL0G06666g'),
+                'rows': 15,
+            }
+        ),
+        help_text=_(
+            'Type omics units separated by a comma, a carriage return or a'
+            ' space'
+        ),
+        required=False,
+    )
+
+    def clean_omics_units(self):
+        return list(str_to_set(self.cleaned_data['omics_units']))
