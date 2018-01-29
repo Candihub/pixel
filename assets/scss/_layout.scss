@@ -69,15 +69,22 @@
   .page-content-wrapper {
     @include xy-grid-container;
     flex: 1;
+    width: 100%;
 
     .page-content {
       @include xy-grid($wrap: false);
 
-      .sidebar-left {}
+      .sidebar-left {
+        @include xy-cell($size: 0, $gutter-output: false);
+      }
 
-      .content {}
+      .content {
+        @include xy-cell($size: 12, $gutter-output: false);
+      }
 
-      .sidebar-right {}
+      .sidebar-right {
+        @include xy-cell($size: 0, $gutter-output: false);
+      }
     }
   }
 
