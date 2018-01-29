@@ -2,6 +2,7 @@
 
 {% load i18n %}
 {% load files %}
+{% load explorer %}
 
 {% block title %}{% trans "Pixel sets" %}{% endblock %}
 {% block body_class %}{{ block.super }} explorer pixelsets{% endblock %}
@@ -101,13 +102,13 @@
             </td>
             <td class="analysis">
               <!-- Analysis -->
-              {{ pixelset.analysis.description }}
+              {{ pixelset.analysis.description | highlight:form.cleaned_data.search }}
             </td>
             <td class="experiments">
               <!-- Experiment -->
               {% for experiment in pixelset.analysis.experiments.all %}
               <span class="experiment">
-                {{ experiment.description }}
+                {{ experiment.description | highlight:form.cleaned_data.search }}
               </span>
               {% endfor %}
             </td>
