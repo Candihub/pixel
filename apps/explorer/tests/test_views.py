@@ -736,6 +736,15 @@ class PixelSetDetailViewTestCase(CoreFixturesTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'explorer/pixelset_detail.html')
 
+    def test_show_description_in_pixels_preview(self):
+
+        response = self.client.get(self.url)
+        self.assertContains(
+            response,
+            '<td class="description">',
+            count=self.n_pixels
+        )
+
     def test_pixels_limit(self):
 
         response = self.client.get(self.url)
