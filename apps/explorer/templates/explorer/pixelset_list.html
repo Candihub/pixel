@@ -25,7 +25,13 @@
     </div>
     <form action="" method="get" id="pixelset-filters-form">
       {% include "foundation/form_fields.html" %}
-      <button type="submit" class="button">
+      <a
+        href="{% url 'explorer:pixelset_list' %}"
+        class="button secondary hollow action-clear"
+      >
+        {% trans "Clear" %}
+      </a>
+      <button type="submit" class="button action-submit">
         {% trans "Apply filters" %}
       </button>
     </form>
@@ -146,6 +152,7 @@
 {% block javascript %}
 <script>
   (function (document) {
+    // Pixel set selection
     $rows = document.querySelectorAll('.pixelset');
 
     $rows.forEach(function ($row) {
