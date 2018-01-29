@@ -64,6 +64,9 @@ class PixelSetFiltersForm(forms.Form):
         required=False,
     )
 
+    def clean_search(self):
+        return self.cleaned_data['search'].strip()
+
 
 class PixelSetExportForm(forms.Form):
 
