@@ -192,6 +192,7 @@
       <thead>
         <tr>
           <th>{% trans "Omics Unit" %}</th>
+          <th>{% trans "Description" %}</th>
           <th>{% trans "Value" %}</th>
           <th>{% trans "Quality score" %}</th>
         </tr>
@@ -206,6 +207,9 @@
               >
                 {{ pixel.omics_unit.reference.identifier }}
               </a>
+            </td>
+            <td class="description">
+              {{ pixel.omics_unit.reference.description }}
             </td>
             <td class="value">
               {{ pixel.value }}
