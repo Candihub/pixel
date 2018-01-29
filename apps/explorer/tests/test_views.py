@@ -1001,16 +1001,17 @@ class PixelSetDetailViewTestCase(CoreFixturesTestCase):
 
         response = self.client.get(self.url)
 
+        pixel_set = models.PixelSet.objects.get()
+
         expected = (
             '<span class="completed-at">'
             'Completion date: {}'
             '</span>'
         )
-
         self.assertContains(
             response,
             expected.format(
-                date_filter(self.pixel_set.analysis.completed_at)
+                date_filter(pixel_set.analysis.completed_at)
             ),
             count=1,
             html=True
@@ -1019,7 +1020,7 @@ class PixelSetDetailViewTestCase(CoreFixturesTestCase):
             response,
             expected.format(
                 date_filter(
-                    self.pixel_set.analysis.experiments.get().completed_at
+                    pixel_set.analysis.experiments.get().completed_at
                 )
             ),
             count=1,
