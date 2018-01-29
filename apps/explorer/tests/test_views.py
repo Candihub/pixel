@@ -997,6 +997,56 @@ class PixelSetDetailViewTestCase(CoreFixturesTestCase):
             count=self.n_pixels
         )
 
+    def test_renders_completion_dates(self):
+
+        response = self.client.get(self.url)
+
+        expected = (
+            '<span class="completed-at">'
+            'Completion date: {}'
+            '</span>'
+        )
+
+        self.assertContains(
+            response,
+            expected.format(
+                date_filter(self.pixel_set.analysis.completed_at)
+            ),
+            count=1,
+            html=True
+        )
+        self.assertContains(
+            response,
+            expected.format(
+                date_filter(
+                    self.pixel_set.analysis.experiments.get().completed_at
+                )
+            ),
+            count=1,
+            html=True
+        )
+
+    def test_renders_release_date(self):
+
+        response = self.client.get(self.url)
+
+        expected = (
+            '<span class="released-at">'
+            'Release date: {}'
+            '</span>'
+        )
+
+        self.assertContains(
+            response,
+            expected.format(
+                date_filter(
+                    self.pixel_set.analysis.experiments.get().released_at
+                )
+            ),
+            count=1,
+            html=True
+        )
+
     def test_pixels_limit(self):
 
         response = self.client.get(self.url)
