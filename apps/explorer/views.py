@@ -190,7 +190,9 @@ class PixelSetDetailView(LoginRequiredMixin, FormMixin, DetailView):
 
             return self.form_valid(form)
         else:
-            return self.form_invalid(form)
+            # We should never reach this code because the form should always be
+            # valid (no required field or validation)
+            return self.form_invalid(form)  # pragma: no cover
 
     def get_success_url(self):
 
