@@ -190,6 +190,120 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
             count=1
         )
 
+    def test_omics_areas_tree_filter(self):
+
+        # Create 8 pixelset
+        make_development_fixtures(
+            n_pixel_sets=8,
+            n_pixels_per_set=1
+        )
+
+        # Create a parent omics area and link it to a pixel set
+        parent_omics_area = factories.OmicsAreaFactory()
+        first_experiment = factories.ExperimentFactory(
+            omics_area=parent_omics_area
+        )
+        first_analysis = factories.AnalysisFactory(
+            experiments=[first_experiment, ]
+        )
+        first_pixelset = factories.PixelSetFactory(
+            analysis=first_analysis
+        )
+
+        # Create a child omics are and link it to a pixel set
+        child_omics_area = factories.OmicsAreaFactory(
+            parent=parent_omics_area
+        )
+        second_experiment = factories.ExperimentFactory(
+            omics_area=child_omics_area
+        )
+        second_analysis = factories.AnalysisFactory(
+            experiments=[second_experiment, ]
+        )
+        second_pixelset = factories.PixelSetFactory(
+            analysis=second_analysis
+        )
+
+        # no filter
+        response = self.client.get(self.url)
+        self.assertContains(
+            response,
+            '<tr class="pixelset">',
+            count=10
+        )
+
+        # omics_areas filter
+        data = {
+            'omics_areas': [child_omics_area.id, ]
+        }
+        response = self.client.get(self.url, data)
+        self.assertContains(
+            response,
+            '<tr class="pixelset">',
+            count=1
+        )
+
+        self.assertContains(
+            response,
+            (
+                '<td class="filename">'
+                '<a'
+                f'  href="{second_pixelset.get_absolute_url()}"'
+                '  title="Click for details about this pixel set"'
+                '>'
+                '<!-- Pixel set file name -->'
+                f'{filename(second_pixelset.pixels_file.name)}'
+                '</a>'
+                '</td>'
+            ),
+            count=1,
+            html=True,
+        )
+
+        data = {
+            'omics_areas': [parent_omics_area.id, ]
+        }
+        response = self.client.get(self.url, data)
+        self.assertContains(
+            response,
+            '<tr class="pixelset">',
+            count=2
+        )
+
+        self.assertContains(
+            response,
+            (
+                '<td class="filename">'
+                '<a'
+                f'  href="{first_pixelset.get_absolute_url()}"'
+                '  title="Click for details about this pixel set"'
+                '>'
+                '<!-- Pixel set file name -->'
+                f'{filename(first_pixelset.pixels_file.name)}'
+                '</a>'
+                '</td>'
+            ),
+            count=1,
+            html=True,
+        )
+
+        self.assertContains(
+            response,
+            (
+                '<td class="filename">'
+                '<a'
+                f'  href="{second_pixelset.get_absolute_url()}"'
+                '  title="Click for details about this pixel set"'
+                '>'
+                '<!-- Pixel set file name -->'
+                f'{filename(second_pixelset.pixels_file.name)}'
+                '</a>'
+                '</td>'
+            ),
+            count=1,
+            html=True,
+        )
+
     def test_tags_filter(self):
 
         # Create 8 pixelset

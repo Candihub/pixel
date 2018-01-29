@@ -8,7 +8,7 @@ from django.views.generic import DetailView, FormView, ListView
 from django.views.generic.detail import BaseDetailView
 from django.views.generic.edit import FormMixin
 
-from apps.core.models import PixelSet, Tag
+from apps.core.models import OmicsArea, PixelSet, Tag
 from .forms import (PixelSetFiltersForm, PixelSetExportForm,
                     PixelSetExportPixelsForm)
 from .utils import export_pixelsets, export_pixels
@@ -54,8 +54,12 @@ class PixelSetListView(LoginRequiredMixin, FormMixin, ListView):
                     pixel__omics_unit__type__id__in=omics_unit_types
                 )
 
-            omics_areas = form.cleaned_data.get('omics_areas')
-            if omics_areas:
+            parent_omics_areas = form.cleaned_data.get('omics_areas')
+            if parent_omics_areas:
+                omics_areas = OmicsArea.objects.get_queryset_descendants(
+                    parent_omics_areas,
+                    include_self=True
+                )
                 qs = qs.filter(
                     analysis__experiments__omics_area__id__in=omics_areas
                 )
