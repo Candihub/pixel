@@ -9,6 +9,10 @@
 
 {% block header %}
 <h1>
+  <a href="{% url 'explorer:pixelset_list' %}">
+    {% trans "Pixel sets" %}
+  </a>
+  /
   {% trans "Pixel set" %}
   <span class="subheader">
     {{ pixelset.get_short_uuid }}
@@ -22,7 +26,7 @@
   class="edit"
 >
   <i class="fa fa-pencil" aria-hidden="true"></i>
-  {% trans "edit" %}
+  {% trans "Edit this pixel set" %}
 </a>
 {% endif %}
 {% endblock %}
