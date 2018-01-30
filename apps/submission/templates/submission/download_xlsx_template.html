@@ -30,7 +30,7 @@
 
   <p>
     {% blocktrans %}
-      Click the "Download" button below, and then click "Next" to get
+      Click the "Download" button below, and then click "Continue" to get
       instructions about dataset archive building and upload.
     {% endblocktrans %}
   </p>
@@ -51,7 +51,31 @@
     <form method="post">
       {% csrf_token %}
       {{ activation.management_form }}
-      <input type="submit" name="_continue" value="{% trans "Download" %}" class="button" />
+      <input type="submit" name="_continue" value="{% trans "Download" %}" class="button secondary" />
     </form>
+
+    <a
+      href="{% url 'submission:next_task' process_pk=activation.process.id task_pk=activation.task.id %}"
+      class="button button-continue"
+    >
+      {% trans "Continue" %}
+    </a>
   </div>
 {% endblock step_content %}
+
+{% block javascript %}
+<script>
+  (function (document) {
+    $downloadBtn = document.querySelector('input[type="submit"]');
+    $continueButton = document.querySelector('.button-continue');
+
+    if ($downloadBtn && $continueButton) {
+      $continueButton.setAttribute('disabled', 'disabled');
+
+      $downloadBtn.addEventListener('click', function () {
+        $continueButton.removeAttribute('disabled');
+      });
+    }
+  })(document);
+</script>
+{% endblock %}
