@@ -697,6 +697,9 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
             n_pixels_per_set=1
         )
 
+        first_pixel_set = models.PixelSet.objects.all().first()
+        second_pixel_set = models.PixelSet.objects.all().last()
+
         # Add custom descriptions written in Klingon so that we are pretty
         # sure nothing will match our query 🤓
         #
@@ -710,6 +713,9 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
             )
         )
 
+        first_pixel_set.analysis = first_analysis
+        first_pixel_set.save()
+
         experiment = factories.ExperimentFactory(
             description=(
                 'Qapla. Dah tlhingan hol mu ghom a dalegh. Qawhaqvam '
@@ -719,11 +725,6 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
         )
         second_analysis = factories.AnalysisFactory(experiments=[experiment, ])
 
-        first_pixel_set = models.PixelSet.objects.all()[4]
-        first_pixel_set.analysis = first_analysis
-        first_pixel_set.save()
-
-        second_pixel_set = models.PixelSet.objects.all()[6]
         second_pixel_set.analysis = second_analysis
         second_pixel_set.save()
 
@@ -786,6 +787,14 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
             n_pixels_per_set=1
         )
 
+        first_pixel_set = models.PixelSet.objects.all().first()
+        second_pixel_set = models.PixelSet.objects.all().last()
+
+        # Add custom descriptions written in Klingon so that we are pretty
+        # sure nothing will match our query 🤓
+        #
+        # Lorem ipsum source:
+        # http://shooshee.tumblr.com/post/212964026/klingon-lorem-ipsum
         first_analysis = factories.AnalysisFactory(
             description=(
                 'Qapla. Dah tlhingan hol mu ghom a dalegh. Qawhaqvam '
@@ -793,6 +802,9 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
                 'Saghbe law tlhingan hol, dis, oh mevmohlu.'
             )
         )
+
+        first_pixel_set.analysis = first_analysis
+        first_pixel_set.save()
 
         experiment = factories.ExperimentFactory(
             description=(
@@ -803,11 +815,6 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
         )
         second_analysis = factories.AnalysisFactory(experiments=[experiment, ])
 
-        first_pixel_set = models.PixelSet.objects.all()[4]
-        first_pixel_set.analysis = first_analysis
-        first_pixel_set.save()
-
-        second_pixel_set = models.PixelSet.objects.all()[6]
         second_pixel_set.analysis = second_analysis
         second_pixel_set.save()
 
