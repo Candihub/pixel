@@ -2,15 +2,18 @@ from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseRedirect
-from django.urls.base import reverse
+from django.urls.base import reverse, reverse_lazy
 from django.utils import timezone
+from django.utils.translation import ugettext as _
 from django.views.generic import DetailView, FormView, ListView
 from django.views.generic.detail import BaseDetailView
 from django.views.generic.edit import FormMixin
 
 from apps.core.models import OmicsArea, PixelSet, Tag
-from .forms import (PixelSetFiltersForm, PixelSetExportForm,
-                    PixelSetExportPixelsForm)
+from .forms import (
+    PixelSetFiltersForm, PixelSetExportForm, PixelSetExportPixelsForm,
+    PixelSetSelectForm
+)
 from .utils import export_pixelsets, export_pixels
 
 
@@ -110,11 +113,53 @@ class PixelSetListView(LoginRequiredMixin, FormMixin, ListView):
 
     def get_context_data(self, **kwargs):
 
+        selected_pixelset = []
+        if self.request.session.get('export', None):
+            selected_pixelset_ids = self.request.session['export'].get(
+                'pixelsets',
+                []
+            )
+            selected_pixelset = PixelSet.objects.filter(
+                id__in=selected_pixelset_ids
+            )
+
         context = super().get_context_data(**kwargs)
         context.update({
             'export_form': PixelSetExportForm(),
+            'select_form': PixelSetSelectForm(),
+            'selected_pixelsets': selected_pixelset,
         })
         return context
+
+
+class PixelSetSelectView(LoginRequiredMixin, FormView):
+
+    form_class = PixelSetSelectForm
+    http_method_names = ['post', ]
+    success_url = reverse_lazy('explorer:pixelset_list')
+
+    def form_valid(self, form):
+
+        selection = []
+        if self.request.session.get('export', None):
+            selection = self.request.session['export'].get('pixelsets', [])
+        selection += [str(p.id) for p in form.cleaned_data['pixel_sets']]
+        selection = list(set(selection))
+
+        self.request.session.update({
+            'export': {
+                'pixelsets': selection
+            }
+        })
+
+        messages.success(
+            self.request,
+            _("{} pixelset(s) have been saved for exportation").format(
+                len(form.cleaned_data['pixel_sets'])
+            )
+        )
+
+        return super().form_valid(form)
 
 
 class PixelSetExportView(LoginRequiredMixin, FormView):

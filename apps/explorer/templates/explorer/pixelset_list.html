@@ -18,6 +18,58 @@
 {% endblock %}
 
 {% block sidebar-left %}
+  <div class="selection">
+    <h4>
+      {% trans "Selection" %}
+      <span class="subheader">
+        ({{ selected_pixelsets|length }})
+      </span>
+    </h4>
+
+    <p class="help-text">
+      {% blocktrans %}
+      When you select and save pixel sets for exportation, they should be listed
+      below. Once your selection is complete, click on the export button to
+      download an archive (.zip) with the selected Pixel sets.
+      {% endblocktrans %}
+    </p>
+
+    <ol class="selected-pixelsets">
+      {% for pixelset in selected_pixelsets %}
+      <li class="pixelset">
+        <a
+          href="{{ pixelset.get_absolute_url }}"
+          title="{% trans "Details about this pixel set" %}"
+        >
+          {{ pixelset.pixels_file.name|filename }}
+        </a>
+        ({{ pixelset.get_short_uuid }})
+      </li>
+      {% empty %}
+      <li class="empty">
+        {% trans "No pixel set has been selected yet" %}
+      </li>
+      {% endfor %}
+    </ol>
+
+    {% if selected_pixelsets.count %}
+    <form action="{% url 'explorer:pixelset_export' %}" method="post" id="export-form">
+      {% csrf_token %}
+      <input
+        type="submit"
+        name="clear"
+        value="{% trans "Clear" %}"
+        class="button secondary hollow action-clear"
+      />
+      <input
+        type="submit"
+        name="export"
+        value="{% trans "Export" %}"
+        class="button action-submit"
+      />
+    </form>
+    {% endif %}
+  </div>
   <div class="filters">
     <h4>{% trans "Filters" %}</h4>
 
@@ -44,7 +96,7 @@
     {{ export_form.non_field_errors }}
   </div>
 
-  <form action="{% url 'explorer:pixelset_export' %}" method="post" id="export-form">
+  <form action="{% url 'explorer:pixelset_select' %}" method="post" id="select-form">
     {% csrf_token %}
     <input type="hidden" name="redirect_to" value="{{ request.build_absolute_uri }}">
 
@@ -152,8 +204,8 @@
     {% if pixelset_list %}
     <div class="actions">
       <button type="submit" class="button">
-        <i class="fa fa-download" aria-hidden="true"></i>
-        {% trans "Download an archive (.zip) with the selected Pixel sets" %}
+        <i class="fa fa-floppy-o" aria-hidden="true"></i>
+        {% trans "Save selection" %}
       </button>
     </div>
 
