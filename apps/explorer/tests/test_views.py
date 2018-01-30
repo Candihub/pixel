@@ -839,7 +839,7 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
         )
 
 
-class PixelSetExportViewTestCase(CoreFixturesTestCase):
+class PixelSetSelectViewTestCase(CoreFixturesTestCase):
 
     def setUp(self):
 
@@ -852,7 +852,7 @@ class PixelSetExportViewTestCase(CoreFixturesTestCase):
             username=self.user.username,
             password=factories.PIXELER_PASSWORD,
         )
-        self.url = reverse('explorer:pixelset_export')
+        self.url = reverse('explorer:pixelset_select')
 
     def test_redirects_to_list_view_when_invalid(self):
 
@@ -881,16 +881,109 @@ class PixelSetExportViewTestCase(CoreFixturesTestCase):
             html=True
         )
 
+    def test_stores_selection_in_user_session(self):
+
+        pixel_sets = factories.PixelSetFactory.create_batch(2)
+        pixel_sets_ids = [str(p.id) for p in pixel_sets]
+
+        self.assertIsNone(self.client.session.get('export'))
+
+        response = self.client.post(self.url, {
+            'pixel_sets': pixel_sets_ids
+        })
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIsNotNone(self.client.session.get('export'))
+
+        session_pixel_sets = self.client.session.get('export').get('pixelsets')
+        self.assertIsNotNone(session_pixel_sets)
+        self.assertEqual(len(pixel_sets_ids), len(session_pixel_sets))
+
+        for pixel_sets_id in pixel_sets_ids:
+            self.assertIn(pixel_sets_id, session_pixel_sets)
+
+    def test_adds_new_selection_in_user_session(self):
+
+        # First pixel sets selection
+        pixel_sets = factories.PixelSetFactory.create_batch(2)
+        pixel_sets_ids = [str(p.id) for p in pixel_sets]
+
+        data = {'pixel_sets': pixel_sets_ids}
+        self.client.post(self.url, data, follow=True)
+
+        session_pixel_sets = self.client.session.get('export').get('pixelsets')
+        self.assertEqual(len(pixel_sets_ids), len(session_pixel_sets))
+
+        # Second pixel set seletion
+        new_pixel_sets = factories.PixelSetFactory.create_batch(2)
+        new_pixel_sets_ids = [str(p.id) for p in new_pixel_sets]
+
+        data = {'pixel_sets': new_pixel_sets_ids}
+        self.client.post(self.url, data, follow=True)
+
+        session_pixel_sets = self.client.session.get('export').get('pixelsets')
+        self.assertEqual(
+            len(pixel_sets_ids + new_pixel_sets_ids),
+            len(session_pixel_sets)
+        )
+
+    def test_renders_message_on_success(self):
+
+        pixel_sets = factories.PixelSetFactory.create_batch(2)
+        pixel_sets_ids = [str(p.id) for p in pixel_sets]
+
+        response = self.client.post(
+            self.url,
+            {
+                'pixel_sets': pixel_sets_ids
+            },
+            follow=True
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(
+            response,
+            (
+                '<div class="message success">'
+                '2 pixelset(s) have been saved for exportation'
+                '</div>'
+            ),
+            html=True
+        )
+
+
+class PixelSetExportViewTestCase(CoreFixturesTestCase):
+
+    def setUp(self):
+
+        self.user = factories.PixelerFactory(
+            is_active=True,
+            is_staff=True,
+            is_superuser=True,
+        )
+        self.client.login(
+            username=self.user.username,
+            password=factories.PIXELER_PASSWORD,
+        )
+        self.url = reverse('explorer:pixelset_export')
+
     def test_returns_zip_file(self):
 
         fake_dt = timezone.make_aware(datetime.datetime(2018, 1, 12, 11, 00))
 
         with patch.object(timezone, 'now', return_value=fake_dt):
-            pixel_sets = factories.PixelSetFactory.create_batch(1)
 
-            response = self.client.post(self.url, {
-                'pixel_sets': [pixel_sets[0].id]
-            })
+            # Save pixel sets in user session
+            pixel_sets = factories.PixelSetFactory.create_batch(2)
+            data = {
+                'pixel_sets': [str(p.id) for p in pixel_sets]
+            }
+            self.client.post(
+                reverse('explorer:pixelset_select'), data, follow=True
+            )
+
+            response = self.client.post(self.url)
 
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response['Content-Type'], 'application/zip')
@@ -906,6 +999,20 @@ class PixelSetExportViewTestCase(CoreFixturesTestCase):
                 self.assertIsNone(zip.testzip())
             finally:
                 zip.close()
+
+    def test_displays_message_after_redirect_when_selection_is_empty(self):
+
+        response = self.client.post(self.url, follow=True)
+
+        self.assertContains(
+            response,
+            (
+                '<div class="message error">'
+                'Cannot export empty selection'
+                '</div>'
+            ),
+            html=True
+        )
 
 
 class PixelSetDetailViewTestCase(CoreFixturesTestCase):
