@@ -27,7 +27,7 @@ class MakeDevelopmentFixturesCommandTestCase(CoreFixturesTestCase):
         self.assertEqual(models.Experiment.objects.count(), 0)
         self.assertEqual(models.Pixel.objects.count(), 0)
 
-        call_command('make_development_fixtures', stdout=output)
+        call_command('make_development_fixtures', stdout=output, no_color=True)
 
         n_pixelsets = models.PixelSet.objects.count()
         self.assertEqual(
@@ -71,7 +71,8 @@ class MakeDevelopmentFixturesCommandTestCase(CoreFixturesTestCase):
             pixel_sets=n_pixel_sets,
             experiments=n_experiments,
             pixels=n_pixels_per_set,
-            stdout=output
+            stdout=output,
+            no_color=True
         )
 
         self.assertEqual(
