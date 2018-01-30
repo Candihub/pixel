@@ -952,7 +952,7 @@ class PixelSetDetailViewTestCase(CoreFixturesTestCase):
         expected = (
             f'<a href="{admin_url}" title="{title}" class="edit">'
             '<i class="fa fa-pencil" aria-hidden="true"></i>'
-            'edit'
+            'Edit this pixel set'
             '</a>'
         )
         self.assertContains(

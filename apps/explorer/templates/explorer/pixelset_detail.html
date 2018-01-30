@@ -9,6 +9,10 @@
 
 {% block header %}
 <h1>
+  <a href="{% url 'explorer:pixelset_list' %}">
+    {% trans "Pixel sets" %}
+  </a>
+  /
   {% trans "Pixel set" %}
   <span class="subheader">
     {{ pixelset.get_short_uuid }}
@@ -22,7 +26,7 @@
   class="edit"
 >
   <i class="fa fa-pencil" aria-hidden="true"></i>
-  {% trans "edit" %}
+  {% trans "Edit this pixel set" %}
 </a>
 {% endif %}
 {% endblock %}
@@ -96,21 +100,22 @@
               <!-- Analysis -->
               {{ pixelset.analysis.description }}
 
+              <span class="completed-at">
+                {% trans "Completion date:" %}
+                {{ pixelset.analysis.completed_at | date }}
+              </span>
+
               {% if request.user.is_staff %}
+              <br>
               <a
                 href="{% url 'admin:core_analysis_change' pixelset.analysis.id %}"
                 title="{% trans "Edit this analysis from the admin" %}"
                 class="edit"
               >
                 <i class="fa fa-pencil" aria-hidden="true"></i>
-                {% trans "edit" %}
+                {% trans "Edit this analysis" %}
               </a>
               {% endif %}
-
-              <span class="completed-at">
-                {% trans "Completion date:" %}
-                {{ pixelset.analysis.completed_at | date }}
-              </span>
             </td>
           </tr>
           <tr>
@@ -118,29 +123,33 @@
             <td class="experiments">
               <!-- Experiment -->
               {% for experiment in pixelset.analysis.experiments.all %}
+              <p>
                 <span class="experiment">
                   {{ experiment.description }}
                 </span>
 
+                <span class="completed-at">
+                  {% trans "Completion date:" %}
+                  {{ experiment.completed_at | date }}
+                </span>
+
+                <span class="released-at">
+                  {% trans "Release date:" %}
+                  {{ experiment.released_at | date }}
+                </span>
+
                 {% if request.user.is_staff %}
+                <br>
                 <a
                   href="{% url 'admin:core_experiment_change' experiment.id %}"
                   title="{% trans "Edit this experiment from the admin" %}"
                   class="edit"
                 >
                   <i class="fa fa-pencil" aria-hidden="true"></i>
-                  {% trans "edit" %}
+                  {% trans "Edit this experiment" %}
                 </a>
                 {% endif %}
-
-                <span class="completed-at">
-                  {% trans "Completion date:" %}
-                  {{ experiment.completed_at | date }}
-                </span>
-                <span class="released-at">
-                  {% trans "Release date:" %}
-                  {{ experiment.released_at | date }}
-                </span>
+              </p>
               {% endfor %}
             </td>
           </tr>
