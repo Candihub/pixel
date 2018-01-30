@@ -8,6 +8,10 @@
 
 {% block header %}
 <h1>
+  <a href="{% url 'submission:index' %}">
+    Submissions
+  </a>
+  /
   {{ process.label }}
   <span class="subheader">
     (submission #{{ process.id }})

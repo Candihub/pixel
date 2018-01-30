@@ -36,7 +36,6 @@
         <th>{% trans "Owner" %}</th>
         <th>{% trans "Completion" %}</th>
         <th>{% trans "Status" %}</th>
-        <th>{% trans "Actions" %}</th>
       </tr>
     </thead>
     <tbody>
@@ -46,7 +45,10 @@
             {{ process.created }}
           </td>
           <td class="process-label">
-            <a href="{% url 'submission:detail' process.pk %}">
+            <a
+              href="{% url 'submission:detail' process.pk %}"
+              title="{% trans "See this submission detail" %}"
+            >
               {{ process.label }}
             </a>
           </td>
@@ -61,21 +63,21 @@
           </td>
           <td class="status">
             {% if process.has_failed %}
-              <i class="fa fa-exclamation-triangle error" aria-hidden="true"></i>
+              <i
+                class="fa fa-exclamation-triangle error" aria-hidden="true"
+                title="{% trans "The submission has failed" %}"
+              ></i>
             {% elif process.is_done %}
-              <i class="fa fa-check-circle success" aria-hidden="true"></i>
+              <i
+                class="fa fa-check-circle success" aria-hidden="true"
+                title="{% trans "The submission has succeeded" %}"
+              ></i>
             {% else %}
-              <i class="fa fa-pause-circle-o" aria-hidden="true"></i>
+              <i
+                class="fa fa-spinner" aria-hidden="true"
+                title="{% trans "The submission is in progress" %}"
+              ></i>
             {% endif %}
-          </td>
-          <td class="actions">
-            <a
-              href="{% url 'submission:detail' process.pk %}"
-              class="action secondary"
-              title="{% trans "Checkout submission details" %}"
-            >
-              <i class="fa fa-play-circle" aria-hidden="true"></i>
-            </a>
           </td>
         </tr>
       {% empty %}
@@ -87,6 +89,8 @@
       {% endfor %}
     </tbody>
   </table>
+
+  <hr>
 
   {% include "foundation/pagination.html" %}
 {% endblock content %}

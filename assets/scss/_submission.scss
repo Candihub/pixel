@@ -108,8 +108,7 @@
 
       thead {
         th {
-          &:nth-child(3),
-          &:nth-child(5) {
+          &:nth-child(3) {
             text-align: center;
           }
 
@@ -137,16 +136,11 @@
           }
 
           .status {
-            text-align: center;
             font-size: 1.4rem;
-          }
-
-          .actions {
-            width: 15%;
             text-align: right;
 
-            a.action {
-              margin-bottom: 0;
+            i {
+              margin-right: 13px;
             }
           }
         }
