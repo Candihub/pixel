@@ -953,6 +953,67 @@ class PixelSetSelectViewTestCase(CoreFixturesTestCase):
         )
 
 
+class PixelSetSelectionClearViewTestCase(CoreFixturesTestCase):
+
+    def setUp(self):
+
+        self.user = factories.PixelerFactory(
+            is_active=True,
+            is_staff=True,
+            is_superuser=True,
+        )
+        self.client.login(
+            username=self.user.username,
+            password=factories.PIXELER_PASSWORD,
+        )
+        self.url = reverse('explorer:pixelset_selection_clear')
+        self.pixel_sets = []
+
+    def _select_pixel_sets(self):
+
+        self.pixel_sets = factories.PixelSetFactory.create_batch(2)
+        data = {
+            'pixel_sets': [str(p.id) for p in self.pixel_sets]
+        }
+        self.client.post(
+            reverse('explorer:pixelset_select'), data, follow=True
+        )
+
+    def test_redirects_to_list_view_when_done(self):
+
+        response = self.client.post(self.url)
+
+        self.assertRedirects(response, reverse('explorer:pixelset_list'))
+
+    def test_clears_selection(self):
+
+        self._select_pixel_sets()
+
+        session_pixel_sets = self.client.session.get('export').get('pixelsets')
+        self.assertEqual(len(session_pixel_sets), len(self.pixel_sets))
+
+        self.client.post(self.url, {}, follow=True)
+
+        session_pixel_sets = self.client.session.get('export').get('pixelsets')
+        self.assertEqual(len(session_pixel_sets), 0)
+
+    def test_renders_message_on_success(self):
+
+        self._select_pixel_sets()
+
+        response = self.client.post(self.url, {}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            (
+                '<div class="message success">'
+                'Pixel set selection has been cleared'
+                '</div>'
+            ),
+            html=True
+        )
+
+
 class PixelSetExportViewTestCase(CoreFixturesTestCase):
 
     def setUp(self):
