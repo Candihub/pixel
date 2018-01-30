@@ -1,0 +1,15 @@
+.home {
+
+  .page-content-wrapper {
+    .page-content {
+      .sidebar-left {
+        @include xy-cell($size: 2.5, $gutter-output: false);
+      }
+
+      .content {
+        @include xy-cell($size: 9.5, $gutter-position: 'left');
+      }
+    }
+  }
+
+}
