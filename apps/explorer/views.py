@@ -184,6 +184,21 @@ class PixelSetSelectView(LoginRequiredMixin, FormView):
 
         return super().form_valid(form)
 
+    def form_invalid(self, form):
+
+        messages.error(
+            self.request,
+            "\n".join([
+                errors[0].message for errors in form.errors.as_data().values()
+            ])
+        )
+
+        redirect_to = self.request.POST.get(
+            'redirect_to',
+            reverse('explorer:pixelset_list')
+        )
+        return HttpResponseRedirect(redirect_to)
+
 
 class PixelSetExportView(LoginRequiredMixin, View):
 
