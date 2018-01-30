@@ -1000,6 +1000,23 @@ class PixelSetExportViewTestCase(CoreFixturesTestCase):
             finally:
                 zip.close()
 
+    def test_cleans_pixel_set_selection_after_export(self):
+
+        pixel_sets = factories.PixelSetFactory.create_batch(2)
+        data = {
+            'pixel_sets': [str(p.id) for p in pixel_sets]
+        }
+        self.client.post(
+            reverse('explorer:pixelset_select'), data, follow=True
+        )
+
+        session_pixel_sets = self.client.session.get('export').get('pixelsets')
+        self.assertEqual(len(session_pixel_sets), len(pixel_sets))
+
+        self.client.post(self.url)
+        session_pixel_sets = self.client.session.get('export').get('pixelsets')
+        self.assertEqual(len(session_pixel_sets), 0)
+
     def test_displays_message_after_redirect_when_selection_is_empty(self):
 
         response = self.client.post(self.url, follow=True)
