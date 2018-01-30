@@ -45,15 +45,4 @@
   <div class="step-content">
     {% block step_content %}{% endblock step_content %}
   </div>
-
-  {% block step_navigation %}
-  <ul class="step-navigation">
-    <li>
-      <a href="{% url 'submission:next_task' process_pk=activation.process.id task_pk=activation.task.id %}">
-        {% trans "Next" %}
-        <i class="fa fa-step-forward" aria-hidden="true"></i>
-      </a>
-    </li>
-  </ul>
-  {% endblock %}
 {% endblock content %}
