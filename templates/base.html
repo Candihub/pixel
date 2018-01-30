@@ -29,29 +29,33 @@
           <li>
             <a class="admin" href="{% url 'admin:index' %}">
               <i class="fa fa-wrench" aria-hidden="true"></i>
+              {% trans "Django admin" %}
             </a>
           </li>
           {% endif %}
           <li>
             <a class="explore" href="{% url 'explorer:pixelset_list' %}">
               <i class="fa fa-search" aria-hidden="true"></i>
+              {% trans "Pixel sets" %}
             </a>
           </li>
           <li>
             <a class="submit" href="{% url 'submission:index' %}">
               <i class="fa fa-plus-circle" aria-hidden="true"></i>
+              {% trans "Submissions" %}
             </a>
           </li>
           <li>
             <a class="action logout" href="{% url 'logout' %}">
               <i class="fa fa-sign-out" aria-hidden="true"></i>
+              {% trans "Log out" %}
             </a>
           </li>
           {% else %}
           <li>
             <a class="action login" href="{% url 'login' %}">
               <i class="fa fa-sign-in" aria-hidden="true"></i>
-              {% trans "Login" %}
+              {% trans "Log in" %}
             </a>
           </li>
           {% endif %}
