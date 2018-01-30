@@ -5,7 +5,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls.base import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.translation import ugettext as _
-from django.views.generic import DetailView, FormView, ListView
+from django.views.generic import DetailView, FormView, ListView, RedirectView
 from django.views.generic.detail import BaseDetailView
 from django.views.generic.edit import FormMixin
 
@@ -130,6 +130,27 @@ class PixelSetListView(LoginRequiredMixin, FormMixin, ListView):
             'selected_pixelsets': selected_pixelset,
         })
         return context
+
+
+class PixelSetSelectionClearView(LoginRequiredMixin, RedirectView):
+
+    http_method_names = ['post', ]
+    url = reverse_lazy('explorer:pixelset_list')
+
+    def post(self, request, *args, **kwargs):
+
+        request.session.update({
+            'export': {
+                'pixelsets': []
+            }
+        })
+
+        messages.success(
+            request,
+            _("Pixel set selection has been cleared")
+        )
+
+        return super().post(request, *args, **kwargs)
 
 
 class PixelSetSelectView(LoginRequiredMixin, FormView):

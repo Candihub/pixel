@@ -21,9 +21,11 @@
   <div class="selection">
     <h4>
       {% trans "Selection" %}
+      {% if selected_pixelsets.count %}
       <span class="subheader">
         ({{ selected_pixelsets|length }})
       </span>
+      {% endif %}
     </h4>
 
     <p class="help-text">
@@ -34,26 +36,26 @@
       {% endblocktrans %}
     </p>
 
-    <ol class="selected-pixelsets">
+    <ul class="selected-pixelsets">
       {% for pixelset in selected_pixelsets %}
       <li class="pixelset">
         <a
           href="{{ pixelset.get_absolute_url }}"
           title="{% trans "Details about this pixel set" %}"
         >
+          <code>{{ pixelset.get_short_uuid }}</code> &mdash;
           {{ pixelset.pixels_file.name|filename }}
         </a>
-        ({{ pixelset.get_short_uuid }})
       </li>
       {% empty %}
       <li class="empty">
         {% trans "No pixel set has been selected yet" %}
       </li>
       {% endfor %}
-    </ol>
+    </ul>
 
     {% if selected_pixelsets.count %}
-    <form action="{% url 'explorer:pixelset_export' %}" method="post" id="export-form">
+    <form action="{% url 'explorer:pixelset_selection_clear' %}" method="post" id="selection-clear-form">
       {% csrf_token %}
       <input
         type="submit"
@@ -61,6 +63,10 @@
         value="{% trans "Clear" %}"
         class="button secondary hollow action-clear"
       />
+    </form>
+
+    <form action="{% url 'explorer:pixelset_export' %}" method="post" id="export-form">
+      {% csrf_token %}
       <input
         type="submit"
         name="export"

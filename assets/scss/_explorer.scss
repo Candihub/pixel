@@ -70,7 +70,12 @@
     .selection {
 
       .selected-pixelsets {
+        @include left-sidebar-list;
         font-size: 0.9rem;
+      }
+
+      form {
+        display: inline-block;
       }
     }
 
