@@ -93,6 +93,16 @@
       font-size: 0.8rem;
     }
 
+    .completed-at {
+      @include label;
+      background-color: $info-color;
+    }
+
+    .released-at {
+      @include label;
+      background-color: darken($info-color, 10%);
+    }
+
     span.species {
       font-style: italic;
     }

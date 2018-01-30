@@ -106,6 +106,11 @@
                 {% trans "edit" %}
               </a>
               {% endif %}
+
+              <span class="completed-at">
+                {% trans "Completion date:" %}
+                {{ pixelset.analysis.completed_at | date }}
+              </span>
             </td>
           </tr>
           <tr>
@@ -127,6 +132,15 @@
                   {% trans "edit" %}
                 </a>
                 {% endif %}
+
+                <span class="completed-at">
+                  {% trans "Completion date:" %}
+                  {{ experiment.completed_at | date }}
+                </span>
+                <span class="released-at">
+                  {% trans "Release date:" %}
+                  {{ experiment.released_at | date }}
+                </span>
               {% endfor %}
             </td>
           </tr>
