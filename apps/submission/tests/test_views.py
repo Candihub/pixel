@@ -657,8 +657,24 @@ class AsyncImportTestCase(TagsTestMixin,
 
         latest_task = self.process.task_set.all()[0]
         self.assertEqual(latest_task.status, STATUS.ERROR)
-        expected_comments = (
-            'Required entries partially exists (0 vs 10). Please load entries'
-            ' first thanks to the load_entries management command.'
+
+        # As we are using unorderd set() of missing entries check error message
+        # by chunks
+        missing_entries = (
+            'CAGL0G06666g', 'CAGL0F02695g', 'CAGL0D06336g', 'CAGL0J05434g',
+            'CAGL0M13959g', 'CAGL0J10494g', 'CAGL0E00847g', 'CAGL0L05412g',
+            'CAGL0M06633g', 'CAGL0H08437g'
         )
-        self.assertEqual(latest_task.comments, expected_comments)
+        self.assertIn(
+            f'{len(missing_entries)} entries are missing (',
+            latest_task.comments,
+        )
+        for missing_entry in missing_entries:
+            self.assertIn(missing_entry, latest_task.comments)
+        self.assertIn(
+            (
+                '). Please load entries first thanks to the load_entries '
+                'management command.'
+            ),
+            latest_task.comments,
+        )
