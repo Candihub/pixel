@@ -5,7 +5,9 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls.base import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.translation import ugettext as _
-from django.views.generic import DetailView, FormView, ListView, RedirectView
+from django.views.generic import (
+    DetailView, FormView, ListView, RedirectView, View
+)
 from django.views.generic.detail import BaseDetailView
 from django.views.generic.edit import FormMixin
 
@@ -183,10 +185,10 @@ class PixelSetSelectView(LoginRequiredMixin, FormView):
         return super().form_valid(form)
 
 
-class PixelSetExportView(LoginRequiredMixin, FormView):
-    ATTACHEMENT_FILENAME = 'pixelsets_{date_time}.zip'
+class PixelSetExportView(LoginRequiredMixin, View):
 
-    form_class = PixelSetExportForm
+    ATTACHEMENT_FILENAME = 'pixelsets_{date_time}.zip'
+    http_method_names = ['post', ]
 
     @staticmethod
     def get_export_archive_filename():
@@ -194,9 +196,24 @@ class PixelSetExportView(LoginRequiredMixin, FormView):
             date_time=timezone.now().strftime('%Y%m%d_%Hh%Mm%Ss')
         )
 
-    def form_valid(self, form):
+    def post(self, request, *args, **kwargs):
 
-        content = export_pixelsets(form.cleaned_data['pixel_sets']).getvalue()
+        selection = []
+        if self.request.session.get('export', None):
+            selection = self.request.session['export'].get('pixelsets', [])
+
+        if not len(selection):
+            return self.empty_selection(request)
+
+        qs = PixelSet.objects.filter(id__in=selection)
+        content = export_pixelsets(qs).getvalue()
+
+        # Reset selection
+        request.session.update({
+            'export': {
+                'pixelsets': []
+            }
+        })
 
         response = HttpResponse(content, content_type='application/zip')
         response['Content-Disposition'] = 'attachment; filename={}'.format(
@@ -204,20 +221,14 @@ class PixelSetExportView(LoginRequiredMixin, FormView):
         )
         return response
 
-    def form_invalid(self, form):
+    def empty_selection(self, request):
 
         messages.error(
-            self.request,
-            "\n".join([
-                errors[0].message for errors in form.errors.as_data().values()
-            ])
+            request,
+            _("Cannot export empty selection")
         )
 
-        redirect_to = self.request.POST.get(
-            'redirect_to',
-            reverse('explorer:pixelset_list')
-        )
-        return HttpResponseRedirect(redirect_to)
+        return HttpResponseRedirect(reverse('explorer:pixelset_list'))
 
 
 class PixelSetDetailView(LoginRequiredMixin, FormMixin, DetailView):
