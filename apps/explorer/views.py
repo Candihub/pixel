@@ -244,8 +244,8 @@ class PixelSetSelectView(LoginRequiredMixin, FormView):
 
         messages.error(
             self.request,
-            "\n".join([
-                errors[0].message for errors in form.errors.as_data().values()
+            '\n'.join([
+                f'{v[0]}' for (k, v) in form.errors.items()
             ])
         )
 
