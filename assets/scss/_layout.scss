@@ -79,7 +79,11 @@
       }
 
       .content {
-        @include xy-cell($size: 12, $gutter-output: false);
+        width: 100%;
+
+        @include breakpoint(medium) {
+          @include xy-cell($size: 12, $gutter-output: false);
+        }
       }
 
       .sidebar-right {
