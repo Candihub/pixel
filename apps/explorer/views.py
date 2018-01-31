@@ -14,6 +14,16 @@ from .forms import (PixelSetFiltersForm, PixelSetExportForm,
 from .utils import export_pixelsets, export_pixels
 
 
+def get_omics_units_for_export(session, default=[]):
+    return session.get(
+        'export', {}
+    ).get(
+        'pixels', {}
+    ).get(
+        'omics_units', default
+    )
+
+
 class PixelSetListView(LoginRequiredMixin, FormMixin, ListView):
 
     form_class = PixelSetFiltersForm
@@ -154,7 +164,7 @@ class PixelSetDetailView(LoginRequiredMixin, FormMixin, DetailView):
 
     def get_omics_units(self):
 
-        return self.request.session.get('omics_units', [])
+        return get_omics_units_for_export(self.request.session)
 
     def get_context_data(self, **kwargs):
 
@@ -190,7 +200,13 @@ class PixelSetDetailView(LoginRequiredMixin, FormMixin, DetailView):
 
         if form.is_valid():
             omics_units = form.cleaned_data['omics_units']
-            request.session['omics_units'] = omics_units
+            request.session.update({
+                'export': {
+                    'pixels': {
+                        'omics_units': omics_units,
+                    },
+                },
+            })
 
             return self.form_valid(form)
         else:
@@ -216,7 +232,7 @@ class PixelSetExportPixelsView(LoginRequiredMixin, BaseDetailView):
         )
 
     def get(self, request, *args, **kwargs):
-        omics_units = request.session.get('omics_units', default=[])
+        omics_units = get_omics_units_for_export(request.session)
 
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename={}'.format(
