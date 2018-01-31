@@ -1014,7 +1014,7 @@ class PixelSetSelectionClearViewTestCase(CoreFixturesTestCase):
         )
 
 
-class PixelSetUnselectViewTestCase(CoreFixturesTestCase):
+class PixelSetDeselectViewTestCase(CoreFixturesTestCase):
 
     def setUp(self):
 
@@ -1027,7 +1027,7 @@ class PixelSetUnselectViewTestCase(CoreFixturesTestCase):
             username=self.user.username,
             password=factories.PIXELER_PASSWORD,
         )
-        self.url = reverse('explorer:pixelset_unselect')
+        self.url = reverse('explorer:pixelset_deselect')
         self.pixel_sets = factories.PixelSetFactory.create_batch(2)
         data = {
             'pixel_sets': [str(p.id) for p in self.pixel_sets]
@@ -1042,7 +1042,7 @@ class PixelSetUnselectViewTestCase(CoreFixturesTestCase):
 
         self.assertRedirects(response, reverse('explorer:pixelset_list'))
 
-    def test_unselect(self):
+    def test_deselect(self):
 
         session_pixel_sets = get_pixel_sets_for_export(self.client.session)
         self.assertEqual(len(session_pixel_sets), len(self.pixel_sets))

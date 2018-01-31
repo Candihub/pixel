@@ -88,7 +88,7 @@ class SessionPixelSetSelectForm(forms.Form):
     pixel_set = forms.ChoiceField(
         choices=[],
         error_messages={
-            'required': _('You must select one selected Pixel Set.'),
+            'required': _('You must pick on pixel set from stored selection.'),
         },
     )
 

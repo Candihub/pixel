@@ -47,13 +47,13 @@
           {{ pixelset.pixels_file.name|filename }}
         </a>
 
-        <form action="{% url 'explorer:pixelset_unselect' %}" method="post">
+        <form action="{% url 'explorer:pixelset_deselect' %}" method="post">
           {% csrf_token %}
           <input type="hidden" name="pixel_set" value="{{ pixelset.id }}">
           <button
             type="submit"
-            name="unselect"
-            class="button clear action-unselect"
+            name="deselect"
+            class="button clear action-deselect"
             title="{% trans "Remove this pixel set from selection" %}"
           >
             <i class="fa fa-trash-o" aria-hidden="true"></i>

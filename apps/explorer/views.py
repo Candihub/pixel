@@ -159,7 +159,7 @@ class PixelSetSelectionClearView(LoginRequiredMixin, RedirectView):
         return super().post(request, *args, **kwargs)
 
 
-class PixelSetUnselectView(LoginRequiredMixin, FormView):
+class PixelSetDeselectView(LoginRequiredMixin, FormView):
 
     form_class = SessionPixelSetSelectForm
     http_method_names = ['post', ]
