@@ -177,7 +177,7 @@ class PixelSetSelectView(LoginRequiredMixin, FormView):
 
         messages.success(
             self.request,
-            _("{} pixelset(s) have been saved for exportation").format(
+            _("{} pixelset(s) have been saved for export").format(
                 len(form.cleaned_data['pixel_sets'])
             )
         )

@@ -946,7 +946,7 @@ class PixelSetSelectViewTestCase(CoreFixturesTestCase):
             response,
             (
                 '<div class="message success">'
-                '2 pixelset(s) have been saved for exportation'
+                '2 pixelset(s) have been saved for export'
                 '</div>'
             ),
             html=True
