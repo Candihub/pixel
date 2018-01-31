@@ -15,6 +15,7 @@ from apps.core.management.commands.make_development_fixtures import (
 )
 from apps.explorer.views import (
     PixelSetDetailView, PixelSetExportView, PixelSetExportPixelsView,
+    get_omics_units_for_export,
 )
 
 
@@ -1087,7 +1088,7 @@ class PixelSetDetailViewTestCase(CoreFixturesTestCase):
         session = self.client.session
         omics_unit_id = self.pixels[0].omics_unit.reference.identifier
 
-        self.assertIsNone(session.get('omics_units', None))
+        self.assertIsNone(get_omics_units_for_export(session, default=None))
 
         response = self.client.post(self.url, {
             'omics_units': omics_unit_id,
@@ -1095,7 +1096,7 @@ class PixelSetDetailViewTestCase(CoreFixturesTestCase):
 
         self.assertRedirects(response, self.pixel_set.get_absolute_url())
         self.assertEqual(
-            self.client.session.get('omics_units'),
+            get_omics_units_for_export(self.client.session),
             [omics_unit_id]
         )
         self.assertContains(
@@ -1112,7 +1113,7 @@ class PixelSetDetailViewTestCase(CoreFixturesTestCase):
 
         session = self.client.session
 
-        self.assertIsNone(session.get('omics_units', None))
+        self.assertIsNone(get_omics_units_for_export(session, default=None))
 
         response = self.client.post(self.url, {
             'omics_units': 'invalid',
@@ -1120,7 +1121,7 @@ class PixelSetDetailViewTestCase(CoreFixturesTestCase):
 
         self.assertRedirects(response, self.pixel_set.get_absolute_url())
         self.assertEqual(
-            self.client.session.get('omics_units'),
+            get_omics_units_for_export(self.client.session),
             ['invalid']
         )
         self.assertContains(
@@ -1139,7 +1140,7 @@ class PixelSetDetailViewTestCase(CoreFixturesTestCase):
         omics_unit_id_1 = self.pixels[0].omics_unit.reference.identifier
         omics_unit_id_2 = self.pixels[1].omics_unit.reference.identifier
 
-        self.assertIsNone(session.get('omics_units', None))
+        self.assertIsNone(get_omics_units_for_export(session, default=None))
 
         response = self.client.post(self.url, {
             'omics_units': f'{omics_unit_id_1}, {omics_unit_id_2}',
@@ -1147,7 +1148,7 @@ class PixelSetDetailViewTestCase(CoreFixturesTestCase):
 
         self.assertRedirects(response, self.pixel_set.get_absolute_url())
         self.assertEqual(
-            set(self.client.session.get('omics_units')),
+            set(get_omics_units_for_export(self.client.session)),
             set([omics_unit_id_1, omics_unit_id_2])
         )
         self.assertContains(
@@ -1159,12 +1160,12 @@ class PixelSetDetailViewTestCase(CoreFixturesTestCase):
     def test_empty_subset_returns_all_pixels(self):
 
         session = self.client.session
-        self.assertIsNone(session.get('omics_units', None))
+        self.assertIsNone(get_omics_units_for_export(session, default=None))
 
         response = self.client.post(self.url, follow=True)
 
         self.assertRedirects(response, self.pixel_set.get_absolute_url())
-        self.assertIsNone(session.get('omics_units'))
+        self.assertIsNone(get_omics_units_for_export(session, default=None))
         self.assertContains(
             response,
             '<tr class="pixel">',
