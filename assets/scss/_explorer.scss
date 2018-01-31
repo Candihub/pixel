@@ -5,11 +5,19 @@
     .page-content-wrapper {
       .page-content {
         .sidebar-left {
-          @include xy-cell($size: 2.5, $gutter-output: false);
+          display: none;
+
+          @include breakpoint(medium) {
+            @include xy-cell($size: 3, $gutter-output: false);
+
+            display: block;
+          }
         }
 
         .content {
-          @include xy-cell($size: 9.5, $gutter-position: 'left');
+          @include breakpoint(medium) {
+            @include xy-cell($size: 9, $gutter-position: 'left');
+          }
         }
       }
     }
@@ -21,11 +29,19 @@
         @include xy-grid($wrap: false);
 
         .meta {
-          @include xy-cell($size: 6, $gutter-output: false);
+          @include breakpoint(medium) {
+            @include xy-cell($size: 6, $gutter-output: false);
+          }
         }
 
         .selection {
-          @include xy-cell($size: 6, $gutter-position: 'left');
+          display: none;
+
+          @include breakpoint(medium) {
+            @include xy-cell($size: 6, $gutter-position: 'left');
+
+            display: block;
+          }
         }
       }
     }
@@ -68,7 +84,8 @@
     }
   }
 
-  .pixelsets-wrapper {
+  .pixelsets-wrapper,
+  .pixels-wrapper {
     @include table-scroll;
   }
 
@@ -125,8 +142,9 @@
 
   /* pixel set detail */
   .pixelset-overview {
-
     .meta {
+      @include table-scroll;
+
       table {
         th {
           text-align: left;
@@ -145,6 +163,14 @@
     .value,
     .quality-score {
       font-family: $font-family-monospace;
+    }
+  }
+
+  .edit {
+    display: none;
+
+    @include breakpoint(medium) {
+      display: block;
     }
   }
 }
