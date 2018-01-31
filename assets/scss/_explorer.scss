@@ -76,6 +76,11 @@
 
       form {
         display: inline-block;
+
+        .action-unselect {
+          margin: 0;
+          padding: 0.2rem;
+        }
       }
     }
 
