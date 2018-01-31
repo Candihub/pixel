@@ -123,14 +123,18 @@ class PixelSetParser(object):
         related_entries = Entry.objects.filter(identifier__in=to_create)
 
         if related_entries.count() != len(to_create):
+            missing_entries = list(set(
+                to_create
+            ).difference(
+                set(related_entries.values_list('identifier', flat=True))
+            ))
             raise PixelSetParserSaveError(
                 _(
-                    "Required entries partially exists ({} vs {}). Please "
-                    "load entries first thanks to the load_entries management "
-                    "command."
+                    "{} entries are missing ({}). Please load entries first "
+                    "thanks to the load_entries management command."
                 ).format(
-                    related_entries.count(),
-                    len(to_create)
+                    len(missing_entries),
+                    ", ".join(missing_entries)
                 )
             )
 
