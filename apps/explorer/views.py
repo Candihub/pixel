@@ -123,14 +123,10 @@ class PixelSetListView(LoginRequiredMixin, FormMixin, ListView):
 
     def get_context_data(self, **kwargs):
 
-        selected_pixelset = []
-        if self.request.session.get('export', None):
-            selected_pixelset_ids = self.request.session['export'].get(
-                'pixelsets',
-                []
-            )
+        selected_pixelset = get_pixel_sets_for_export(self.request.session)
+        if len(selected_pixelset):
             selected_pixelset = PixelSet.objects.filter(
-                id__in=selected_pixelset_ids
+                id__in=selected_pixelset
             )
 
         context = super().get_context_data(**kwargs)
@@ -225,9 +221,7 @@ class PixelSetSelectView(LoginRequiredMixin, FormView):
 
     def form_valid(self, form):
 
-        selection = []
-        if self.request.session.get('export', None):
-            selection = self.request.session['export'].get('pixelsets', [])
+        selection = get_pixel_sets_for_export(self.request.session)
         selection += [str(p.id) for p in form.cleaned_data['pixel_sets']]
         selection = list(set(selection))
 
