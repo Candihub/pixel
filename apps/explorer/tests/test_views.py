@@ -1050,14 +1050,14 @@ class PixelSetUnselectViewTestCase(CoreFixturesTestCase):
         data = {
             'pixel_set': str(self.pixel_sets[0].id)
         }
-        response = self.client.post(self.url, data, follow=True)
+        self.client.post(self.url, data, follow=True)
         session_pixel_sets = get_pixel_sets_for_export(self.client.session)
         self.assertEqual(len(session_pixel_sets), 1)
 
         data = {
             'pixel_set': str(self.pixel_sets[1].id)
         }
-        response = self.client.post(self.url, data, follow=True)
+        self.client.post(self.url, data, follow=True)
         session_pixel_sets = get_pixel_sets_for_export(self.client.session)
         self.assertEqual(len(session_pixel_sets), 0)
 
