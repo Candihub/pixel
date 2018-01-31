@@ -35,6 +35,13 @@
   </div>
   {% else %}
   <h3>{% trans "Submission files" %}</h3>
+
+  <div class="success callout" data-closable="slide-out-right">
+    <i class="fa fa-2x fa-check-circle" aria-hidden="true"></i>
+    {% blocktrans %}
+      Submitted archive has been successfully imported!
+    {% endblocktrans %}
+  </div>
   {% endif %}
 
   <table>
