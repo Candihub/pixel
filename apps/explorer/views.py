@@ -2,15 +2,20 @@ from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseRedirect
-from django.urls.base import reverse
+from django.urls.base import reverse, reverse_lazy
 from django.utils import timezone
-from django.views.generic import DetailView, FormView, ListView
+from django.utils.translation import ugettext as _
+from django.views.generic import (
+    DetailView, FormView, ListView, RedirectView, View
+)
 from django.views.generic.detail import BaseDetailView
 from django.views.generic.edit import FormMixin
 
 from apps.core.models import OmicsArea, PixelSet, Tag
-from .forms import (PixelSetFiltersForm, PixelSetExportForm,
-                    PixelSetExportPixelsForm)
+from .forms import (
+    PixelSetFiltersForm, PixelSetExportForm, PixelSetExportPixelsForm,
+    PixelSetSelectForm
+)
 from .utils import export_pixelsets, export_pixels
 
 
@@ -110,33 +115,74 @@ class PixelSetListView(LoginRequiredMixin, FormMixin, ListView):
 
     def get_context_data(self, **kwargs):
 
+        selected_pixelset = []
+        if self.request.session.get('export', None):
+            selected_pixelset_ids = self.request.session['export'].get(
+                'pixelsets',
+                []
+            )
+            selected_pixelset = PixelSet.objects.filter(
+                id__in=selected_pixelset_ids
+            )
+
         context = super().get_context_data(**kwargs)
         context.update({
             'export_form': PixelSetExportForm(),
+            'select_form': PixelSetSelectForm(),
+            'selected_pixelsets': selected_pixelset,
         })
         return context
 
 
-class PixelSetExportView(LoginRequiredMixin, FormView):
-    ATTACHEMENT_FILENAME = 'pixelsets_{date_time}.zip'
+class PixelSetSelectionClearView(LoginRequiredMixin, RedirectView):
 
-    form_class = PixelSetExportForm
+    http_method_names = ['post', ]
+    url = reverse_lazy('explorer:pixelset_list')
 
-    @staticmethod
-    def get_export_archive_filename():
-        return PixelSetExportView.ATTACHEMENT_FILENAME.format(
-            date_time=timezone.now().strftime('%Y%m%d_%Hh%Mm%Ss')
+    def post(self, request, *args, **kwargs):
+
+        request.session.update({
+            'export': {
+                'pixelsets': []
+            }
+        })
+
+        messages.success(
+            request,
+            _("Pixel set selection has been cleared")
         )
+
+        return super().post(request, *args, **kwargs)
+
+
+class PixelSetSelectView(LoginRequiredMixin, FormView):
+
+    form_class = PixelSetSelectForm
+    http_method_names = ['post', ]
+    success_url = reverse_lazy('explorer:pixelset_list')
 
     def form_valid(self, form):
 
-        content = export_pixelsets(form.cleaned_data['pixel_sets']).getvalue()
+        selection = []
+        if self.request.session.get('export', None):
+            selection = self.request.session['export'].get('pixelsets', [])
+        selection += [str(p.id) for p in form.cleaned_data['pixel_sets']]
+        selection = list(set(selection))
 
-        response = HttpResponse(content, content_type='application/zip')
-        response['Content-Disposition'] = 'attachment; filename={}'.format(
-            self.get_export_archive_filename()
+        self.request.session.update({
+            'export': {
+                'pixelsets': selection
+            }
+        })
+
+        messages.success(
+            self.request,
+            _("{} pixelset(s) have been saved for export").format(
+                len(form.cleaned_data['pixel_sets'])
+            )
         )
-        return response
+
+        return super().form_valid(form)
 
     def form_invalid(self, form):
 
@@ -152,6 +198,52 @@ class PixelSetExportView(LoginRequiredMixin, FormView):
             reverse('explorer:pixelset_list')
         )
         return HttpResponseRedirect(redirect_to)
+
+
+class PixelSetExportView(LoginRequiredMixin, View):
+
+    ATTACHEMENT_FILENAME = 'pixelsets_{date_time}.zip'
+    http_method_names = ['post', ]
+
+    @staticmethod
+    def get_export_archive_filename():
+        return PixelSetExportView.ATTACHEMENT_FILENAME.format(
+            date_time=timezone.now().strftime('%Y%m%d_%Hh%Mm%Ss')
+        )
+
+    def post(self, request, *args, **kwargs):
+
+        selection = []
+        if self.request.session.get('export', None):
+            selection = self.request.session['export'].get('pixelsets', [])
+
+        if not len(selection):
+            return self.empty_selection(request)
+
+        qs = PixelSet.objects.filter(id__in=selection)
+        content = export_pixelsets(qs).getvalue()
+
+        # Reset selection
+        request.session.update({
+            'export': {
+                'pixelsets': []
+            }
+        })
+
+        response = HttpResponse(content, content_type='application/zip')
+        response['Content-Disposition'] = 'attachment; filename={}'.format(
+            self.get_export_archive_filename()
+        )
+        return response
+
+    def empty_selection(self, request):
+
+        messages.error(
+            request,
+            _("Cannot export empty selection")
+        )
+
+        return HttpResponseRedirect(reverse('explorer:pixelset_list'))
 
 
 class PixelSetDetailView(LoginRequiredMixin, FormMixin, DetailView):

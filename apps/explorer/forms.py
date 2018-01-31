@@ -79,6 +79,10 @@ class PixelSetExportForm(forms.Form):
     )
 
 
+class PixelSetSelectForm(PixelSetExportForm):
+    pass
+
+
 class PixelSetExportPixelsForm(forms.Form):
 
     omics_units = forms.CharField(
