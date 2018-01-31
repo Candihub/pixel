@@ -83,6 +83,23 @@ class PixelSetSelectForm(PixelSetExportForm):
     pass
 
 
+class SessionPixelSetSelectForm(forms.Form):
+
+    pixel_set = forms.ChoiceField(
+        choices=[],
+        error_messages={
+            'required': _('You must select one selected Pixel Set.'),
+        },
+    )
+
+    def __init__(self, session_pixel_sets, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['pixel_set'].choices = (
+            (p, p) for p in session_pixel_sets
+        )
+
+
 class PixelSetExportPixelsForm(forms.Form):
 
     omics_units = forms.CharField(

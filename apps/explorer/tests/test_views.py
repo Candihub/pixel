@@ -15,7 +15,7 @@ from apps.core.management.commands.make_development_fixtures import (
 )
 from apps.explorer.views import (
     PixelSetDetailView, PixelSetExportView, PixelSetExportPixelsView,
-    get_omics_units_for_export,
+    get_omics_units_for_export, get_pixel_sets_for_export
 )
 
 
@@ -1009,6 +1009,92 @@ class PixelSetSelectionClearViewTestCase(CoreFixturesTestCase):
                 '<div class="message success">'
                 'Pixel set selection has been cleared'
                 '</div>'
+            ),
+            html=True
+        )
+
+
+class PixelSetUnselectViewTestCase(CoreFixturesTestCase):
+
+    def setUp(self):
+
+        self.user = factories.PixelerFactory(
+            is_active=True,
+            is_staff=True,
+            is_superuser=True,
+        )
+        self.client.login(
+            username=self.user.username,
+            password=factories.PIXELER_PASSWORD,
+        )
+        self.url = reverse('explorer:pixelset_unselect')
+        self.pixel_sets = factories.PixelSetFactory.create_batch(2)
+        data = {
+            'pixel_sets': [str(p.id) for p in self.pixel_sets]
+        }
+        self.client.post(
+            reverse('explorer:pixelset_select'), data, follow=True
+        )
+
+    def test_redirects_to_list_view_when_done(self):
+
+        response = self.client.post(self.url)
+
+        self.assertRedirects(response, reverse('explorer:pixelset_list'))
+
+    def test_unselect(self):
+
+        session_pixel_sets = get_pixel_sets_for_export(self.client.session)
+        self.assertEqual(len(session_pixel_sets), len(self.pixel_sets))
+
+        data = {
+            'pixel_set': str(self.pixel_sets[0].id)
+        }
+        response = self.client.post(self.url, data, follow=True)
+        session_pixel_sets = get_pixel_sets_for_export(self.client.session)
+        self.assertEqual(len(session_pixel_sets), 1)
+
+        data = {
+            'pixel_set': str(self.pixel_sets[1].id)
+        }
+        response = self.client.post(self.url, data, follow=True)
+        session_pixel_sets = get_pixel_sets_for_export(self.client.session)
+        self.assertEqual(len(session_pixel_sets), 0)
+
+    def test_renders_message_on_success(self):
+
+        pixel_set = self.pixel_sets[0]
+
+        data = {
+            'pixel_set': str(pixel_set.id)
+        }
+        response = self.client.post(self.url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            (
+                '<div class="message success">'
+                '{} pixel set has been removed from selection'
+                '</div>'
+            ).format(
+                str(pixel_set.id)
+            ),
+            html=True
+        )
+
+    def test_renders_message_on_failure(self):
+
+        fake_id = 'fake'
+        data = {
+            'pixel_set': fake_id
+        }
+        response = self.client.post(self.url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            (
+                f'Select a valid choice. {fake_id} is not one of the '
+                'available choices.'
             ),
             html=True
         )
