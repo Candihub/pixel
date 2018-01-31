@@ -110,8 +110,8 @@ class CGDParserTestCase(ChrFeatureParserTestMixin, TestCase):
         entry = parser.entries['new'][identifiers.index('CAGL0A02321g')]
         assert entry.identifier == 'CAGL0A02321g'
         assert entry.description == (
-            'Ortholog(s) have fructose transmembrane transporter activity, '
-            'glucose transmembrane transporter activity, mannose '
+            'HXT3 | Ortholog(s) have fructose transmembrane transporter '
+            'activity, glucose transmembrane transporter activity, mannose '
             'transmembrane transporter activity and role in fructose import '
             'across plasma membrane, glucose import across plasma membrane'
         )
@@ -192,7 +192,7 @@ class CGDParserTestCase(ChrFeatureParserTestMixin, TestCase):
         assert entry.id == first_entry.id
         # identifier/description should have been updated
         assert entry.identifier == first_entry.identifier
-        assert entry.description == 'Centromere, chromosome A'
+        assert entry.description == 'Cen0A | Centromere, chromosome A'
 
     def test_save_with_aliases(self):
 

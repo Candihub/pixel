@@ -30,6 +30,7 @@ class ChrFeatureParser(object):
 
             - aliases
             - description
+            - gene_name
             - id
             - name
         """
@@ -98,10 +99,16 @@ class ChrFeatureParser(object):
                     digest_size=16
                 ).hexdigest()
 
+                description = feature['description']
+
+                if not pandas.isna(feature['gene_name']):
+                    gene_name = feature['gene_name'].strip()
+                    description = '{} | {}'.format(gene_name, description)
+
                 entry = Entry(
                     pk=pk,
                     identifier=identifier,
-                    description=feature['description'],
+                    description=description,
                     url=url,
                     repository=repository,
                 )
@@ -169,7 +176,7 @@ class CGDParser(ChrFeatureParser):
     def _get_headers(self):
         return (
             'name',  # A
-            'locus',  # B
+            'gene_name',  # B
             'aliases',  # C
             'type',  # D
             'chromosome',  # E
