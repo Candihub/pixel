@@ -30,9 +30,9 @@
 
     <p class="help-text">
       {% blocktrans %}
-      When you select and save pixel sets for export, they are listed below.
-      Once your selection is complete, click on the export button to download an
-      archive (.zip) with the selected Pixel sets.
+      When you select and save Pixel Sets for export in the right panel, they
+      are listed below. Then, click on the "Export" button to download an
+      archive (.zip) with these selected Pixel Sets.
       {% endblocktrans %}
     </p>
 
@@ -41,7 +41,7 @@
       <li class="pixelset">
         <a
           href="{{ pixelset.get_absolute_url }}"
-          title="{% trans "Details about this pixel set" %}"
+          title="{% trans "More information about this Pixel Set" %}"
         >
           <code>{{ pixelset.get_short_uuid }}</code> &mdash;
           {{ pixelset.pixels_file.name|filename }}
@@ -55,7 +55,7 @@
             type="submit"
             name="deselect"
             class="button clear action-deselect"
-            title="{% trans "Remove this pixel set from selection" %}"
+            title="{% trans "Remove this Pixel Set from selection" %}"
           >
             <i class="fa fa-trash-o" aria-hidden="true"></i>
           </button>
@@ -63,7 +63,7 @@
       </li>
       {% empty %}
       <li class="empty">
-        {% trans "No pixel set has been selected yet" %}
+        {% trans "No Pixel Set selected yet." %}
       </li>
       {% endfor %}
     </ul>
@@ -137,6 +137,8 @@
           </tr>
         </thead>
         <tbody>
+          {% with highlight_term=form.cleaned_data.search %}
+
           {% for pixelset in pixelset_list %}
           <tr
             class="pixelset{% if pixelset in selected_pixelsets %} in-selection{% endif %}"
@@ -146,14 +148,17 @@
                 name="pixel_sets"
                 value="{{ pixelset.id }}"
                 type="checkbox"
-                {% if pixelset in selected_pixelsets %}checked="checked"{% endif %}
+                {% if pixelset in selected_pixelsets %}
+                disabled="disabled"
+                title="{% trans "This Pixel Set is already selected" %}"
+                {% endif %}
               >
             </td>
             <td class="filename">
               <!-- Pixel set file name -->
               <a
                 href="{{ pixelset.get_absolute_url }}"
-                title="{% trans "Click for details about this pixel set" %}"
+                title="{% trans "Click for details about this Pixel Set" %}"
               >
                 {{ pixelset.pixels_file.name|filename }}
               </a>
@@ -182,7 +187,7 @@
             </td>
             <td class="analysis">
               <!-- Analysis -->
-              {{ pixelset.analysis.description | highlight:form.cleaned_data.search }}
+              {{ pixelset.analysis.description | highlight:highlight_term }}
               <span class="completed-at">
                 {% trans "Completion date:" %}
                 {{ pixelset.analysis.completed_at | date }}
@@ -192,7 +197,7 @@
               <!-- Experiment -->
               {% for experiment in pixelset.analysis.experiments.all %}
               <span class="experiment">
-                {{ experiment.description | highlight:form.cleaned_data.search }}
+                {{ experiment.description | highlight:highlight_term }}
               </span>
               <span class="completed-at">
                 {% trans "Completion date:" %}
@@ -215,10 +220,12 @@
           {% empty %}
           <tr>
             <td colspan="8" class="empty">
-              {% trans "No pixel set matches your query" %}
+              {% trans "No Pixel Set matches your query" %}
             </td>
           </tr>
           {% endfor %}
+
+          {% endwith %}
         </tbody>
       </table>
       <p class="help-text">
@@ -233,7 +240,7 @@
     <div class="actions">
       <button type="submit" class="button">
         <i class="fa fa-floppy-o" aria-hidden="true"></i>
-        {% trans "Save selection" %}
+        {% trans "Save selected pixels" %}
       </button>
     </div>
 

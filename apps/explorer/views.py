@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls.base import reverse
 from django.utils import timezone
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext as _, ngettext
 from django.views.generic import (
     DetailView, FormView, ListView, RedirectView, View
 )
@@ -158,7 +158,7 @@ class PixelSetSelectionClearView(LoginRequiredMixin, RedirectView):
 
         messages.success(
             request,
-            _("Pixel set selection has been cleared")
+            _("Pixel Set selection has been cleared.")
         )
 
         return super().post(request, *args, **kwargs)
@@ -200,7 +200,7 @@ class PixelSetDeselectView(LoginRequiredMixin, FormView):
 
         messages.success(
             self.request,
-            _("{} pixel set has been removed from selection").format(
+            _("Pixel Set '{}' has been removed from selection.").format(
                 pixel_set
             )
         )
@@ -242,11 +242,17 @@ class PixelSetSelectView(LoginRequiredMixin, FormView):
             }
         })
 
+        nb_pixelsets = len(form.cleaned_data['pixel_sets'])
+
         messages.success(
             self.request,
-            _("{} pixelset(s) have been saved for export").format(
-                len(form.cleaned_data['pixel_sets'])
-            )
+            ngettext(
+                '%(count)d Pixel Set has been selected for export.',
+                '%(count)d Pixel Sets have been selected for export.',
+                nb_pixelsets
+            ) % {
+                'count': nb_pixelsets,
+            }
         )
 
         return super().form_valid(form)
