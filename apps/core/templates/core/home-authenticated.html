@@ -22,7 +22,7 @@
       var data = google.visualization.arrayToDataTable([
         ['Species', '# of Pixels'],
         {% for item in pixels_by_species %}
-        ['{{ item.name }}', '{{ item.nb }}'],
+        ['{{ item.name }}', {{ item.nb }}],
         {% endfor %}
       ]);
 
