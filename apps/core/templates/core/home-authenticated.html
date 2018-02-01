@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block content %}
+  <h2>{% trans "Welcome to Pixel" %}</h2>
+
+  <div class="grid-x">
+    <div class="cell">
+      <div id="pixels-by-species" style="height: 500px"></div>
+    </div>
+  </div>
+{% endblock content %}
+
+{% block javascript %}
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script type="text/javascript">
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+      var data = google.visualization.arrayToDataTable([
+        ['Species', '# of Pixels'],
+        {% for item in pixels_by_species %}
+        ['{{ item.name }}', '{{ item.nb }}'],
+        {% endfor %}
+      ]);
+
+      var options = {
+        title: 'Pixels by Species'
+      };
+
+      var chart = new google.visualization.PieChart(document.getElementById('pixels-by-species'));
+
+      chart.draw(data, options);
+    }
+  </script>
+{% endblock javascript %}
