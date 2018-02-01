@@ -4,16 +4,16 @@
 {% load files %}
 {% load spurl %}
 
-{% block title %}{% trans "Pixel set" %} {{ pixelset.id }}{% endblock %}
+{% block title %}{% trans "Pixel Set" %} {{ pixelset.id }}{% endblock %}
 {% block body_class %}{{ block.super }} explorer pixelset detail{% endblock %}
 
 {% block header %}
 <h1>
   <a href="{% url 'explorer:pixelset_list' %}">
-    {% trans "Pixel sets" %}
+    {% trans "Pixel Sets" %}
   </a>
   /
-  {% trans "Pixel set" %}
+  {% trans "Pixel Set" %}
   <span class="subheader">
     {{ pixelset.get_short_uuid }}
   </span>
@@ -22,11 +22,11 @@
 {% if request.user.is_staff %}
 <a
   href="{% url 'admin:core_pixelset_change' pixelset.id %}"
-  title="{% trans "Edit this pixel set from the admin" %}"
+  title="{% trans "Edit this Pixel Set from the admin" %}"
   class="edit"
 >
   <i class="fa fa-pencil" aria-hidden="true"></i>
-  {% trans "Edit this pixel set" %}
+  {% trans "Edit this Pixel Set" %}
 </a>
 {% endif %}
 {% endblock %}
@@ -50,7 +50,7 @@
           <tr>
             <th>{% trans "Filename" %}</th>
             <td class="filename">
-              <!-- Pixel set file name -->
+              <!-- Pixel Set file name -->
               {{ pixelset.pixels_file.name|filename }}
               <a
                 href="{{ pixelset.pixels_file.url }}"
@@ -182,7 +182,7 @@
       <p>
         {% blocktrans %}
           Copy/paste a list of omics units to select a subset of pixels in this
-          pixel set and export them.
+          Pixel Set and export them.
         {% endblocktrans %}
       </p>
 
@@ -236,7 +236,7 @@
     {% if pixels.count >= pixels_limit %}
       <div class="callout secondary">
         {% blocktrans %}
-          The following table is an overview of pixels from the pixel set. Only
+          The following table is an overview of pixels from the Pixel Set. Only
           the first <strong>{{ pixels_limit }}</strong> are shown.
         {% endblocktrans %}
       </div>

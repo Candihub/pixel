@@ -4,12 +4,12 @@
 {% load files %}
 {% load explorer %}
 
-{% block title %}{% trans "Pixel sets" %}{% endblock %}
+{% block title %}{% trans "Pixel Sets" %}{% endblock %}
 {% block body_class %}{{ block.super }} explorer pixelsets{% endblock %}
 
 {% block header %}
 <h1>
-  {% trans "Pixel sets" %}
+  {% trans "Pixel Sets" %}
 </h1>
 <span class="subheader">
   {% trans "total:" %} {{ paginator.count }}<br/>
@@ -126,7 +126,7 @@
         <thead>
           <tr>
             <th>#</th>
-            <th>{% trans "Pixel set" %}</th>
+            <th>{% trans "Pixel Set" %}</th>
             <th>{% trans "Species" %}</th>
             <th>{% trans "Omics Unit type" %}</th>
             <th>{% trans "Omics area" %}</th>
@@ -140,9 +140,7 @@
           {% with highlight_term=form.cleaned_data.search %}
 
           {% for pixelset in pixelset_list %}
-          <tr
-            class="pixelset{% if pixelset in selected_pixelsets %} in-selection{% endif %}"
-          >
+          <tr class="pixelset{% if pixelset in selected_pixelsets %} in-selection{% endif %}">
             <td>
               <input
                 name="pixel_sets"
@@ -155,10 +153,10 @@
               >
             </td>
             <td class="filename">
-              <!-- Pixel set file name -->
+              <!-- Pixel Set file name -->
               <a
                 href="{{ pixelset.get_absolute_url }}"
-                title="{% trans "Click for details about this Pixel Set" %}"
+                title="{% trans "More information about this Pixel Set" %}"
               >
                 {{ pixelset.pixels_file.name|filename }}
               </a>
@@ -254,7 +252,7 @@
 {% block javascript %}
 <script>
   (function (document) {
-    // Pixel set selection
+    // Pixel Set selection
     $rows = document.querySelectorAll('.pixelset');
 
     $rows.forEach(function ($row) {

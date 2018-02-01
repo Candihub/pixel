@@ -200,7 +200,7 @@ class PixelSetDeselectView(LoginRequiredMixin, FormView):
 
         messages.success(
             self.request,
-            _("Pixel Set '{}' has been removed from selection.").format(
+            _("Pixel Set {} has been removed from selection.").format(
                 pixel_set
             )
         )
@@ -232,9 +232,13 @@ class PixelSetSelectView(LoginRequiredMixin, FormView):
 
     def form_valid(self, form):
 
-        selection = get_pixel_sets_for_export(self.request.session)
-        selection += [str(p.id) for p in form.cleaned_data['pixel_sets']]
-        selection = list(set(selection))
+        selection = list(
+            set(
+                get_pixel_sets_for_export(self.request.session) + [
+                    str(p.id) for p in form.cleaned_data['pixel_sets']
+                ]
+            )
+        )
 
         self.request.session.update({
             'export': {

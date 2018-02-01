@@ -47,7 +47,7 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
 
         expected = (
             '<td colspan="8" class="empty">'
-            'No pixel set matches your query'
+            'No Pixel Set matches your query'
             '</td>'
         )
         self.assertContains(response, expected, html=True)
@@ -59,7 +59,7 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
         expected = (
             '<button type="submit" class="button">',
             '<i class="fa fa-download" aria-hidden="true"></i>'
-            'Download an archive (.zip) with the selected Pixel sets',
+            'Download an archive (.zip) with the selected Pixel Sets',
             '</button>'
         )
 
@@ -155,7 +155,7 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
 
     def test_omics_unit_types_filter(self):
 
-        # We generate one pixel per pixelset so that half of pixel sets
+        # We generate one pixel per pixelset so that half of Pixel Sets
         # contains pixels with 'mRNA' omics unit type and the other half
         # 'protein' omics unit type
         n_pixel_sets = 8
@@ -230,7 +230,7 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
             n_pixels_per_set=1
         )
 
-        # Create a parent omics area and link it to a pixel set
+        # Create a parent omics area and link it to a Pixel Set
         parent_omics_area = factories.OmicsAreaFactory()
         first_experiment = factories.ExperimentFactory(
             omics_area=parent_omics_area
@@ -242,7 +242,7 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
             analysis=first_analysis
         )
 
-        # Create a child omics are and link it to a pixel set
+        # Create a child omics are and link it to a Pixel Set
         child_omics_area = factories.OmicsAreaFactory(
             parent=parent_omics_area
         )
@@ -281,9 +281,9 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
                 '<td class="filename">'
                 '<a'
                 f'  href="{second_pixelset.get_absolute_url()}"'
-                '  title="Click for details about this pixel set"'
+                '  title="More information about this Pixel Set"'
                 '>'
-                '<!-- Pixel set file name -->'
+                '<!-- Pixel Set file name -->'
                 f'{filename(second_pixelset.pixels_file.name)}'
                 '</a>'
                 '</td>'
@@ -308,9 +308,9 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
                 '<td class="filename">'
                 '<a'
                 f'  href="{first_pixelset.get_absolute_url()}"'
-                '  title="Click for details about this pixel set"'
+                '  title="More information about this Pixel Set"'
                 '>'
-                '<!-- Pixel set file name -->'
+                '<!-- Pixel Set file name -->'
                 f'{filename(first_pixelset.pixels_file.name)}'
                 '</a>'
                 '</td>'
@@ -325,9 +325,9 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
                 '<td class="filename">'
                 '<a'
                 f'  href="{second_pixelset.get_absolute_url()}"'
-                '  title="Click for details about this pixel set"'
+                '  title="More information about this Pixel Set"'
                 '>'
-                '<!-- Pixel set file name -->'
+                '<!-- Pixel Set file name -->'
                 f'{filename(second_pixelset.pixels_file.name)}'
                 '</a>'
                 '</td>'
@@ -452,9 +452,9 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
                 '<td class="filename">'
                 '<a'
                 f'  href="{first_pixelset.get_absolute_url()}"'
-                '  title="Click for details about this pixel set"'
+                '  title="More information about this Pixel Set"'
                 '>'
-                '<!-- Pixel set file name -->'
+                '<!-- Pixel Set file name -->'
                 f'{filename(first_pixelset.pixels_file.name)}'
                 '</a>'
                 '</td>'
@@ -479,9 +479,9 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
                 '<td class="filename">'
                 '<a'
                 f'  href="{first_pixelset.get_absolute_url()}"'
-                '  title="Click for details about this pixel set"'
+                '  title="More information about this Pixel Set"'
                 '>'
-                '<!-- Pixel set file name -->'
+                '<!-- Pixel Set file name -->'
                 f'{filename(first_pixelset.pixels_file.name)}'
                 '</a>'
                 '</td>'
@@ -495,9 +495,9 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
                 '<td class="filename">'
                 '<a'
                 f'  href="{second_pixelset.get_absolute_url()}"'
-                '  title="Click for details about this pixel set"'
+                '  title="More information about this Pixel Set"'
                 '>'
-                '<!-- Pixel set file name -->'
+                '<!-- Pixel Set file name -->'
                 f'{filename(second_pixelset.pixels_file.name)}'
                 '</a>'
                 '</td>'
@@ -514,7 +514,7 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
             n_pixels_per_set=1
         )
 
-        # Create a special pixel set which will match all filters
+        # Create a special Pixel Set which will match all filters
         species = factories.SpeciesFactory()
         strain = factories.StrainFactory(species=species)
         omics_unit_type = factories.OmicsUnitTypeFactory()
@@ -637,7 +637,7 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
             response,
             (
                 '<td colspan="8" class="empty">'
-                'No pixel set matches your query'
+                'No Pixel Set matches your query'
                 '</td>'
             ),
             count=1,
@@ -679,9 +679,9 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
                 '<td class="filename">'
                 '<a'
                 f'  href="{pixel_set.get_absolute_url()}"'
-                '  title="Click for details about this pixel set"'
+                '  title="More information about this Pixel Set"'
                 '>'
-                '<!-- Pixel set file name -->'
+                '<!-- Pixel Set file name -->'
                 f'{filename(pixel_set.pixels_file.name)}'
                 '</a>'
                 '</td>'
@@ -753,9 +753,9 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
                 '<td class="filename">'
                 '<a'
                 f'  href="{first_pixel_set.get_absolute_url()}"'
-                '  title="Click for details about this pixel set"'
+                '  title="More information about this Pixel Set"'
                 '>'
-                '<!-- Pixel set file name -->'
+                '<!-- Pixel Set file name -->'
                 f'{filename(first_pixel_set.pixels_file.name)}'
                 '</a>'
                 '</td>'
@@ -769,9 +769,9 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
                 '<td class="filename">'
                 '<a'
                 f'  href="{second_pixel_set.get_absolute_url()}"'
-                '  title="Click for details about this pixel set"'
+                '  title="More information about this Pixel Set"'
                 '>'
-                '<!-- Pixel set file name -->'
+                '<!-- Pixel Set file name -->'
                 f'{filename(second_pixel_set.pixels_file.name)}'
                 '</a>'
                 '</td>'
@@ -843,6 +843,8 @@ class PixelSetSelectViewTestCase(CoreFixturesTestCase):
 
     def setUp(self):
 
+        super().setUp()
+
         self.user = factories.PixelerFactory(
             is_active=True,
             is_staff=True,
@@ -896,6 +898,7 @@ class PixelSetSelectViewTestCase(CoreFixturesTestCase):
         self.assertIsNotNone(self.client.session.get('export'))
 
         session_pixel_sets = self.client.session.get('export').get('pixelsets')
+
         self.assertIsNotNone(session_pixel_sets)
         self.assertEqual(len(pixel_sets_ids), len(session_pixel_sets))
 
@@ -904,7 +907,7 @@ class PixelSetSelectViewTestCase(CoreFixturesTestCase):
 
     def test_adds_new_selection_in_user_session(self):
 
-        # First pixel sets selection
+        # First Pixel Sets selection
         pixel_sets = factories.PixelSetFactory.create_batch(2)
         pixel_sets_ids = [str(p.id) for p in pixel_sets]
 
@@ -914,7 +917,7 @@ class PixelSetSelectViewTestCase(CoreFixturesTestCase):
         session_pixel_sets = self.client.session.get('export').get('pixelsets')
         self.assertEqual(len(pixel_sets_ids), len(session_pixel_sets))
 
-        # Second pixel set seletion
+        # Second Pixel Set seletion
         new_pixel_sets = factories.PixelSetFactory.create_batch(2)
         new_pixel_sets_ids = [str(p.id) for p in new_pixel_sets]
 
@@ -946,7 +949,7 @@ class PixelSetSelectViewTestCase(CoreFixturesTestCase):
             response,
             (
                 '<div class="message success">'
-                '2 pixelset(s) have been saved for export'
+                '2 Pixel Sets have been selected for export.'
                 '</div>'
             ),
             html=True
@@ -1007,7 +1010,7 @@ class PixelSetSelectionClearViewTestCase(CoreFixturesTestCase):
             response,
             (
                 '<div class="message success">'
-                'Pixel set selection has been cleared'
+                'Pixel Set selection has been cleared.'
                 '</div>'
             ),
             html=True
@@ -1070,11 +1073,12 @@ class PixelSetDeselectViewTestCase(CoreFixturesTestCase):
         }
         response = self.client.post(self.url, data, follow=True)
         self.assertEqual(response.status_code, 200)
+        print(response.content)
         self.assertContains(
             response,
             (
                 '<div class="message success">'
-                '{} pixel set has been removed from selection'
+                "Pixel Set {} has been removed from selection."
                 '</div>'
             ).format(
                 str(pixel_set.id)
@@ -1121,7 +1125,7 @@ class PixelSetExportViewTestCase(CoreFixturesTestCase):
 
         with patch.object(timezone, 'now', return_value=fake_dt):
 
-            # Save pixel sets in user session
+            # Save Pixel Sets in user session
             pixel_sets = factories.PixelSetFactory.create_batch(2)
             data = {
                 'pixel_sets': [str(p.id) for p in pixel_sets]
@@ -1220,11 +1224,11 @@ class PixelSetDetailViewTestCase(CoreFixturesTestCase):
             'admin:core_pixelset_change',
             args=(str(self.pixel_set.id), )
         )
-        title = 'Edit this pixel set from the admin'
+        title = 'Edit this Pixel Set from the admin'
         expected = (
             f'<a href="{admin_url}" title="{title}" class="edit">'
             '<i class="fa fa-pencil" aria-hidden="true"></i>'
-            'Edit this pixel set'
+            'Edit this Pixel Set'
             '</a>'
         )
         self.assertContains(
@@ -1254,7 +1258,7 @@ class PixelSetDetailViewTestCase(CoreFixturesTestCase):
             'admin:core_pixelset_change',
             args=(str(self.pixel_set.id), )
         )
-        title = 'Edit this pixel set from the admin'
+        title = 'Edit this Pixel Set from the admin'
         expected = (
             f'<a href="{admin_url}" title="{title}" class="edit">'
             '<i class="fa fa-pencil" aria-hidden="true"></i>'
