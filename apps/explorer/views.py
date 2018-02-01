@@ -2,7 +2,7 @@ from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseRedirect
-from django.urls.base import reverse, reverse_lazy
+from django.urls.base import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.views.generic import (
@@ -141,7 +141,12 @@ class PixelSetListView(LoginRequiredMixin, FormMixin, ListView):
 class PixelSetSelectionClearView(LoginRequiredMixin, RedirectView):
 
     http_method_names = ['post', ]
-    url = reverse_lazy('explorer:pixelset_list')
+
+    def get_redirect_url(self, *args, **kwargs):
+        return self.request.POST.get(
+            'redirect_to',
+            reverse('explorer:pixelset_list')
+        )
 
     def post(self, request, *args, **kwargs):
 
@@ -163,7 +168,12 @@ class PixelSetDeselectView(LoginRequiredMixin, FormView):
 
     form_class = SessionPixelSetSelectForm
     http_method_names = ['post', ]
-    success_url = reverse_lazy('explorer:pixelset_list')
+
+    def get_success_url(self):
+        return self.request.POST.get(
+            'redirect_to',
+            reverse('explorer:pixelset_list')
+        )
 
     def get_form(self, form_class=None):
         """Instanciate the form with appropriate pixel set choices
@@ -206,18 +216,19 @@ class PixelSetDeselectView(LoginRequiredMixin, FormView):
             ])
         )
 
-        redirect_to = self.request.POST.get(
-            'redirect_to',
-            reverse('explorer:pixelset_list')
-        )
-        return HttpResponseRedirect(redirect_to)
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class PixelSetSelectView(LoginRequiredMixin, FormView):
 
     form_class = PixelSetSelectForm
     http_method_names = ['post', ]
-    success_url = reverse_lazy('explorer:pixelset_list')
+
+    def get_success_url(self):
+        return self.request.POST.get(
+            'redirect_to',
+            reverse('explorer:pixelset_list')
+        )
 
     def form_valid(self, form):
 
@@ -249,11 +260,7 @@ class PixelSetSelectView(LoginRequiredMixin, FormView):
             ])
         )
 
-        redirect_to = self.request.POST.get(
-            'redirect_to',
-            reverse('explorer:pixelset_list')
-        )
-        return HttpResponseRedirect(redirect_to)
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class PixelSetExportView(LoginRequiredMixin, View):

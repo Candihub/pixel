@@ -49,6 +49,7 @@
 
         <form action="{% url 'explorer:pixelset_deselect' %}" method="post">
           {% csrf_token %}
+          <input type="hidden" name="redirect_to" value="{{ request.build_absolute_uri }}">
           <input type="hidden" name="pixel_set" value="{{ pixelset.id }}">
           <button
             type="submit"
@@ -70,6 +71,7 @@
     {% if selected_pixelsets.count %}
     <form action="{% url 'explorer:pixelset_selection_clear' %}" method="post" id="selection-clear-form">
       {% csrf_token %}
+      <input type="hidden" name="redirect_to" value="{{ request.build_absolute_uri }}">
       <input
         type="submit"
         name="clear"
