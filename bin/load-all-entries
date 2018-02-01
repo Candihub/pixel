@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+set -e
+
+if [ -z ${DJANGO_CONFIGURATION+x} ]; then
+    echo "You should run this script within a Docker container."
+    exit 1
+fi
+
+C_GLABRATA_URL=http://www.candidagenome.org/download/chromosomal_feature_files/C_glabrata_CBS138/C_glabrata_CBS138_current_chromosomal_feature.tab
+C_ALBICANS_URL=http://www.candidagenome.org/download/chromosomal_feature_files/C_albicans_SC5314/C_albicans_SC5314_A22_current_chromosomal_feature.tab
+SGD_URL=https://downloads.yeastgenome.org/curation/chromosomal_feature/SGD_features.tab
+
+rm -f /tmp/cgd_1.tab /tmp/cgd_2.tab /tmp/sgd_1.tab
+
+echo "Loading entries from $C_GLABRATA_URL"
+echo
+wget "$C_GLABRATA_URL" -O /tmp/cgd_1.tab
+pipenv run python ./manage.py load_entries --database CGD /tmp/cgd_1.tab
+
+echo "Loading entries from $C_ALBICANS_URL"
+echo
+wget "$C_ALBICANS_URL" -O /tmp/cgd_2.tab
+pipenv run python ./manage.py load_entries --database CGD /tmp/cgd_2.tab
+
+echo "Loading entries from $SGD_URL"
+echo
+wget "$SGD_URL" -O /tmp/sgd_1.tab
+pipenv run python ./manage.py load_entries --database SGD /tmp/sgd_1.tab
