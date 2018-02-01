@@ -76,6 +76,11 @@
 
       form {
         display: inline-block;
+
+        .action-deselect {
+          margin: 0;
+          padding: 0.2rem;
+        }
       }
     }
 
@@ -121,6 +126,11 @@
 
     .pixelset {
       cursor: pointer;
+
+      &.in-selection {
+        background-color: rgba($secondary-color, 0.1);
+        border-left: 3px solid rgba($secondary-color, 0.3);
+      }
     }
 
     td {
@@ -129,6 +139,10 @@
 
     .filename {
       font-family: $font-family-monospace;
+    }
+
+    .omics-unit-types {
+      width: 150px;
     }
 
     .tag {
@@ -159,7 +173,6 @@
   .actions {
     margin-bottom: 10px;
     padding: 20px 0 0;
-    text-align: right;
   }
 
   table.pixelsets {

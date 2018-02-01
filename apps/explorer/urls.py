@@ -27,6 +27,11 @@ urlpatterns = [
         name='pixelset_selection_clear'
     ),
     url(
+        r'^pixelset/deselect$',
+        views.PixelSetDeselectView.as_view(),
+        name='pixelset_deselect'
+    ),
+    url(
         r'^pixelset/select$',
         views.PixelSetSelectView.as_view(),
         name='pixelset_select'

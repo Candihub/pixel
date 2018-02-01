@@ -2,9 +2,9 @@ from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseRedirect
-from django.urls.base import reverse, reverse_lazy
+from django.urls.base import reverse
 from django.utils import timezone
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext as _, ngettext
 from django.views.generic import (
     DetailView, FormView, ListView, RedirectView, View
 )
@@ -14,7 +14,7 @@ from django.views.generic.edit import FormMixin
 from apps.core.models import OmicsArea, PixelSet, Tag
 from .forms import (
     PixelSetFiltersForm, PixelSetExportForm, PixelSetExportPixelsForm,
-    PixelSetSelectForm
+    PixelSetSelectForm, SessionPixelSetSelectForm
 )
 from .utils import export_pixelsets, export_pixels
 
@@ -26,6 +26,14 @@ def get_omics_units_for_export(session, default=[]):
         'pixels', {}
     ).get(
         'omics_units', default
+    )
+
+
+def get_pixel_sets_for_export(session, default=[]):
+    return session.get(
+        'export', {}
+    ).get(
+        'pixelsets', default
     )
 
 
@@ -115,14 +123,10 @@ class PixelSetListView(LoginRequiredMixin, FormMixin, ListView):
 
     def get_context_data(self, **kwargs):
 
-        selected_pixelset = []
-        if self.request.session.get('export', None):
-            selected_pixelset_ids = self.request.session['export'].get(
-                'pixelsets',
-                []
-            )
+        selected_pixelset = get_pixel_sets_for_export(self.request.session)
+        if len(selected_pixelset):
             selected_pixelset = PixelSet.objects.filter(
-                id__in=selected_pixelset_ids
+                id__in=selected_pixelset
             )
 
         context = super().get_context_data(**kwargs)
@@ -137,7 +141,12 @@ class PixelSetListView(LoginRequiredMixin, FormMixin, ListView):
 class PixelSetSelectionClearView(LoginRequiredMixin, RedirectView):
 
     http_method_names = ['post', ]
-    url = reverse_lazy('explorer:pixelset_list')
+
+    def get_redirect_url(self, *args, **kwargs):
+        return self.request.POST.get(
+            'redirect_to',
+            reverse('explorer:pixelset_list')
+        )
 
     def post(self, request, *args, **kwargs):
 
@@ -149,36 +158,50 @@ class PixelSetSelectionClearView(LoginRequiredMixin, RedirectView):
 
         messages.success(
             request,
-            _("Pixel set selection has been cleared")
+            _("Pixel Set selection has been cleared.")
         )
 
         return super().post(request, *args, **kwargs)
 
 
-class PixelSetSelectView(LoginRequiredMixin, FormView):
+class PixelSetDeselectView(LoginRequiredMixin, FormView):
 
-    form_class = PixelSetSelectForm
+    form_class = SessionPixelSetSelectForm
     http_method_names = ['post', ]
-    success_url = reverse_lazy('explorer:pixelset_list')
+
+    def get_success_url(self):
+        return self.request.POST.get(
+            'redirect_to',
+            reverse('explorer:pixelset_list')
+        )
+
+    def get_form(self, form_class=None):
+        """Instanciate the form with appropriate pixel set choices
+        (i.e. pixel sets stored in session)
+        """
+        if form_class is None:
+            form_class = self.get_form_class()
+
+        session_pixel_sets = get_pixel_sets_for_export(self.request.session)
+
+        return form_class(session_pixel_sets, **self.get_form_kwargs())
 
     def form_valid(self, form):
 
-        selection = []
-        if self.request.session.get('export', None):
-            selection = self.request.session['export'].get('pixelsets', [])
-        selection += [str(p.id) for p in form.cleaned_data['pixel_sets']]
-        selection = list(set(selection))
+        session_pixel_sets = get_pixel_sets_for_export(self.request.session)
+        pixel_set = form.cleaned_data['pixel_set']
+        session_pixel_sets.remove(pixel_set)
 
         self.request.session.update({
             'export': {
-                'pixelsets': selection
+                'pixelsets': session_pixel_sets
             }
         })
 
         messages.success(
             self.request,
-            _("{} pixelset(s) have been saved for export").format(
-                len(form.cleaned_data['pixel_sets'])
+            _("Pixel Set {} has been removed from selection.").format(
+                pixel_set
             )
         )
 
@@ -188,16 +211,66 @@ class PixelSetSelectView(LoginRequiredMixin, FormView):
 
         messages.error(
             self.request,
-            "\n".join([
-                errors[0].message for errors in form.errors.as_data().values()
+            '\n'.join([
+                f'{v[0]}' for (k, v) in form.errors.items()
             ])
         )
 
-        redirect_to = self.request.POST.get(
+        return HttpResponseRedirect(self.get_success_url())
+
+
+class PixelSetSelectView(LoginRequiredMixin, FormView):
+
+    form_class = PixelSetSelectForm
+    http_method_names = ['post', ]
+
+    def get_success_url(self):
+        return self.request.POST.get(
             'redirect_to',
             reverse('explorer:pixelset_list')
         )
-        return HttpResponseRedirect(redirect_to)
+
+    def form_valid(self, form):
+
+        selection = list(
+            set(
+                get_pixel_sets_for_export(self.request.session) + [
+                    str(p.id) for p in form.cleaned_data['pixel_sets']
+                ]
+            )
+        )
+
+        self.request.session.update({
+            'export': {
+                'pixelsets': selection
+            }
+        })
+
+        nb_pixelsets = len(form.cleaned_data['pixel_sets'])
+
+        messages.success(
+            self.request,
+            ngettext(
+                '%(count)d Pixel Set has been selected for export.',
+                '%(count)d Pixel Sets have been selected for export.',
+                nb_pixelsets
+            ) % {
+                'count': nb_pixelsets,
+            }
+        )
+
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+
+        messages.error(
+            self.request,
+            '\n'.join([
+                f'{v[0]}' for (k, v) in form.errors.items()
+            ])
+        )
+
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class PixelSetExportView(LoginRequiredMixin, View):
