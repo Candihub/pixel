@@ -136,9 +136,16 @@
         </thead>
         <tbody>
           {% for pixelset in pixelset_list %}
-          <tr class="pixelset">
+          <tr
+            class="pixelset{% if pixelset in selected_pixelsets %} in-selection{% endif %}"
+          >
             <td>
-              <input name="pixel_sets" value="{{ pixelset.id }}" type="checkbox">
+              <input
+                name="pixel_sets"
+                value="{{ pixelset.id }}"
+                type="checkbox"
+                {% if pixelset in selected_pixelsets %}checked="checked"{% endif %}
+              >
             </td>
             <td class="filename">
               <!-- Pixel set file name -->
