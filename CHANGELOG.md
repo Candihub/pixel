@@ -1,5 +1,17 @@
 # Changelog
 
+## 3.0.0 (2018/02/04)
+
+* Add feature gene name to entry.description while importing database entries
+* Improve error message when entries are missing
+* Add admin "edit" links
+* Allow to search omics units by their identifier in the admin
+* Add omics units search by a ref. in the admin
+* Improve UI/UX
+* Add filters on pixel sets list view
+* Add pixel set detail view and subset selection
+* Add CSV export for pixels and pixel sets
+
 ## 2.1.0 (2018/01/22)
 
 * Fix SGD/CGD data import
