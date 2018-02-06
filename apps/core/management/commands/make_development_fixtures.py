@@ -32,8 +32,7 @@ def make_development_fixtures(n_pixel_sets=DEFAULT_N_PIXELSETS,
     # PixelSet
     pixel_sets = factories.PixelSetFactory.create_batch(n_pixel_sets)
 
-    index = 0
-    for pixel_set in pixel_sets:
+    for index, pixel_set in enumerate(pixel_sets):
 
         # Link analysis to experiment
         experiment = experiments[index % len(experiments)]
@@ -44,8 +43,6 @@ def make_development_fixtures(n_pixel_sets=DEFAULT_N_PIXELSETS,
             n_pixels_per_set,
             pixel_set=pixel_set
         )
-
-        index = index + 1
 
 
 class Command(BaseCommand):
