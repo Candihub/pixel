@@ -122,7 +122,7 @@
             <th>{% trans "Experiments" %}</th>
             <td class="experiments">
               <!-- Experiment -->
-              {% for experiment in pixelset.analysis.experiments.all %}
+              {% for experiment in pixelset_experiments %}
               <p>
                 <span class="experiment">
                   {{ experiment.description }}
@@ -158,13 +158,13 @@
             <td class="tags">
               <!-- Tags -->
               {% url 'explorer:pixelset_list' as pixelset_list_base_url %}
-              {% for tag in pixelset.analysis.tags.all %}
+              {% for tag in pixelset.analysis.tags %}
                 <a href="{% spurl base=pixelset_list_base_url set_query="tags={{ tag.id }}" %}">
                   <span class="tag analysis">{{ tag }}</span>
                 </a>
               {% endfor %}
-              {% for experiment in pixelset.analysis.experiments.all %}
-                {% for tag in experiment.tags.all %}
+              {% for experiment in pixelset_experiments %}
+                {% for tag in experiment.tags %}
                   <a href="{% spurl base=pixelset_list_base_url set_query="tags={{ tag.id }}" %}">
                     <span class="tag experiment">{{ tag }}</span>
                   </a>
@@ -200,7 +200,7 @@
             {% trans "Preview" %}
           </button>
 
-          {% if request.session.export.pixels.omics_units and pixels.count > 0 %}
+          {% if request.session.export.pixels.omics_units and pixels_count > 0 %}
           <a class="button" href="{{ pixelset.get_export_pixels_url }}">
               <i class="fa fa-download" aria-hidden="true"></i>
               {% trans "Download a CSV file with the selected Pixels" %}
@@ -212,14 +212,14 @@
       <hr>
 
       <p>
-        {% blocktrans count selected=pixels.count %}
+        {% blocktrans count selected=pixels_count %}
           You have selected
           <span class="badge success">{{ selected }}</span> pixel
           {% plural %}
           You have selected
           <span class="badge success">{{ selected }}</span> pixels
         {% endblocktrans %}
-        {% blocktrans with total=pixelset.pixels.count %}
+        {% blocktrans with total=total_count %}
           among a grand total of
           <span class="badge secondary">{{ total }}</span> pixels.
         {% endblocktrans %}
@@ -233,7 +233,7 @@
       {% trans "Pixels" %}
     </h4>
 
-    {% if pixels.count >= pixels_limit %}
+    {% if total_count > pixels_limit %}
       <div class="callout secondary">
         {% blocktrans %}
           The following table is an overview of pixels from the Pixel Set. Only

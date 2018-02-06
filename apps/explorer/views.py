@@ -331,11 +331,20 @@ class PixelSetDetailView(LoginRequiredMixin, FormMixin, DetailView):
 
         return get_omics_units_for_export(self.request.session)
 
+    def get_queryset(self):
+
+        qs = super().get_queryset().select_related(
+            'analysis__pixeler',
+        )
+
+        return qs
+
     def get_context_data(self, **kwargs):
 
         context = super().get_context_data(**kwargs)
 
-        qs = self.object.pixels.prefetch_related('omics_unit__reference')
+        qs = self.object.pixels.select_related('omics_unit__reference')
+
         omics_units = self.get_omics_units()
 
         if len(omics_units) > 0:
@@ -345,7 +354,10 @@ class PixelSetDetailView(LoginRequiredMixin, FormMixin, DetailView):
 
         context.update({
             'pixels': pixels,
+            'pixels_count': len(pixels),
             'pixels_limit': self.pixels_limit,
+            'total_count': self.object.pixels.count(),
+            'pixelset_experiments': self.object.analysis.experiments.all(),
         })
         return context
 
