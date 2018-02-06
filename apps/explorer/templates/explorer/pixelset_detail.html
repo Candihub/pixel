@@ -158,13 +158,13 @@
             <td class="tags">
               <!-- Tags -->
               {% url 'explorer:pixelset_list' as pixelset_list_base_url %}
-              {% for tag in pixelset.analysis.tags %}
+              {% for tag in pixelset.analysis.tags.all %}
                 <a href="{% spurl base=pixelset_list_base_url set_query="tags={{ tag.id }}" %}">
                   <span class="tag analysis">{{ tag }}</span>
                 </a>
               {% endfor %}
               {% for experiment in pixelset_experiments %}
-                {% for tag in experiment.tags %}
+                {% for tag in experiment.tags.all %}
                   <a href="{% spurl base=pixelset_list_base_url set_query="tags={{ tag.id }}" %}">
                     <span class="tag experiment">{{ tag }}</span>
                   </a>
