@@ -1,6 +1,7 @@
 from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import SuspiciousOperation
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls.base import reverse
 from django.utils import timezone
@@ -10,6 +11,7 @@ from django.views.generic import (
 )
 from django.views.generic.detail import BaseDetailView
 from django.views.generic.edit import FormMixin
+from gviz_api import DataTable
 
 from apps.core.models import OmicsArea, PixelSet, Tag
 from .forms import (
@@ -331,11 +333,20 @@ class PixelSetDetailView(LoginRequiredMixin, FormMixin, DetailView):
 
         return get_omics_units_for_export(self.request.session)
 
+    def get_queryset(self):
+
+        qs = super().get_queryset().select_related(
+            'analysis__pixeler',
+        )
+
+        return qs
+
     def get_context_data(self, **kwargs):
 
         context = super().get_context_data(**kwargs)
 
-        qs = self.object.pixels.prefetch_related('omics_unit__reference')
+        qs = self.object.pixels.select_related('omics_unit__reference')
+
         omics_units = self.get_omics_units()
 
         if len(omics_units) > 0:
@@ -345,7 +356,10 @@ class PixelSetDetailView(LoginRequiredMixin, FormMixin, DetailView):
 
         context.update({
             'pixels': pixels,
+            'pixels_count': len(pixels),
             'pixels_limit': self.pixels_limit,
+            'total_count': self.object.pixels.count(),
+            'pixelset_experiments': self.object.analysis.experiments.all(),
         })
         return context
 
@@ -411,3 +425,37 @@ class PixelSetExportPixelsView(LoginRequiredMixin, BaseDetailView):
         )
 
         return response
+
+
+class PixelSetDetailValuesView(LoginRequiredMixin, BaseDetailView):
+
+    model = PixelSet
+
+    def get(self, request, *args, **kwargs):
+
+        if not request.is_ajax():
+            raise SuspiciousOperation(
+                'This endpoint should only be called from JavaScript.'
+            )
+
+        dt = DataTable({'id': ('string'), 'value': ('number')})
+        dt.LoadData(self.get_object().pixels.values('id', 'value'))
+
+        return HttpResponse(dt.ToJSon(), content_type='application/json')
+
+
+class PixelSetDetailQualityScoresView(LoginRequiredMixin, BaseDetailView):
+
+    model = PixelSet
+
+    def get(self, request, *args, **kwargs):
+
+        if not request.is_ajax():
+            raise SuspiciousOperation(
+                'This endpoint should only be called from JavaScript.'
+            )
+
+        dt = DataTable({'id': ('string'), 'quality_score': ('number')})
+        dt.LoadData(self.get_object().pixels.values('id', 'quality_score'))
+
+        return HttpResponse(dt.ToJSon(), content_type='application/json')

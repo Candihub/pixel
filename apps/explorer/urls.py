@@ -22,6 +22,16 @@ urlpatterns = [
         name='pixelset_detail'
     ),
     url(
+        r'^pixelset/(?P<pk>{})/values.json$'.format(UUID_REGEX),
+        views.PixelSetDetailValuesView.as_view(),
+        name='pixelset_detail_values'
+    ),
+    url(
+        r'^pixelset/(?P<pk>{})/quality-scores.json$'.format(UUID_REGEX),
+        views.PixelSetDetailQualityScoresView.as_view(),
+        name='pixelset_detail_quality_scores'
+    ),
+    url(
         r'^pixelset/clear$',
         views.PixelSetSelectionClearView.as_view(),
         name='pixelset_selection_clear'

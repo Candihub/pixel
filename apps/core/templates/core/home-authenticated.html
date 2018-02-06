@@ -13,26 +13,22 @@
 {% endblock content %}
 
 {% block javascript %}
-  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script type="text/javascript" src="//www.gstatic.com/charts/loader.js"></script>
   <script type="text/javascript">
     google.charts.load('current', {'packages':['corechart']});
-    google.charts.setOnLoadCallback(drawChart);
+    google.charts.setOnLoadCallback(drawCharts);
 
-    function drawChart() {
-      var data = google.visualization.arrayToDataTable([
-        ['Species', '# of Pixels'],
-        {% for item in pixels_by_species %}
-        ['{{ item.name }}', {{ item.nb }}],
-        {% endfor %}
-      ]);
-
-      var options = {
-        title: 'Pixels by Species'
-      };
-
-      var chart = new google.visualization.PieChart(document.getElementById('pixels-by-species'));
-
-      chart.draw(data, options);
+    function drawCharts() {
+      var pixelBySpecies = new google.visualization.PieChart(
+        document.getElementById('pixels-by-species')
+      );
+      pixelBySpecies.draw(
+        google.visualization.arrayToDataTable(
+          {{ pixels_by_species.data|safe }},
+          true
+        ),
+        { title: '{{ pixels_by_species.title }}' }
+      );
     }
   </script>
 {% endblock javascript %}

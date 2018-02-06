@@ -198,6 +198,19 @@
     }
   }
 
+  .pixelset-distributions {
+    @include xy-grid($wrap: false);
+
+    .histogram {
+      @include breakpoint(medium) {
+        @include xy-cell($size: 6, $gutter-output: false);
+      }
+
+      text-align: center;
+      padding: 2em 1em;
+    }
+  }
+
   table.pixels {
     .value,
     .quality-score {
