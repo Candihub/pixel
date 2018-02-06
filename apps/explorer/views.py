@@ -21,7 +21,7 @@ from .forms import (
 from .utils import export_pixelsets, export_pixels
 
 
-def get_omics_units_for_export(session, default=[]):
+def get_omics_units_from_session(session, default=[]):
     return session.get(
         'export', {}
     ).get(
@@ -328,7 +328,7 @@ class PixelSetDetailView(LoginRequiredMixin, FormMixin, DetailView):
 
     def get_omics_units(self):
 
-        return get_omics_units_for_export(self.request.session)
+        return get_omics_units_from_session(self.request.session)
 
     def get_queryset(self):
 
@@ -353,7 +353,7 @@ class PixelSetDetailView(LoginRequiredMixin, FormMixin, DetailView):
 
         context.update({
             'pixels': pixels,
-            'pixels_count': len(pixels),
+            'pixels_count': qs.count(),
             'pixels_limit': self.pixels_limit,
             'total_count': self.object.pixels.count(),
             'pixelset_experiments': self.object.analysis.experiments.all(),
@@ -408,7 +408,7 @@ class PixelSetExportPixelsView(LoginRequiredMixin, BaseDetailView):
         )
 
     def get(self, request, *args, **kwargs):
-        omics_units = get_omics_units_for_export(request.session)
+        omics_units = get_omics_units_from_session(request.session)
 
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename={}'.format(
@@ -435,8 +435,15 @@ class PixelSetDetailValuesView(LoginRequiredMixin, BaseDetailView):
                 'This endpoint should only be called from JavaScript.'
             )
 
+        qs = self.get_object().pixels
+
+        omics_units = get_omics_units_from_session(request.session)
+        # we only filter by Omics Units when specified.
+        if len(omics_units) > 0:
+            qs = qs.filter(omics_unit__reference__identifier__in=omics_units)
+
         dt = DataTable({'id': ('string'), 'value': ('number')})
-        dt.LoadData(self.get_object().pixels.values('id', 'value'))
+        dt.LoadData(qs.values('id', 'value'))
 
         return HttpResponse(dt.ToJSon(), content_type='application/json')
 
@@ -452,7 +459,14 @@ class PixelSetDetailQualityScoresView(LoginRequiredMixin, BaseDetailView):
                 'This endpoint should only be called from JavaScript.'
             )
 
+        qs = self.get_object().pixels
+
+        omics_units = get_omics_units_from_session(request.session)
+        # we only filter by Omics Units when specified.
+        if len(omics_units) > 0:
+            qs = qs.filter(omics_unit__reference__identifier__in=omics_units)
+
         dt = DataTable({'id': ('string'), 'quality_score': ('number')})
-        dt.LoadData(self.get_object().pixels.values('id', 'quality_score'))
+        dt.LoadData(qs.values('id', 'quality_score'))
 
         return HttpResponse(dt.ToJSon(), content_type='application/json')
