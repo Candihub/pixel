@@ -86,6 +86,12 @@ class PixelSetAdmin(admin.ModelAdmin):
     list_filter = (
         'analysis__experiments__omics_area', 'analysis__tags'
     )
+    actions = ('update_cached_fields', )
+
+    def update_cached_fields(self, request, queryset):
+        for pixelset in queryset:
+            pixelset.update_cached_fields()
+    update_cached_fields.short_description = _("Update cached fields")
 
 
 @admin.register(models.Pixel)
