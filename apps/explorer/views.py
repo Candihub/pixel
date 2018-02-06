@@ -1,6 +1,7 @@
 from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import SuspiciousOperation
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls.base import reverse
 from django.utils import timezone
@@ -10,6 +11,7 @@ from django.views.generic import (
 )
 from django.views.generic.detail import BaseDetailView
 from django.views.generic.edit import FormMixin
+from gviz_api import DataTable
 
 from apps.core.models import OmicsArea, PixelSet, Tag
 from .forms import (
@@ -423,3 +425,37 @@ class PixelSetExportPixelsView(LoginRequiredMixin, BaseDetailView):
         )
 
         return response
+
+
+class PixelSetDetailValuesView(LoginRequiredMixin, BaseDetailView):
+
+    model = PixelSet
+
+    def get(self, request, *args, **kwargs):
+
+        if not request.is_ajax():
+            raise SuspiciousOperation(
+                'This endpoint should only be called from JavaScript.'
+            )
+
+        dt = DataTable({'id': ('string'), 'value': ('number')})
+        dt.LoadData(self.get_object().pixels.values('id', 'value'))
+
+        return HttpResponse(dt.ToJSon(), content_type='application/json')
+
+
+class PixelSetDetailQualityScoresView(LoginRequiredMixin, BaseDetailView):
+
+    model = PixelSet
+
+    def get(self, request, *args, **kwargs):
+
+        if not request.is_ajax():
+            raise SuspiciousOperation(
+                'This endpoint should only be called from JavaScript.'
+            )
+
+        dt = DataTable({'id': ('string'), 'quality_score': ('number')})
+        dt.LoadData(self.get_object().pixels.values('id', 'quality_score'))
+
+        return HttpResponse(dt.ToJSon(), content_type='application/json')

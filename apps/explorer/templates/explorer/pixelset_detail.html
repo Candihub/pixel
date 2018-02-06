@@ -224,7 +224,28 @@
           <span class="badge secondary">{{ total }}</span> pixels.
         {% endblocktrans %}
       </p>
+    </div>
+  </section>
 
+  <section>
+    <h4>
+      {% trans "Distributions" %}
+    </h4>
+
+    <div class="pixelset-distributions">
+      <div class="histogram" id="values-histogram">
+        <p>
+          <i class="fa fa-refresh fa-spin"></i>
+          {% trans "Loading the histogram for values..." %}
+        </p>
+      </div>
+
+      <div class="histogram" id="scores-histogram">
+        <p>
+          <i class="fa fa-refresh fa-spin"></i>
+          {% trans "Loading the histogram for quality scores..." %}
+        </p>
+      </div>
     </div>
   </section>
 
@@ -283,3 +304,43 @@
     </table>
   </section>
 {% endblock content %}
+
+{% block javascript %}
+  <script src="//www.gstatic.com/charts/loader.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script type="text/javascript">
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(drawCharts);
+
+    function drawCharts() {
+      var valuesChart = new google.visualization.Histogram(
+        document.getElementById('values-histogram')
+      );
+      var scoresChart = new google.visualization.Histogram(
+        document.getElementById('scores-histogram')
+      );
+
+      $.get('{% url "explorer:pixelset_detail_values" pixelset.id %}', function (data) {
+        valuesChart.draw(
+          new google.visualization.DataTable(data),
+          {
+            height: 300,
+            legend: { position: 'none' },
+            title: '{% trans "Values" %}',
+          }
+        );
+      });
+
+      $.get('{% url "explorer:pixelset_detail_quality_scores" pixelset.id %}', function (data) {
+        scoresChart.draw(
+          new google.visualization.DataTable(data),
+          {
+            height: 300,
+            legend: { position: 'none' },
+            title: '{% trans "Quality scores" %}',
+          }
+        );
+      });
+    }
+  </script>
+{% endblock javascript %}
