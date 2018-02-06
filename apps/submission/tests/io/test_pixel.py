@@ -333,3 +333,29 @@ class PixelTestCase(LoadCGDMixin, CoreFixturesTestCase):
         pixel = Pixel.objects.get(pk=pixel.pk)
         self.assertEqual(pixel.value, 2.703695974165)
         self.assertEqual(pixel.quality_score, 0.00268822352590468)
+
+    def test_save_populates_cached_fields(self):
+
+        parser = PixelSetParser(
+            self.pixelset_path,
+            description=self.description,
+            analysis=self.analysis,
+            omics_unit_type=self.omics_unit_type,
+            strain=self.strain,
+        )
+        parser.parse()
+        self._load_cgd_entries()
+        parser.save()
+
+        self.assertEqual(
+            parser.pixelset.cached_species,
+            ['Candida glabrata']
+        )
+        self.assertEqual(
+            parser.pixelset.cached_omics_areas,
+            []
+        )
+        self.assertEqual(
+            parser.pixelset.cached_omics_unit_types,
+            [self.omics_unit_type.name]
+        )

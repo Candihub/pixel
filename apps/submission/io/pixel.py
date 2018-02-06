@@ -195,6 +195,9 @@ class PixelSetParser(object):
         # Create news entries
         Pixel.objects.bulk_create(self.db_pixels['new'], batch_size=500)
 
+        # Populate PixelSet cached fields
+        self.pixelset.update_cached_fields()
+
         if not update:
             return
 
