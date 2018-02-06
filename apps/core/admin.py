@@ -80,13 +80,16 @@ class OmicsUnitTypeAdmin(admin.ModelAdmin):
 
 @admin.register(models.PixelSet)
 class PixelSetAdmin(admin.ModelAdmin):
+    actions = ('update_cached_fields', )
+    exclude = (
+        'cached_species', 'cached_omics_areas', 'cached_omics_unit_types'
+    )
     list_display = (
         'get_short_uuid', 'description', 'analysis'
     )
     list_filter = (
         'analysis__experiments__omics_area', 'analysis__tags'
     )
-    actions = ('update_cached_fields', )
 
     def update_cached_fields(self, request, queryset):
         for pixelset in queryset:
