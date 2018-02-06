@@ -468,3 +468,24 @@ class PixelSetDetailQualityScoresView(LoginRequiredMixin, DataTableView):
     def get_headers(self):
 
         return {'id': ('string'), 'quality_score': ('number')}
+
+
+class PixelSetSelectionDetailView(LoginRequiredMixin, View):
+
+    def post(self, request, *args, **kwargs):
+
+        selection = []
+        if self.request.session.get('export', None):
+            selection = self.request.session['export'].get('pixelsets', [])
+
+        if not len(selection):
+            return self.empty_selection(request)
+
+    def empty_selection(self, request):
+
+        messages.error(
+            request,
+            _("Cannot export empty selection")
+        )
+
+        return HttpResponseRedirect(reverse('explorer:pixelset_list'))
