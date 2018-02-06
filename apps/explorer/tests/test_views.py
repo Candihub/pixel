@@ -1,4 +1,5 @@
 import datetime
+import json
 
 from django.core.urlresolvers import reverse
 from django.template.defaultfilters import date as date_filter
@@ -1073,7 +1074,6 @@ class PixelSetDeselectViewTestCase(CoreFixturesTestCase):
         }
         response = self.client.post(self.url, data, follow=True)
         self.assertEqual(response.status_code, 200)
-        print(response.content)
         self.assertContains(
             response,
             (
@@ -1500,3 +1500,107 @@ class PixelSetExportPixelsViewTestCase(CoreFixturesTestCase):
                 PixelSetExportPixelsView.get_export_archive_filename(),
                 'pixels_20180112_11h00m00s.csv'
             )
+
+
+class PixelSetDetailValuesViewTestCase(CoreFixturesTestCase):
+
+    def setUp(self):
+
+        self.user = factories.PixelerFactory(
+            is_active=True,
+            is_staff=True,
+            is_superuser=True,
+        )
+        self.client.login(
+            username=self.user.username,
+            password=factories.PIXELER_PASSWORD,
+        )
+
+        self.pixel_set = factories.PixelSetFactory()
+        self.pixels = factories.PixelFactory.create_batch(
+            2,
+            pixel_set=self.pixel_set
+        )
+
+        self.url = reverse(
+            'explorer:pixelset_detail_values',
+            kwargs={'pk': str(self.pixel_set.id)}
+        )
+
+    def test_returns_bad_request_when_not_ajax(self):
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_returns_json(self):
+
+        response = self.client.get(
+            self.url,
+            data={},
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/json')
+
+        data = json.loads(response.content)
+
+        cols = data['cols']
+        self.assertEqual(cols[0]['label'], 'id')
+        self.assertEqual(cols[1]['label'], 'value')
+
+        rows = data['rows']
+        self.assertEqual(len(rows), 2)
+
+
+class PixelSetDetailQualityScoresTestCase(CoreFixturesTestCase):
+
+    def setUp(self):
+
+        self.user = factories.PixelerFactory(
+            is_active=True,
+            is_staff=True,
+            is_superuser=True,
+        )
+        self.client.login(
+            username=self.user.username,
+            password=factories.PIXELER_PASSWORD,
+        )
+
+        self.pixel_set = factories.PixelSetFactory()
+        self.pixels = factories.PixelFactory.create_batch(
+            2,
+            pixel_set=self.pixel_set
+        )
+
+        self.url = reverse(
+            'explorer:pixelset_detail_quality_scores',
+            kwargs={'pk': str(self.pixel_set.id)}
+        )
+
+    def test_returns_bad_request_when_not_ajax(self):
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_returns_json(self):
+
+        response = self.client.get(
+            self.url,
+            data={},
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/json')
+
+        data = json.loads(response.content)
+
+        cols = data['cols']
+        self.assertEqual(cols[0]['label'], 'id')
+        self.assertEqual(cols[1]['label'], 'quality_score')
+
+        rows = data['rows']
+        self.assertEqual(len(rows), 2)
