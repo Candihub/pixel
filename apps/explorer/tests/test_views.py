@@ -1,8 +1,10 @@
 import datetime
 import json
+import pytest
 
 from django.core.urlresolvers import reverse
 from django.template.defaultfilters import date as date_filter
+from django.test import TestCase
 from django.utils import timezone
 from io import BytesIO
 from unittest.mock import patch
@@ -16,6 +18,7 @@ from apps.core.management.commands.make_development_fixtures import (
 )
 from apps.explorer.views import (
     PixelSetDetailView, PixelSetExportView, PixelSetExportPixelsView,
+    DataTableView,
     get_omics_units_from_session, get_pixel_sets_for_export
 )
 
@@ -1585,6 +1588,7 @@ class PixelSetDetailValuesViewTestCase(CoreFixturesTestCase):
         rows = data['rows']
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0]['c'][0]['v'], str(selected_pixel.id))
+        self.assertEqual(rows[0]['c'][1]['v'], selected_pixel.value)
 
 
 class PixelSetDetailQualityScoresTestCase(CoreFixturesTestCase):
@@ -1670,3 +1674,16 @@ class PixelSetDetailQualityScoresTestCase(CoreFixturesTestCase):
         rows = data['rows']
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0]['c'][0]['v'], str(selected_pixel.id))
+        self.assertEqual(rows[0]['c'][1]['v'], selected_pixel.quality_score)
+
+
+class DataTableViewTestCase(TestCase):
+
+    def test_get_headers_must_be_implemented(self):
+
+        class DataTableViewWithNoGetHeaders(DataTableView):
+            pass
+
+        with pytest.raises(NotImplementedError):
+            view = DataTableViewWithNoGetHeaders()
+            view.get_headers()
