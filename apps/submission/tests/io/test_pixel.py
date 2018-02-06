@@ -349,7 +349,7 @@ class PixelTestCase(LoadCGDMixin, CoreFixturesTestCase):
 
         self.assertEqual(
             parser.pixelset.cached_species,
-            ['Candida glabrata']
+            [self.strain.species.name]
         )
         self.assertEqual(
             parser.pixelset.cached_omics_areas,
