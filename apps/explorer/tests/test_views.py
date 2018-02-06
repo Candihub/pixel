@@ -960,7 +960,7 @@ class PixelSetSelectViewTestCase(CoreFixturesTestCase):
         )
 
 
-class PixelSetSelectionClearViewTestCase(CoreFixturesTestCase):
+class PixelSetClearViewTestCase(CoreFixturesTestCase):
 
     def setUp(self):
 
@@ -973,7 +973,7 @@ class PixelSetSelectionClearViewTestCase(CoreFixturesTestCase):
             username=self.user.username,
             password=factories.PIXELER_PASSWORD,
         )
-        self.url = reverse('explorer:pixelset_selection_clear')
+        self.url = reverse('explorer:pixelset_clear')
         self.pixel_sets = []
 
     def _select_pixel_sets(self):

@@ -69,7 +69,7 @@
     </ul>
 
     {% if selected_pixelsets.count %}
-    <form action="{% url 'explorer:pixelset_selection_clear' %}" method="post" id="selection-clear-form">
+    <form action="{% url 'explorer:pixelset_clear' %}" method="post" id="selection-clear-form">
       {% csrf_token %}
       <input type="hidden" name="redirect_to" value="{{ request.build_absolute_uri }}">
       <input
@@ -174,7 +174,7 @@
     <div class="actions">
       <button type="submit" class="button">
         <i class="fa fa-floppy-o" aria-hidden="true"></i>
-        {% trans "Save selected pixels" %}
+        {% trans "Add the selected pixels to the selection" %}
       </button>
     </div>
 

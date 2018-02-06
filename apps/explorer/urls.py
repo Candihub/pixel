@@ -33,8 +33,8 @@ urlpatterns = [
     ),
     url(
         r'^pixelset/clear$',
-        views.PixelSetSelectionClearView.as_view(),
-        name='pixelset_selection_clear'
+        views.PixelSetClearView.as_view(),
+        name='pixelset_clear'
     ),
     url(
         r'^pixelset/deselect$',

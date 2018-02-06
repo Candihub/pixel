@@ -169,7 +169,7 @@ class PixelSetListView(LoginRequiredMixin, FormMixin, ListView):
         return context
 
 
-class PixelSetSelectionClearView(LoginRequiredMixin, RedirectView):
+class PixelSetClearView(LoginRequiredMixin, RedirectView):
 
     http_method_names = ['post', ]
 
@@ -282,8 +282,8 @@ class PixelSetSelectView(LoginRequiredMixin, FormView):
         messages.success(
             self.request,
             ngettext(
-                '%(count)d Pixel Set has been selected for export.',
-                '%(count)d Pixel Sets have been selected for export.',
+                '%(count)d Pixel Set has been added to your selection.',
+                '%(count)d Pixel Sets have been added to your selection.',
                 nb_pixelsets
             ) % {
                 'count': nb_pixelsets,
@@ -344,7 +344,7 @@ class PixelSetExportView(LoginRequiredMixin, View):
 
         messages.error(
             request,
-            _("Cannot export empty selection")
+            _("Cannot export an empty selection.")
         )
 
         return HttpResponseRedirect(reverse('explorer:pixelset_list'))
@@ -470,7 +470,7 @@ class PixelSetDetailQualityScoresView(LoginRequiredMixin, DataTableView):
         return {'id': ('string'), 'quality_score': ('number')}
 
 
-class PixelSetSelectionDetailView(LoginRequiredMixin, View):
+class PixelSetSelectionView(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
 
@@ -485,7 +485,7 @@ class PixelSetSelectionDetailView(LoginRequiredMixin, View):
 
         messages.error(
             request,
-            _("Cannot export empty selection")
+            _("Cannot explore an empty selection.")
         )
 
         return HttpResponseRedirect(reverse('explorer:pixelset_list'))

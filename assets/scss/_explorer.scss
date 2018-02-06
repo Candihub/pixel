@@ -71,6 +71,7 @@
 
       .selected-pixelsets {
         @include left-sidebar-list;
+
         font-size: 0.9rem;
       }
 
@@ -168,15 +169,27 @@
       border-radius: 3px;
       padding: 1px 2px;
     }
+
+    .omics-areas,
+    .omics-unit-types,
+    .pixeler,
+    .species {
+      min-width: 150px;
+    }
+
+    .experiments,
+    .analyses {
+      min-width: 350px;
+    }
+
+    .tags {
+      min-width: 250px;
+    }
   }
 
   .actions {
     margin-bottom: 10px;
     padding: 20px 0 0;
-  }
-
-  table.pixelsets {
-    width: 200%;
   }
 
   /* pixel set detail */
