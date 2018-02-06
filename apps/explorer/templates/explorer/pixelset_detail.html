@@ -64,7 +64,7 @@
             <th>{% trans "Species" %}</th>
             <td class="species">
               <!-- Species-->
-              {% for species in pixelset.get_species %}
+              {% for species in pixelset.cached_species %}
                 <span class="species">{{ species }}</span>
               {% endfor %}
             </td>
@@ -73,7 +73,7 @@
             <th style="width: 110px">{% trans "Omics Unit types" %}</th>
             <td class="omics-unit-types">
               <!-- Omics Unit Type -->
-              {% for type in pixelset.get_omics_unit_types %}
+              {% for type in pixelset.cached_omics_unit_types %}
                 <span class="omics-unit-type">{{ type }}</span>
               {% endfor %}
             </td>
@@ -82,7 +82,7 @@
             <th>{% trans "Omics Areas" %}</th>
             <td class="omics-areas">
               <!-- Omics Area -->
-              {% for area in pixelset.get_omics_areas %}
+              {% for area in pixelset.cached_omics_areas %}
                 <span class="omics-area">{{ area }}</span>
               {% endfor %}
             </td>
