@@ -114,11 +114,8 @@ class PixelSetListView(LoginRequiredMixin, FormMixin, ListView):
             'analysis',
             'analysis__pixeler',
         ).prefetch_related(
-            'analysis__experiments__omics_area',
             'analysis__experiments__tags',
             'analysis__tags',
-            'pixels__omics_unit__type',
-            'pixels__omics_unit__strain__species',
         )
 
         return qs.distinct()

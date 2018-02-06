@@ -102,3 +102,33 @@ class PixelAdminTestCase(CoreFixturesTestCase):
             self.Pixel_admin.get_analysis_description(self.Pixel),
             self.Pixel.pixel_set.analysis.description
         )
+
+
+class PixelSetAdminTestCase(CoreFixturesTestCase):
+
+    def setUp(self):
+        site = AdminSite()
+        analysis = factories.AnalysisFactory(
+            secondary_data__from_path=factories.SECONDARY_DATA_DEFAULT_PATH,
+            notebook__from_path=factories.NOTEBOOK_DEFAULT_PATH,
+        )
+        self.pixel_set = factories.PixelSetFactory(
+            analysis=analysis,
+            pixels_file__from_path=factories.PIXELS_DEFAULT_PATH,
+        )
+        self.pixel = factories.PixelFactory(pixel_set=self.pixel_set)
+        self.pixel_set_admin = admin.PixelSetAdmin(models.PixelSet, site)
+
+    def test_update_cached_fields(self):
+
+        self.assertEqual(self.pixel_set.cached_species, [])
+
+        self.pixel_set_admin.update_cached_fields(
+            request=None,
+            queryset=[self.pixel_set]
+        )
+
+        self.assertEqual(
+            self.pixel_set.cached_species,
+            [self.pixel.omics_unit.strain.species.name]
+        )

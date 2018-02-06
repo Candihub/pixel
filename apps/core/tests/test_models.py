@@ -393,6 +393,35 @@ class PixelSetTestCase(CoreFixturesTestCase):
             list(expected),
         )
 
+    def test_update_cached_fields(self):
+
+        self.assertEqual(self.pixel_set.cached_species, [])
+        self.assertEqual(self.pixel_set.cached_omics_unit_types, [])
+        self.assertEqual(self.pixel_set.cached_omics_areas, [])
+
+        self.pixel_set.update_cached_fields()
+
+        expected_species = list(
+            models.Species.objects.values_list('name', flat=True)
+        )
+        expected_species.sort()
+        species = self.pixel_set.cached_species
+        species.sort()
+        self.assertEqual(species, expected_species)
+
+        expected_types = list(
+            models.OmicsUnitType.objects.values_list('name', flat=True)
+        )
+        expected_types.sort()
+        types = self.pixel_set.cached_omics_unit_types
+        types.sort()
+        self.assertEqual(types, expected_types)
+
+        self.assertEqual(
+            self.pixel_set.cached_omics_areas,
+            [self.experiment.omics_area.name, ]
+        )
+
 
 class PixelTestCase(TestCase):
 

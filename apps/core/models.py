@@ -2,6 +2,7 @@ import uuid
 import mptt
 
 from django.contrib.auth.models import AbstractUser
+from django.contrib.postgres.fields import ArrayField
 from django.conf import settings
 from django.db import models
 from django.urls import reverse
@@ -229,6 +230,21 @@ class PixelSet(UUIDModelMixin, models.Model):
         blank=True,
     )
 
+    cached_species = ArrayField(
+        models.CharField(max_length=100, blank=False),
+        default=list()
+    )
+
+    cached_omics_areas = ArrayField(
+        models.CharField(max_length=100, blank=False),
+        default=list()
+    )
+
+    cached_omics_unit_types = ArrayField(
+        models.CharField(max_length=100, blank=False),
+        default=list()
+    )
+
     analysis = models.ForeignKey(
         'Analysis',
         on_delete=models.CASCADE,
@@ -254,22 +270,43 @@ class PixelSet(UUIDModelMixin, models.Model):
         )
 
     def get_omics_areas(self):
+        # This method is extremely costly and that is why we have added the
+        # `cached_omics_areas` field. This method is used for updating this
+        # field rather than being used directly.
         return set(self.analysis.experiments.values_list(
             'omics_area__name',
             flat=True
         ))
 
     def get_omics_unit_types(self):
+        # This method is extremely costly and that is why we have added the
+        # `cached_omics_unit_types` field. This method is used for updating
+        # this field rather than being used directly.
         return set(self.pixels.values_list(
             'omics_unit__type__name',
             flat=True
         ))
 
     def get_species(self):
+        # This method is extremely costly and that is why we have added the
+        # `cached_species` field. This method is used for updating this field
+        # rather than being used directly.
         return set(self.pixels.values_list(
             'omics_unit__strain__species__name',
             flat=True
         ))
+
+    def update_cached_fields(self):
+        self.cached_species = list(self.get_species())
+        self.cached_omics_unit_types = list(self.get_omics_unit_types())
+        self.cached_omics_areas = list(self.get_omics_areas())
+        self.save(
+            update_fields=[
+                'cached_species',
+                'cached_omics_unit_types',
+                'cached_omics_areas',
+            ]
+        )
 
 
 class Pixel(UUIDModelMixin, models.Model):
