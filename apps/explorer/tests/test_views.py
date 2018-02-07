@@ -892,16 +892,18 @@ class PixelSetSelectViewTestCase(CoreFixturesTestCase):
         pixel_sets = factories.PixelSetFactory.create_batch(2)
         pixel_sets_ids = [str(p.id) for p in pixel_sets]
 
-        self.assertIsNone(self.client.session.get('export'))
+        self.assertIsNone(self.client.session.get('explorer'))
 
         response = self.client.post(self.url, {
             'pixel_sets': pixel_sets_ids
         })
 
         self.assertEqual(response.status_code, 302)
-        self.assertIsNotNone(self.client.session.get('export'))
+        self.assertIsNotNone(self.client.session.get('explorer'))
 
-        session_pixel_sets = self.client.session.get('export').get('pixelsets')
+        session_pixel_sets = get_selected_pixel_sets_from_session(
+            self.client.session
+        )
 
         self.assertIsNotNone(session_pixel_sets)
         self.assertEqual(len(pixel_sets_ids), len(session_pixel_sets))
@@ -918,7 +920,9 @@ class PixelSetSelectViewTestCase(CoreFixturesTestCase):
         data = {'pixel_sets': pixel_sets_ids}
         self.client.post(self.url, data, follow=True)
 
-        session_pixel_sets = self.client.session.get('export').get('pixelsets')
+        session_pixel_sets = get_selected_pixel_sets_from_session(
+            self.client.session
+        )
         self.assertEqual(len(pixel_sets_ids), len(session_pixel_sets))
 
         # Second Pixel Set seletion
@@ -928,7 +932,9 @@ class PixelSetSelectViewTestCase(CoreFixturesTestCase):
         data = {'pixel_sets': new_pixel_sets_ids}
         self.client.post(self.url, data, follow=True)
 
-        session_pixel_sets = self.client.session.get('export').get('pixelsets')
+        session_pixel_sets = get_selected_pixel_sets_from_session(
+            self.client.session
+        )
         self.assertEqual(
             len(pixel_sets_ids + new_pixel_sets_ids),
             len(session_pixel_sets)
@@ -996,12 +1002,16 @@ class PixelSetClearViewTestCase(CoreFixturesTestCase):
 
         self._select_pixel_sets()
 
-        session_pixel_sets = self.client.session.get('export').get('pixelsets')
+        session_pixel_sets = get_selected_pixel_sets_from_session(
+            self.client.session
+        )
         self.assertEqual(len(session_pixel_sets), len(self.pixel_sets))
 
         self.client.post(self.url, {}, follow=True)
 
-        session_pixel_sets = self.client.session.get('export').get('pixelsets')
+        session_pixel_sets = get_selected_pixel_sets_from_session(
+            self.client.session
+        )
         self.assertEqual(len(session_pixel_sets), 0)
 
     def test_renders_message_on_success(self):
@@ -1170,11 +1180,15 @@ class PixelSetExportViewTestCase(CoreFixturesTestCase):
             reverse('explorer:pixelset_select'), data, follow=True
         )
 
-        session_pixel_sets = self.client.session.get('export').get('pixelsets')
+        session_pixel_sets = get_selected_pixel_sets_from_session(
+            self.client.session
+        )
         self.assertEqual(len(session_pixel_sets), len(pixel_sets))
 
         self.client.post(self.url)
-        session_pixel_sets = self.client.session.get('export').get('pixelsets')
+        session_pixel_sets = get_selected_pixel_sets_from_session(
+            self.client.session
+        )
         self.assertEqual(len(session_pixel_sets), 0)
 
     def test_displays_message_after_redirect_when_selection_is_empty(self):
