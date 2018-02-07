@@ -1762,6 +1762,11 @@ class PixelSetSelectionViewTestCase(CoreFixturesTestCase):
 
         self.assertContains(
             response,
+            '<title>Pixel Sets - Your selection</title>'
+        )
+
+        self.assertContains(
+            response,
             '<li class="pixelset">',
             count=len(pixel_sets)
         )
