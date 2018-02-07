@@ -959,7 +959,7 @@ class PixelSetSelectViewTestCase(CoreFixturesTestCase):
             response,
             (
                 '<div class="message success">'
-                '2 Pixel Sets have been selected for export.'
+                '2 Pixel Sets have been added to your selection.'
                 '</div>'
             ),
             html=True
@@ -1199,7 +1199,7 @@ class PixelSetExportViewTestCase(CoreFixturesTestCase):
             response,
             (
                 '<div class="message error">'
-                'Cannot export empty selection'
+                'Cannot export an empty selection.'
                 '</div>'
             ),
             html=True
