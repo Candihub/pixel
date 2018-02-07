@@ -1,8 +1,10 @@
 import datetime
 import json
+import pytest
 
 from django.core.urlresolvers import reverse
 from django.template.defaultfilters import date as date_filter
+from django.test import TestCase
 from django.utils import timezone
 from io import BytesIO
 from unittest.mock import patch
@@ -16,7 +18,8 @@ from apps.core.management.commands.make_development_fixtures import (
 )
 from apps.explorer.views import (
     PixelSetDetailView, PixelSetExportView, PixelSetExportPixelsView,
-    get_omics_units_for_export, get_pixel_sets_for_export
+    DataTableView,
+    get_omics_units_from_session, get_pixel_sets_for_export
 )
 
 
@@ -1363,7 +1366,7 @@ class PixelSetDetailViewTestCase(CoreFixturesTestCase):
         session = self.client.session
         omics_unit_id = self.pixels[0].omics_unit.reference.identifier
 
-        self.assertIsNone(get_omics_units_for_export(session, default=None))
+        self.assertIsNone(get_omics_units_from_session(session, default=None))
 
         response = self.client.post(self.url, {
             'omics_units': omics_unit_id,
@@ -1371,7 +1374,7 @@ class PixelSetDetailViewTestCase(CoreFixturesTestCase):
 
         self.assertRedirects(response, self.pixel_set.get_absolute_url())
         self.assertEqual(
-            get_omics_units_for_export(self.client.session),
+            get_omics_units_from_session(self.client.session),
             [omics_unit_id]
         )
         self.assertContains(
@@ -1388,7 +1391,7 @@ class PixelSetDetailViewTestCase(CoreFixturesTestCase):
 
         session = self.client.session
 
-        self.assertIsNone(get_omics_units_for_export(session, default=None))
+        self.assertIsNone(get_omics_units_from_session(session, default=None))
 
         response = self.client.post(self.url, {
             'omics_units': 'invalid',
@@ -1396,7 +1399,7 @@ class PixelSetDetailViewTestCase(CoreFixturesTestCase):
 
         self.assertRedirects(response, self.pixel_set.get_absolute_url())
         self.assertEqual(
-            get_omics_units_for_export(self.client.session),
+            get_omics_units_from_session(self.client.session),
             ['invalid']
         )
         self.assertContains(
@@ -1415,7 +1418,7 @@ class PixelSetDetailViewTestCase(CoreFixturesTestCase):
         omics_unit_id_1 = self.pixels[0].omics_unit.reference.identifier
         omics_unit_id_2 = self.pixels[1].omics_unit.reference.identifier
 
-        self.assertIsNone(get_omics_units_for_export(session, default=None))
+        self.assertIsNone(get_omics_units_from_session(session, default=None))
 
         response = self.client.post(self.url, {
             'omics_units': f'{omics_unit_id_1}, {omics_unit_id_2}',
@@ -1423,7 +1426,7 @@ class PixelSetDetailViewTestCase(CoreFixturesTestCase):
 
         self.assertRedirects(response, self.pixel_set.get_absolute_url())
         self.assertEqual(
-            set(get_omics_units_for_export(self.client.session)),
+            set(get_omics_units_from_session(self.client.session)),
             set([omics_unit_id_1, omics_unit_id_2])
         )
         self.assertContains(
@@ -1435,12 +1438,12 @@ class PixelSetDetailViewTestCase(CoreFixturesTestCase):
     def test_empty_subset_returns_all_pixels(self):
 
         session = self.client.session
-        self.assertIsNone(get_omics_units_for_export(session, default=None))
+        self.assertIsNone(get_omics_units_from_session(session, default=None))
 
         response = self.client.post(self.url, follow=True)
 
         self.assertRedirects(response, self.pixel_set.get_absolute_url())
-        self.assertIsNone(get_omics_units_for_export(session, default=None))
+        self.assertIsNone(get_omics_units_from_session(session, default=None))
         self.assertContains(
             response,
             '<tr class="pixel">',
@@ -1553,6 +1556,40 @@ class PixelSetDetailValuesViewTestCase(CoreFixturesTestCase):
         rows = data['rows']
         self.assertEqual(len(rows), 2)
 
+    def test_filters_by_omics_units(self):
+
+        session = self.client.session
+        selected_pixel = self.pixels[0]
+
+        self.assertIsNone(get_omics_units_from_session(session, default=None))
+
+        # set `omics_units` in session
+        response = self.client.post(self.pixel_set.get_absolute_url(), {
+            'omics_units': selected_pixel.omics_unit.reference.identifier,
+        }, follow=True)
+
+        self.assertRedirects(response, self.pixel_set.get_absolute_url())
+
+        response = self.client.get(
+            self.url,
+            data={},
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/json')
+
+        data = json.loads(response.content)
+
+        cols = data['cols']
+        self.assertEqual(cols[0]['label'], 'id')
+        self.assertEqual(cols[1]['label'], 'value')
+
+        rows = data['rows']
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]['c'][0]['v'], str(selected_pixel.id))
+        self.assertEqual(rows[0]['c'][1]['v'], selected_pixel.value)
+
 
 class PixelSetDetailQualityScoresTestCase(CoreFixturesTestCase):
 
@@ -1604,3 +1641,49 @@ class PixelSetDetailQualityScoresTestCase(CoreFixturesTestCase):
 
         rows = data['rows']
         self.assertEqual(len(rows), 2)
+
+    def test_filters_by_omics_units(self):
+
+        session = self.client.session
+        selected_pixel = self.pixels[0]
+
+        self.assertIsNone(get_omics_units_from_session(session, default=None))
+
+        # set `omics_units` in session
+        response = self.client.post(self.pixel_set.get_absolute_url(), {
+            'omics_units': selected_pixel.omics_unit.reference.identifier,
+        }, follow=True)
+
+        self.assertRedirects(response, self.pixel_set.get_absolute_url())
+
+        response = self.client.get(
+            self.url,
+            data={},
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/json')
+
+        data = json.loads(response.content)
+
+        cols = data['cols']
+        self.assertEqual(cols[0]['label'], 'id')
+        self.assertEqual(cols[1]['label'], 'quality_score')
+
+        rows = data['rows']
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]['c'][0]['v'], str(selected_pixel.id))
+        self.assertEqual(rows[0]['c'][1]['v'], selected_pixel.quality_score)
+
+
+class DataTableViewTestCase(TestCase):
+
+    def test_get_headers_must_be_implemented(self):
+
+        class DataTableViewWithNoGetHeaders(DataTableView):
+            pass
+
+        with pytest.raises(NotImplementedError):
+            view = DataTableViewWithNoGetHeaders()
+            view.get_headers()

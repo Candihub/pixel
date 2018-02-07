@@ -21,7 +21,7 @@ from .forms import (
 from .utils import export_pixelsets, export_pixels
 
 
-def get_omics_units_for_export(session, default=[]):
+def get_omics_units_from_session(session, default=[]):
     return session.get(
         'export', {}
     ).get(
@@ -37,6 +37,38 @@ def get_pixel_sets_for_export(session, default=[]):
     ).get(
         'pixelsets', default
     )
+
+
+class DataTableView(BaseDetailView):
+
+    model = PixelSet
+
+    def get_headers(self):
+
+        raise NotImplementedError(_('You should define `get_headers()`'))
+
+    def get_columns(self):
+
+        return list(self.get_headers().keys())
+
+    def get(self, request, *args, **kwargs):
+
+        if not request.is_ajax():
+            raise SuspiciousOperation(
+                'This endpoint should only be called from JavaScript.'
+            )
+
+        qs = self.get_object().pixels
+
+        omics_units = get_omics_units_from_session(request.session)
+        # we only filter by Omics Units when specified.
+        if len(omics_units) > 0:
+            qs = qs.filter(omics_unit__reference__identifier__in=omics_units)
+
+        dt = DataTable(self.get_headers())
+        dt.LoadData(qs.values(*self.get_columns()))
+
+        return HttpResponse(dt.ToJSon(), content_type='application/json')
 
 
 class PixelSetListView(LoginRequiredMixin, FormMixin, ListView):
@@ -328,7 +360,7 @@ class PixelSetDetailView(LoginRequiredMixin, FormMixin, DetailView):
 
     def get_omics_units(self):
 
-        return get_omics_units_for_export(self.request.session)
+        return get_omics_units_from_session(self.request.session)
 
     def get_queryset(self):
 
@@ -353,7 +385,7 @@ class PixelSetDetailView(LoginRequiredMixin, FormMixin, DetailView):
 
         context.update({
             'pixels': pixels,
-            'pixels_count': len(pixels),
+            'pixels_count': qs.count(),
             'pixels_limit': self.pixels_limit,
             'total_count': self.object.pixels.count(),
             'pixelset_experiments': self.object.analysis.experiments.all(),
@@ -408,7 +440,7 @@ class PixelSetExportPixelsView(LoginRequiredMixin, BaseDetailView):
         )
 
     def get(self, request, *args, **kwargs):
-        omics_units = get_omics_units_for_export(request.session)
+        omics_units = get_omics_units_from_session(request.session)
 
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename={}'.format(
@@ -424,35 +456,15 @@ class PixelSetExportPixelsView(LoginRequiredMixin, BaseDetailView):
         return response
 
 
-class PixelSetDetailValuesView(LoginRequiredMixin, BaseDetailView):
+class PixelSetDetailValuesView(LoginRequiredMixin, DataTableView):
 
-    model = PixelSet
+    def get_headers(self):
 
-    def get(self, request, *args, **kwargs):
-
-        if not request.is_ajax():
-            raise SuspiciousOperation(
-                'This endpoint should only be called from JavaScript.'
-            )
-
-        dt = DataTable({'id': ('string'), 'value': ('number')})
-        dt.LoadData(self.get_object().pixels.values('id', 'value'))
-
-        return HttpResponse(dt.ToJSon(), content_type='application/json')
+        return {'id': ('string'), 'value': ('number')}
 
 
-class PixelSetDetailQualityScoresView(LoginRequiredMixin, BaseDetailView):
+class PixelSetDetailQualityScoresView(LoginRequiredMixin, DataTableView):
 
-    model = PixelSet
+    def get_headers(self):
 
-    def get(self, request, *args, **kwargs):
-
-        if not request.is_ajax():
-            raise SuspiciousOperation(
-                'This endpoint should only be called from JavaScript.'
-            )
-
-        dt = DataTable({'id': ('string'), 'quality_score': ('number')})
-        dt.LoadData(self.get_object().pixels.values('id', 'quality_score'))
-
-        return HttpResponse(dt.ToJSon(), content_type='application/json')
+        return {'id': ('string'), 'quality_score': ('number')}
