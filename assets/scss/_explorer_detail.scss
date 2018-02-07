@@ -1,0 +1,67 @@
+.explorer.pixelset {
+  .content {
+    .pixelset-overview {
+      @include xy-grid($wrap: false);
+
+      .meta {
+        @include breakpoint(medium) {
+          @include xy-cell($size: 6, $gutter-output: false);
+        }
+      }
+
+      .selection {
+        display: none;
+
+        @include breakpoint(medium) {
+          @include xy-cell($size: 6, $gutter-position: 'left');
+
+          display: block;
+        }
+      }
+    }
+  }
+
+  .pixelset-overview {
+
+    .meta {
+      @include table-scroll;
+
+      table {
+        th {
+          text-align: left;
+        }
+      }
+    }
+
+    .selection {
+      .help-text {
+        margin-top: 0.4rem;
+      }
+    }
+  }
+
+  .pixelset-distributions {
+
+    .histograms {
+      @include xy-grid($wrap: false);
+
+      .histogram {
+        @include breakpoint(medium) {
+          @include xy-cell($size: 6, $gutter-output: false);
+        }
+
+        text-align: center;
+        padding: 2em 1em;
+      }
+    }
+  }
+
+  // Edit buttons.
+  .edit {
+    display: none;
+
+    @include breakpoint(medium) {
+      display: block;
+    }
+  }
+}

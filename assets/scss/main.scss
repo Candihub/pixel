@@ -28,6 +28,8 @@ $global-flexbox: true;
 @import 'mixins';
 @import 'commons';
 @import 'explorer';
+@import 'explorer_detail';
+@import 'explorer_list';
 @import 'layout';
 @import 'http';
 @import 'registration';

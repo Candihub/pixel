@@ -4,7 +4,7 @@
 {% load spurl %}
 
 {% block title %}{% trans "Pixel Set" %} {{ pixelset.id }}{% endblock %}
-{% block body_class %}{{ block.super }} explorer pixelset detail{% endblock %}
+{% block body_class %}{{ block.super }} explorer pixelset{% endblock %}
 
 {% block header %}
 <h1>
@@ -37,12 +37,12 @@
     {% include "explorer/_subset_selection.html" %}
   </section>
 
-  <section>
+  <section class="pixelset-distributions">
     <h4>
       {% trans "Distributions" %}
     </h4>
 
-    <div class="pixelset-distributions">
+    <div class="histograms">
       <div class="histogram" id="values-histogram">
         <p>
           <i class="fa fa-refresh fa-spin"></i>

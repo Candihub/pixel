@@ -16,7 +16,7 @@
 {% endblock %}
 
 {% block sidebar-left %}
-  <div class="selection">
+  <div class="selection-pixelsets">
     <h4>
       {% trans "Selection" %}
       {% if selected_pixelsets.count %}
@@ -103,7 +103,7 @@
     <input type="hidden" name="redirect_to" value="{{ request.build_absolute_uri }}">
 
     <div class="pixelsets-wrapper">
-      <table class="pixelsets">
+      <table class="table-pixelsets">
         <thead>
           <tr>
             <th>#</th>

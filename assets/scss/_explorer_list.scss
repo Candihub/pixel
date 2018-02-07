@@ -1,0 +1,134 @@
+.explorer.pixelsets {
+
+  .page-content-wrapper {
+    .page-content {
+      .sidebar-left {
+        display: none;
+
+        @include breakpoint(medium) {
+          @include xy-cell($size: 3, $gutter-output: false);
+
+          display: block;
+        }
+      }
+
+      .content {
+        @include breakpoint(medium) {
+          @include xy-cell($size: 9, $gutter-position: 'left');
+        }
+      }
+    }
+  }
+
+  aside.sidebar-left {
+
+    & > * {
+      border-top: 3px solid $primary-color;
+
+      h4 {
+        padding: 0.3rem 0.4rem;
+        margin-bottom: 1rem;
+        background-color: lighten($info-color, 5%);
+      }
+    }
+  }
+
+  .filters {
+
+    #pixelset-filters-form {
+      .field {
+        label {
+          font-weight: bold;
+
+          ul#id_tags {
+            li {
+              @include tag;
+            }
+          }
+
+          ul {
+            @include left-sidebar-list;
+
+            li > label {
+              font-weight: normal;
+              overflow-wrap: break-word;
+
+              input {
+                margin-bottom: 0;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .table-pixelsets {
+
+    .pixelset {
+      cursor: pointer;
+
+      &.in-selection {
+        background-color: rgba($secondary-color, 0.1);
+        border-left: 3px solid rgba($secondary-color, 0.3);
+      }
+    }
+
+    td {
+      vertical-align: top;
+    }
+
+    .filename {
+      font-family: $font-family-monospace;
+    }
+
+    .omics-unit-types {
+      width: 150px;
+    }
+
+    .tag {
+      font-size: 0.8rem;
+    }
+
+    .completed-at {
+      @include label;
+      background-color: $info-color;
+    }
+
+    .released-at {
+      @include label;
+      background-color: darken($info-color, 10%);
+    }
+
+    span.species {
+      font-style: italic;
+    }
+
+    .highlight {
+      background-color: lighten($primary-color, 35%);
+      border-radius: 3px;
+      padding: 1px 2px;
+    }
+
+    .omics-areas,
+    .omics-unit-types,
+    .pixeler,
+    .species {
+      min-width: 150px;
+    }
+
+    .experiments,
+    .analyses {
+      min-width: 350px;
+    }
+
+    .tags {
+      min-width: 250px;
+    }
+  }
+
+  .actions {
+    margin-bottom: 10px;
+    padding: 20px 0 0;
+  }
+}
