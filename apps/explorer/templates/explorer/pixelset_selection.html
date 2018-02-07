@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% load files %}
+{% load spurl %}
+
+{% block title %}{% trans "Pixel Sets / Your selection" %}{% endblock %}
+{% block body_class %}{{ block.super }} explorer pixelset selection{% endblock %}
+
+{% block header %}
+<h1>
+  <a href="{% url 'explorer:pixelset_list' %}">
+    {% trans "Pixel Sets" %}
+  </a>
+  /
+  {% trans "Your selection" %}
+</h1>
+{% endblock %}
+
+{% block content %}
+  <section>
+    <h4>
+      {% trans "Pixel Sets" %}
+    </h4>
+
+    <ul class="selected-pixelsets">
+      {% for pixelset in selected_pixelsets %}
+        {% include "explorer/_selected_pixelset_item.html" %}
+      {% endfor %}
+    </ul>
+
+    <hr>
+
+    <p>
+      {% blocktrans count selected=pixels_count %}
+      You have selected
+      <span class="badge success">{{ selected }}</span> pixel
+      {% plural %}
+      You have selected
+      <span class="badge success">{{ selected }}</span> pixels
+      {% endblocktrans %}
+      {% blocktrans with total=total_count %}
+      among a grand total of
+      <span class="badge secondary">{{ total }}</span> pixels.
+      {% endblocktrans %}
+    </p>
+  </section>
+
+  {% include "explorer/_pixelset_detail_pixels.html" %}
+{% endblock %}

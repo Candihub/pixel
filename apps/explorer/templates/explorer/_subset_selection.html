@@ -1,0 +1,52 @@
+{% load i18n %}
+{% load spurl %}
+
+<div class="selection">
+  <h4>{% trans "Subset selection" %}</h4>
+
+  <p>
+    {% blocktrans %}
+      Copy/paste a list of omics units to select a subset of pixels in this
+      Pixel Set and export them.
+    {% endblocktrans %}
+  </p>
+
+  <div class="form-error">
+    {{ form.non_field_errors }}
+  </div>
+
+  <form action="" method="post" id="pixel-selection-form">
+    {% csrf_token %}
+
+    {% include "foundation/form.html" %}
+
+    <p>
+      <button type="submit" class="button secondary">
+        {% trans "Preview" %}
+      </button>
+
+      {% if request.session.export.pixels.omics_units and pixels_count > 0 %}
+      <a class="button" href="">
+          <i class="fa fa-download" aria-hidden="true"></i>
+          {% trans "Download a CSV file with the selected Pixels" %}
+        </a>
+      {% endif %}
+    <p>
+  </form>
+
+  <hr>
+
+  <p>
+    {% blocktrans count selected=pixels_count %}
+      You have selected
+      <span class="badge success">{{ selected }}</span> pixel
+      {% plural %}
+      You have selected
+      <span class="badge success">{{ selected }}</span> pixels
+    {% endblocktrans %}
+    {% blocktrans with total=total_count %}
+      among a grand total of
+      <span class="badge secondary">{{ total }}</span> pixels.
+    {% endblocktrans %}
+  </p>
+</div>

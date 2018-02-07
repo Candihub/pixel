@@ -100,7 +100,7 @@ class SessionPixelSetSelectForm(forms.Form):
         )
 
 
-class PixelSetExportPixelsForm(forms.Form):
+class PixelSetSubsetSelectionForm(forms.Form):
 
     omics_units = forms.CharField(
         widget=forms.Textarea(

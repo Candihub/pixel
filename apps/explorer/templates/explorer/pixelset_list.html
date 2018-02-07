@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 
 {% load i18n %}
-{% load files %}
 
 {% block title %}{% trans "Pixel Sets" %}{% endblock %}
 {% block body_class %}{{ block.super }} explorer pixelsets{% endblock %}
@@ -38,29 +37,7 @@
 
     <ul class="selected-pixelsets">
       {% for pixelset in selected_pixelsets %}
-      <li class="pixelset">
-        <a
-          href="{{ pixelset.get_absolute_url }}"
-          title="{% trans "More information about this Pixel Set" %}"
-        >
-          <code>{{ pixelset.get_short_uuid }}</code> &mdash;
-          {{ pixelset.pixels_file.name|filename }}
-        </a>
-
-        <form action="{% url 'explorer:pixelset_deselect' %}" method="post">
-          {% csrf_token %}
-          <input type="hidden" name="redirect_to" value="{{ request.build_absolute_uri }}">
-          <input type="hidden" name="pixel_set" value="{{ pixelset.id }}">
-          <button
-            type="submit"
-            name="deselect"
-            class="button clear action-deselect"
-            title="{% trans "Remove this Pixel Set from selection" %}"
-          >
-            <i class="fa fa-trash-o" aria-hidden="true"></i>
-          </button>
-        </form>
-      </li>
+        {% include "explorer/_selected_pixelset_item.html" %}
       {% empty %}
       <li class="empty">
         {% trans "No Pixel Set selected yet." %}
@@ -90,15 +67,9 @@
       />
     </form>
 
-    <form action="{% url 'explorer:pixelset_export' %}" method="post" id="explore-form">
-      {% csrf_token %}
-      <input
-        type="submit"
-        name="explore"
-        value="{% trans "Explore" %}"
-        class="button action-explore"
-      />
-    </form>
+    <a href="{% url 'explorer:pixelset_explore' %}" class="button action-explore">
+      {% trans "Explore" %}
+    </a>
     {% endif %}
   </div>
   <div class="filters">

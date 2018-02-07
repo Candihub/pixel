@@ -1,0 +1,145 @@
+{% load i18n %}
+{% load files %}
+{% load spurl %}
+
+<div class="meta">
+  <h4>{% trans "Properties" %}</h4>
+
+  <table>
+    <tbody>
+      <tr>
+        <th>{% trans "ID" %}</th>
+        <td>
+          <!-- ID -->
+          {{ pixelset.id }}
+        </td>
+      </tr>
+      <tr>
+        <th>{% trans "Filename" %}</th>
+        <td class="filename">
+          <!-- Pixel Set file name -->
+          {{ pixelset.pixels_file.name|filename }}
+          <a
+            href="{{ pixelset.pixels_file.url }}"
+            title="{% trans "Download original data" %}"
+          >
+            <i class="fa fa-download" aria-hidden="true"></i>
+          </a>
+        </td>
+      </tr>
+      <tr>
+        <th>{% trans "Species" %}</th>
+        <td class="species">
+          <!-- Species-->
+          {% for species in pixelset.cached_species %}
+            <span class="species">{{ species }}</span>
+          {% endfor %}
+        </td>
+      </tr>
+      <tr>
+        <th style="width: 110px">{% trans "Omics Unit types" %}</th>
+        <td class="omics-unit-types">
+          <!-- Omics Unit Type -->
+          {% for type in pixelset.cached_omics_unit_types %}
+            <span class="omics-unit-type">{{ type }}</span>
+          {% endfor %}
+        </td>
+      </tr>
+      <tr>
+        <th>{% trans "Omics Areas" %}</th>
+        <td class="omics-areas">
+          <!-- Omics Area -->
+          {% for area in pixelset.cached_omics_areas %}
+            <span class="omics-area">{{ area }}</span>
+          {% endfor %}
+        </td>
+      </tr>
+      <tr>
+        <th>{% trans "Pixeler" %}</th>
+        <td class="pixeler">
+          <!-- Pixeler -->
+          {{ pixelset.analysis.pixeler.get_full_name }}
+        </td>
+      </tr>
+      <tr>
+        <th>{% trans "Analysis" %}</th>
+        <td class="analysis">
+          <!-- Analysis -->
+          {{ pixelset.analysis.description }}
+
+          <span class="completed-at">
+            {% trans "Completion date:" %}
+            {{ pixelset.analysis.completed_at | date }}
+          </span>
+
+          {% if request.user.is_staff %}
+          <br>
+          <a
+            href="{% url 'admin:core_analysis_change' pixelset.analysis.id %}"
+            title="{% trans "Edit this analysis from the admin" %}"
+            class="edit"
+          >
+            <i class="fa fa-pencil" aria-hidden="true"></i>
+            {% trans "Edit this analysis" %}
+          </a>
+          {% endif %}
+        </td>
+      </tr>
+      <tr>
+        <th>{% trans "Experiments" %}</th>
+        <td class="experiments">
+          <!-- Experiment -->
+          {% for experiment in pixelset_experiments %}
+          <p>
+            <span class="experiment">
+              {{ experiment.description }}
+            </span>
+
+            <span class="completed-at">
+              {% trans "Completion date:" %}
+              {{ experiment.completed_at | date }}
+            </span>
+
+            <span class="released-at">
+              {% trans "Release date:" %}
+              {{ experiment.released_at | date }}
+            </span>
+
+            {% if request.user.is_staff %}
+            <br>
+            <a
+              href="{% url 'admin:core_experiment_change' experiment.id %}"
+              title="{% trans "Edit this experiment from the admin" %}"
+              class="edit"
+            >
+              <i class="fa fa-pencil" aria-hidden="true"></i>
+              {% trans "Edit this experiment" %}
+            </a>
+            {% endif %}
+          </p>
+          {% endfor %}
+        </td>
+      </tr>
+      <tr>
+        <th>{% trans "Tags" %}</th>
+        <td class="tags">
+          <!-- Tags -->
+          {% url 'explorer:pixelset_list' as pixelset_list_base_url %}
+          {% for tag in pixelset.analysis.tags.all %}
+            <a href="{% spurl base=pixelset_list_base_url set_query="tags={{ tag.id }}" %}">
+              <span class="tag analysis">{{ tag }}</span>
+            </a>
+          {% endfor %}
+          {% for experiment in pixelset_experiments %}
+            {% for tag in experiment.tags.all %}
+              <a href="{% spurl base=pixelset_list_base_url set_query="tags={{ tag.id }}" %}">
+                <span class="tag experiment">{{ tag }}</span>
+              </a>
+            {% endfor %}
+          {% endfor %}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+

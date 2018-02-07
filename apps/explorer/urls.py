@@ -52,6 +52,11 @@ urlpatterns = [
         name='pixelset_export'
     ),
     url(
+        r'^pixelset/explore$',
+        views.PixelSetSelectionView.as_view(),
+        name='pixelset_explore'
+    ),
+    url(
         r'^pixelset/(?P<pk>{})/export$'.format(UUID_REGEX),
         views.PixelSetExportPixelsView.as_view(),
         name='pixelset_export_pixels'
