@@ -19,7 +19,7 @@ from apps.core.management.commands.make_development_fixtures import (
 from apps.explorer.views import (
     PixelSetDetailView, PixelSetExportView, PixelSetExportPixelsView,
     DataTableView,
-    get_omics_units_from_session, get_pixel_sets_for_export
+    get_omics_units_from_session, get_selected_pixel_sets_from_session
 )
 
 
@@ -1051,21 +1051,27 @@ class PixelSetDeselectViewTestCase(CoreFixturesTestCase):
 
     def test_deselect(self):
 
-        session_pixel_sets = get_pixel_sets_for_export(self.client.session)
+        session_pixel_sets = get_selected_pixel_sets_from_session(
+            self.client.session
+        )
         self.assertEqual(len(session_pixel_sets), len(self.pixel_sets))
 
         data = {
             'pixel_set': str(self.pixel_sets[0].id)
         }
         self.client.post(self.url, data, follow=True)
-        session_pixel_sets = get_pixel_sets_for_export(self.client.session)
+        session_pixel_sets = get_selected_pixel_sets_from_session(
+            self.client.session
+        )
         self.assertEqual(len(session_pixel_sets), 1)
 
         data = {
             'pixel_set': str(self.pixel_sets[1].id)
         }
         self.client.post(self.url, data, follow=True)
-        session_pixel_sets = get_pixel_sets_for_export(self.client.session)
+        session_pixel_sets = get_selected_pixel_sets_from_session(
+            self.client.session
+        )
         self.assertEqual(len(session_pixel_sets), 0)
 
     def test_renders_message_on_success(self):
