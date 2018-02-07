@@ -222,7 +222,7 @@ class PixelSetClearView(LoginRequiredMixin, RedirectView):
     def post(self, request, *args, **kwargs):
 
         request.session.update({
-            'export': {
+            'explorer': {
                 'pixelsets': []
             }
         })
@@ -498,7 +498,7 @@ class PixelSetSelectionView(LoginRequiredMixin, TemplateView):
             _("Cannot explore an empty selection.")
         )
 
-        return HttpResponseRedirect(reverse('explorer:pixelset_explore'))
+        return HttpResponseRedirect(reverse('explorer:pixelset_list'))
 
     def get_context_data(self, **kwargs):
 

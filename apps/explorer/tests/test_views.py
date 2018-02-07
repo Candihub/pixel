@@ -1707,3 +1707,62 @@ class DataTableViewTestCase(TestCase):
         with pytest.raises(NotImplementedError):
             view = DataTableViewWithNoGetHeaders()
             view.get_headers()
+
+
+class PixelSetSelectionViewTestCase(CoreFixturesTestCase):
+
+    def setUp(self):
+
+        self.user = factories.PixelerFactory(
+            is_active=True,
+            is_staff=True,
+            is_superuser=True,
+        )
+        self.client.login(
+            username=self.user.username,
+            password=factories.PIXELER_PASSWORD,
+        )
+        self.url = reverse('explorer:pixelset_explore')
+
+    def test_redirects_to_list_view_when_invalid(self):
+
+        response = self.client.get(self.url)
+
+        self.assertRedirects(response, reverse('explorer:pixelset_list'))
+
+    def test_displays_message_after_redirect_when_selection_is_empty(self):
+
+        response = self.client.get(self.url, follow=True)
+
+        self.assertContains(
+            response,
+            (
+                '<div class="message error">'
+                'Cannot explore an empty selection.'
+                '</div>'
+            ),
+            html=True
+        )
+
+    def test_renders_pixelset_selection_template(self):
+
+        # select 2 pixel sets
+        pixel_sets = factories.PixelSetFactory.create_batch(2)
+        data = {
+            'pixel_sets': [str(p.id) for p in pixel_sets]
+        }
+        self.client.post(
+            reverse('explorer:pixelset_select'), data, follow=True
+        )
+
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'explorer/pixelset_selection.html')
+
+        self.assertContains(
+            response,
+            '<li class="pixelset">',
+            count=len(pixel_sets)
+        )
