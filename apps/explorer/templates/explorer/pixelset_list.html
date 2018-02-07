@@ -1,8 +1,6 @@
 {% extends "base.html" %}
 
 {% load i18n %}
-{% load files %}
-{% load explorer %}
 
 {% block title %}{% trans "Pixel Sets" %}{% endblock %}
 {% block body_class %}{{ block.super }} explorer pixelsets{% endblock %}
@@ -18,7 +16,7 @@
 {% endblock %}
 
 {% block sidebar-left %}
-  <div class="selection">
+  <div class="selection-pixelsets">
     <h4>
       {% trans "Selection" %}
       {% if selected_pixelsets.count %}
@@ -32,35 +30,14 @@
       {% blocktrans %}
       When you select and save Pixel Sets for export in the right panel, they
       are listed below. Then, click on the "Export" button to download an
-      archive (.zip) with these selected Pixel Sets.
+      archive (.zip) with these selected Pixel Sets. You can also explore the
+      pixels based on your selection.
       {% endblocktrans %}
     </p>
 
     <ul class="selected-pixelsets">
       {% for pixelset in selected_pixelsets %}
-      <li class="pixelset">
-        <a
-          href="{{ pixelset.get_absolute_url }}"
-          title="{% trans "More information about this Pixel Set" %}"
-        >
-          <code>{{ pixelset.get_short_uuid }}</code> &mdash;
-          {{ pixelset.pixels_file.name|filename }}
-        </a>
-
-        <form action="{% url 'explorer:pixelset_deselect' %}" method="post">
-          {% csrf_token %}
-          <input type="hidden" name="redirect_to" value="{{ request.build_absolute_uri }}">
-          <input type="hidden" name="pixel_set" value="{{ pixelset.id }}">
-          <button
-            type="submit"
-            name="deselect"
-            class="button clear action-deselect"
-            title="{% trans "Remove this Pixel Set from selection" %}"
-          >
-            <i class="fa fa-trash-o" aria-hidden="true"></i>
-          </button>
-        </form>
-      </li>
+        {% include "explorer/_selected_pixelset_item.html" %}
       {% empty %}
       <li class="empty">
         {% trans "No Pixel Set selected yet." %}
@@ -69,14 +46,14 @@
     </ul>
 
     {% if selected_pixelsets.count %}
-    <form action="{% url 'explorer:pixelset_selection_clear' %}" method="post" id="selection-clear-form">
+    <form action="{% url 'explorer:pixelset_clear' %}" method="post" id="selection-clear-form">
       {% csrf_token %}
       <input type="hidden" name="redirect_to" value="{{ request.build_absolute_uri }}">
       <input
         type="submit"
         name="clear"
         value="{% trans "Clear" %}"
-        class="button secondary hollow action-clear"
+        class="button secondary clear action-clear"
       />
     </form>
 
@@ -86,9 +63,13 @@
         type="submit"
         name="export"
         value="{% trans "Export" %}"
-        class="button action-submit"
+        class="button secondary action-submit"
       />
     </form>
+
+    <a href="{% url 'explorer:pixelset_explore' %}" class="button action-explore">
+      {% trans "Explore" %}
+    </a>
     {% endif %}
   </div>
   <div class="filters">
@@ -101,7 +82,7 @@
       {% include "foundation/form_fields.html" %}
       <a
         href="{% url 'explorer:pixelset_list' %}"
-        class="button secondary hollow action-clear"
+        class="button secondary clear action-clear"
       >
         {% trans "Clear" %}
       </a>
@@ -122,7 +103,7 @@
     <input type="hidden" name="redirect_to" value="{{ request.build_absolute_uri }}">
 
     <div class="pixelsets-wrapper">
-      <table class="pixelsets">
+      <table class="table-pixelsets">
         <thead>
           <tr>
             <th>#</th>
@@ -140,81 +121,7 @@
           {% with highlight_term=form.cleaned_data.search %}
 
           {% for pixelset in pixelset_list %}
-          <tr class="pixelset{% if pixelset in selected_pixelsets %} in-selection{% endif %}">
-            <td>
-              <input
-                name="pixel_sets"
-                value="{{ pixelset.id }}"
-                type="checkbox"
-                {% if pixelset in selected_pixelsets %}
-                disabled="disabled"
-                title="{% trans "This Pixel Set is already selected" %}"
-                {% endif %}
-              >
-            </td>
-            <td class="filename">
-              <!-- Pixel Set file name -->
-              <a
-                href="{{ pixelset.get_absolute_url }}"
-                title="{% trans "More information about this Pixel Set" %}"
-              >
-                {{ pixelset.pixels_file.name|filename }}
-              </a>
-            </td>
-            <td class="species">
-              <!-- Species-->
-              {% for species in pixelset.cached_species %}
-                <span class="species">{{ species }}</span>
-              {% endfor %}
-            </td>
-            <td class="omics-unit-types">
-              <!-- Omics Unit Type -->
-              {% for type in pixelset.cached_omics_unit_types %}
-                <span class="omics-unit-type">{{ type }}</span>
-              {% endfor %}
-            </td>
-            <td class="omics-areas">
-              <!-- Omics Area -->
-              {% for area in pixelset.cached_omics_areas %}
-                <span class="omics-area">{{ area }}</span>
-              {% endfor %}
-            </td>
-            <td class="pixeler">
-              <!-- Pixeler -->
-              {{ pixelset.analysis.pixeler.get_full_name }}
-            </td>
-            <td class="analysis">
-              <!-- Analysis -->
-              {{ pixelset.analysis.description | highlight:highlight_term }}
-              <span class="completed-at">
-                {% trans "Completion date:" %}
-                {{ pixelset.analysis.completed_at | date }}
-              </span>
-            </td>
-            <td class="experiments">
-              <!-- Experiment -->
-              {% for experiment in pixelset.analysis.experiments.all %}
-              <span class="experiment">
-                {{ experiment.description | highlight:highlight_term }}
-              </span>
-              <span class="completed-at">
-                {% trans "Completion date:" %}
-                {{ experiment.completed_at | date }}
-              </span>
-              {% endfor %}
-            </td>
-            <td class="tags">
-              <!-- Tags -->
-              {% for tag in pixelset.analysis.tags.all %}
-                <span class="tag analysis">{{ tag }}</span>
-              {% endfor %}
-              {% for experiment in pixelset.analysis.experiments.all %}
-                {% for tag in experiment.tags.all %}
-                  <span class="tag experiment">{{ tag }}</span>
-                {% endfor %}
-              {% endfor %}
-            </td>
-          </tr>
+            {% include "explorer/_pixelset_list_row.html" %}
           {% empty %}
           <tr>
             <td colspan="8" class="empty">
@@ -238,7 +145,7 @@
     <div class="actions">
       <button type="submit" class="button">
         <i class="fa fa-floppy-o" aria-hidden="true"></i>
-        {% trans "Save selected pixels" %}
+        {% trans "Add the selected pixels to the selection" %}
       </button>
     </div>
 

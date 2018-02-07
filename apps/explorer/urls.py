@@ -33,8 +33,8 @@ urlpatterns = [
     ),
     url(
         r'^pixelset/clear$',
-        views.PixelSetSelectionClearView.as_view(),
-        name='pixelset_selection_clear'
+        views.PixelSetClearView.as_view(),
+        name='pixelset_clear'
     ),
     url(
         r'^pixelset/deselect$',
@@ -50,6 +50,11 @@ urlpatterns = [
         r'^pixelset/export$',
         views.PixelSetExportView.as_view(),
         name='pixelset_export'
+    ),
+    url(
+        r'^pixelset/explore$',
+        views.PixelSetSelectionView.as_view(),
+        name='pixelset_explore'
     ),
     url(
         r'^pixelset/(?P<pk>{})/export$'.format(UUID_REGEX),

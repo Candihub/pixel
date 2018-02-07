@@ -19,7 +19,7 @@ from apps.core.management.commands.make_development_fixtures import (
 from apps.explorer.views import (
     PixelSetDetailView, PixelSetExportView, PixelSetExportPixelsView,
     DataTableView,
-    get_omics_units_from_session, get_pixel_sets_for_export
+    get_omics_units_from_session, get_selected_pixel_sets_from_session
 )
 
 
@@ -892,16 +892,18 @@ class PixelSetSelectViewTestCase(CoreFixturesTestCase):
         pixel_sets = factories.PixelSetFactory.create_batch(2)
         pixel_sets_ids = [str(p.id) for p in pixel_sets]
 
-        self.assertIsNone(self.client.session.get('export'))
+        self.assertIsNone(self.client.session.get('explorer'))
 
         response = self.client.post(self.url, {
             'pixel_sets': pixel_sets_ids
         })
 
         self.assertEqual(response.status_code, 302)
-        self.assertIsNotNone(self.client.session.get('export'))
+        self.assertIsNotNone(self.client.session.get('explorer'))
 
-        session_pixel_sets = self.client.session.get('export').get('pixelsets')
+        session_pixel_sets = get_selected_pixel_sets_from_session(
+            self.client.session
+        )
 
         self.assertIsNotNone(session_pixel_sets)
         self.assertEqual(len(pixel_sets_ids), len(session_pixel_sets))
@@ -918,7 +920,9 @@ class PixelSetSelectViewTestCase(CoreFixturesTestCase):
         data = {'pixel_sets': pixel_sets_ids}
         self.client.post(self.url, data, follow=True)
 
-        session_pixel_sets = self.client.session.get('export').get('pixelsets')
+        session_pixel_sets = get_selected_pixel_sets_from_session(
+            self.client.session
+        )
         self.assertEqual(len(pixel_sets_ids), len(session_pixel_sets))
 
         # Second Pixel Set seletion
@@ -928,7 +932,9 @@ class PixelSetSelectViewTestCase(CoreFixturesTestCase):
         data = {'pixel_sets': new_pixel_sets_ids}
         self.client.post(self.url, data, follow=True)
 
-        session_pixel_sets = self.client.session.get('export').get('pixelsets')
+        session_pixel_sets = get_selected_pixel_sets_from_session(
+            self.client.session
+        )
         self.assertEqual(
             len(pixel_sets_ids + new_pixel_sets_ids),
             len(session_pixel_sets)
@@ -953,14 +959,14 @@ class PixelSetSelectViewTestCase(CoreFixturesTestCase):
             response,
             (
                 '<div class="message success">'
-                '2 Pixel Sets have been selected for export.'
+                '2 Pixel Sets have been added to your selection.'
                 '</div>'
             ),
             html=True
         )
 
 
-class PixelSetSelectionClearViewTestCase(CoreFixturesTestCase):
+class PixelSetClearViewTestCase(CoreFixturesTestCase):
 
     def setUp(self):
 
@@ -973,7 +979,7 @@ class PixelSetSelectionClearViewTestCase(CoreFixturesTestCase):
             username=self.user.username,
             password=factories.PIXELER_PASSWORD,
         )
-        self.url = reverse('explorer:pixelset_selection_clear')
+        self.url = reverse('explorer:pixelset_clear')
         self.pixel_sets = []
 
     def _select_pixel_sets(self):
@@ -996,12 +1002,16 @@ class PixelSetSelectionClearViewTestCase(CoreFixturesTestCase):
 
         self._select_pixel_sets()
 
-        session_pixel_sets = self.client.session.get('export').get('pixelsets')
+        session_pixel_sets = get_selected_pixel_sets_from_session(
+            self.client.session
+        )
         self.assertEqual(len(session_pixel_sets), len(self.pixel_sets))
 
         self.client.post(self.url, {}, follow=True)
 
-        session_pixel_sets = self.client.session.get('export').get('pixelsets')
+        session_pixel_sets = get_selected_pixel_sets_from_session(
+            self.client.session
+        )
         self.assertEqual(len(session_pixel_sets), 0)
 
     def test_renders_message_on_success(self):
@@ -1051,21 +1061,27 @@ class PixelSetDeselectViewTestCase(CoreFixturesTestCase):
 
     def test_deselect(self):
 
-        session_pixel_sets = get_pixel_sets_for_export(self.client.session)
+        session_pixel_sets = get_selected_pixel_sets_from_session(
+            self.client.session
+        )
         self.assertEqual(len(session_pixel_sets), len(self.pixel_sets))
 
         data = {
             'pixel_set': str(self.pixel_sets[0].id)
         }
         self.client.post(self.url, data, follow=True)
-        session_pixel_sets = get_pixel_sets_for_export(self.client.session)
+        session_pixel_sets = get_selected_pixel_sets_from_session(
+            self.client.session
+        )
         self.assertEqual(len(session_pixel_sets), 1)
 
         data = {
             'pixel_set': str(self.pixel_sets[1].id)
         }
         self.client.post(self.url, data, follow=True)
-        session_pixel_sets = get_pixel_sets_for_export(self.client.session)
+        session_pixel_sets = get_selected_pixel_sets_from_session(
+            self.client.session
+        )
         self.assertEqual(len(session_pixel_sets), 0)
 
     def test_renders_message_on_success(self):
@@ -1164,11 +1180,15 @@ class PixelSetExportViewTestCase(CoreFixturesTestCase):
             reverse('explorer:pixelset_select'), data, follow=True
         )
 
-        session_pixel_sets = self.client.session.get('export').get('pixelsets')
+        session_pixel_sets = get_selected_pixel_sets_from_session(
+            self.client.session
+        )
         self.assertEqual(len(session_pixel_sets), len(pixel_sets))
 
         self.client.post(self.url)
-        session_pixel_sets = self.client.session.get('export').get('pixelsets')
+        session_pixel_sets = get_selected_pixel_sets_from_session(
+            self.client.session
+        )
         self.assertEqual(len(session_pixel_sets), 0)
 
     def test_displays_message_after_redirect_when_selection_is_empty(self):
@@ -1179,7 +1199,7 @@ class PixelSetExportViewTestCase(CoreFixturesTestCase):
             response,
             (
                 '<div class="message error">'
-                'Cannot export empty selection'
+                'Cannot export an empty selection.'
                 '</div>'
             ),
             html=True
@@ -1687,3 +1707,66 @@ class DataTableViewTestCase(TestCase):
         with pytest.raises(NotImplementedError):
             view = DataTableViewWithNoGetHeaders()
             view.get_headers()
+
+
+class PixelSetSelectionViewTestCase(CoreFixturesTestCase):
+
+    def setUp(self):
+
+        self.user = factories.PixelerFactory(
+            is_active=True,
+            is_staff=True,
+            is_superuser=True,
+        )
+        self.client.login(
+            username=self.user.username,
+            password=factories.PIXELER_PASSWORD,
+        )
+        self.url = reverse('explorer:pixelset_explore')
+
+    def test_redirects_to_list_view_when_invalid(self):
+
+        response = self.client.get(self.url)
+
+        self.assertRedirects(response, reverse('explorer:pixelset_list'))
+
+    def test_displays_message_after_redirect_when_selection_is_empty(self):
+
+        response = self.client.get(self.url, follow=True)
+
+        self.assertContains(
+            response,
+            (
+                '<div class="message error">'
+                'Cannot explore an empty selection.'
+                '</div>'
+            ),
+            html=True
+        )
+
+    def test_renders_pixelset_selection_template(self):
+
+        # select 2 pixel sets
+        pixel_sets = factories.PixelSetFactory.create_batch(2)
+        data = {
+            'pixel_sets': [str(p.id) for p in pixel_sets]
+        }
+        self.client.post(
+            reverse('explorer:pixelset_select'), data, follow=True
+        )
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'explorer/pixelset_selection.html')
+
+        self.assertContains(
+            response,
+            '<title>Pixel Sets - Your selection</title>'
+        )
+
+        self.assertContains(
+            response,
+            '<li class="pixelset">',
+            count=len(pixel_sets)
+        )

@@ -1,0 +1,27 @@
+{% load files %}
+{% load i18n %}
+{% load spurl %}
+
+<li class="pixelset">
+  <a
+    href="{{ pixelset.get_absolute_url }}"
+    title="{% trans "More information about this Pixel Set" %}"
+  >
+    <code>{{ pixelset.get_short_uuid }}</code> &mdash;
+    {{ pixelset.pixels_file.name|filename }}
+  </a>
+
+  <form action="{% url 'explorer:pixelset_deselect' %}" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="redirect_to" value="{{ request.build_absolute_uri }}">
+    <input type="hidden" name="pixel_set" value="{{ pixelset.id }}">
+    <button
+      type="submit"
+      name="deselect"
+      class="button clear action-deselect"
+      title="{% trans "Remove this Pixel Set from selection" %}"
+    >
+      <i class="fa fa-trash-o" aria-hidden="true"></i>
+    </button>
+  </form>
+</li>

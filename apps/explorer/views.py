@@ -7,15 +7,15 @@ from django.urls.base import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext as _, ngettext
 from django.views.generic import (
-    DetailView, FormView, ListView, RedirectView, View
+    DetailView, FormView, ListView, RedirectView, TemplateView, View
 )
 from django.views.generic.detail import BaseDetailView
 from django.views.generic.edit import FormMixin
 from gviz_api import DataTable
 
-from apps.core.models import OmicsArea, PixelSet, Tag
+from apps.core.models import OmicsArea, Pixel, PixelSet, Tag
 from .forms import (
-    PixelSetFiltersForm, PixelSetExportForm, PixelSetExportPixelsForm,
+    PixelSetFiltersForm, PixelSetExportForm, PixelSetSubsetSelectionForm,
     PixelSetSelectForm, SessionPixelSetSelectForm
 )
 from .utils import export_pixelsets, export_pixels
@@ -23,7 +23,7 @@ from .utils import export_pixelsets, export_pixels
 
 def get_omics_units_from_session(session, default=[]):
     return session.get(
-        'export', {}
+        'explorer', {}
     ).get(
         'pixels', {}
     ).get(
@@ -31,9 +31,9 @@ def get_omics_units_from_session(session, default=[]):
     )
 
 
-def get_pixel_sets_for_export(session, default=[]):
+def get_selected_pixel_sets_from_session(session, default=[]):
     return session.get(
-        'export', {}
+        'explorer', {}
     ).get(
         'pixelsets', default
     )
@@ -69,6 +69,44 @@ class DataTableView(BaseDetailView):
         dt.LoadData(qs.values(*self.get_columns()))
 
         return HttpResponse(dt.ToJSon(), content_type='application/json')
+
+
+class SubsetSelectionMixin(FormMixin):
+
+    form_class = PixelSetSubsetSelectionForm
+
+    def get_omics_units(self):
+
+        return get_omics_units_from_session(self.request.session)
+
+    def get_initial(self):
+
+        initial = super().get_initial()
+
+        initial.update({
+            'omics_units': ' '.join(self.get_omics_units()),
+        })
+        return initial
+
+    def post(self, request, *args, **kwargs):
+
+        form = self.get_form()
+
+        if form.is_valid():
+            omics_units = form.cleaned_data['omics_units']
+            request.session.update({
+                'explorer': {
+                    'pixels': {
+                        'omics_units': omics_units,
+                    },
+                },
+            })
+
+            return self.form_valid(form)
+        else:
+            # We should never reach this code because the form should always be
+            # valid (no required field or validation)
+            return self.form_invalid(form)  # pragma: no cover
 
 
 class PixelSetListView(LoginRequiredMixin, FormMixin, ListView):
@@ -154,22 +192,24 @@ class PixelSetListView(LoginRequiredMixin, FormMixin, ListView):
 
     def get_context_data(self, **kwargs):
 
-        selected_pixelset = get_pixel_sets_for_export(self.request.session)
-        if len(selected_pixelset):
-            selected_pixelset = PixelSet.objects.filter(
-                id__in=selected_pixelset
+        selected_pixelsets = get_selected_pixel_sets_from_session(
+            self.request.session
+        )
+        if len(selected_pixelsets):
+            selected_pixelsets = PixelSet.objects.filter(
+                id__in=selected_pixelsets
             )
 
         context = super().get_context_data(**kwargs)
         context.update({
             'export_form': PixelSetExportForm(),
             'select_form': PixelSetSelectForm(),
-            'selected_pixelsets': selected_pixelset,
+            'selected_pixelsets': selected_pixelsets,
         })
         return context
 
 
-class PixelSetSelectionClearView(LoginRequiredMixin, RedirectView):
+class PixelSetClearView(LoginRequiredMixin, RedirectView):
 
     http_method_names = ['post', ]
 
@@ -182,7 +222,7 @@ class PixelSetSelectionClearView(LoginRequiredMixin, RedirectView):
     def post(self, request, *args, **kwargs):
 
         request.session.update({
-            'export': {
+            'explorer': {
                 'pixelsets': []
             }
         })
@@ -213,18 +253,22 @@ class PixelSetDeselectView(LoginRequiredMixin, FormView):
         if form_class is None:
             form_class = self.get_form_class()
 
-        session_pixel_sets = get_pixel_sets_for_export(self.request.session)
+        session_pixel_sets = get_selected_pixel_sets_from_session(
+            self.request.session
+        )
 
         return form_class(session_pixel_sets, **self.get_form_kwargs())
 
     def form_valid(self, form):
 
-        session_pixel_sets = get_pixel_sets_for_export(self.request.session)
+        session_pixel_sets = get_selected_pixel_sets_from_session(
+            self.request.session
+        )
         pixel_set = form.cleaned_data['pixel_set']
         session_pixel_sets.remove(pixel_set)
 
         self.request.session.update({
-            'export': {
+            'explorer': {
                 'pixelsets': session_pixel_sets
             }
         })
@@ -265,14 +309,14 @@ class PixelSetSelectView(LoginRequiredMixin, FormView):
 
         selection = list(
             set(
-                get_pixel_sets_for_export(self.request.session) + [
+                get_selected_pixel_sets_from_session(self.request.session) + [
                     str(p.id) for p in form.cleaned_data['pixel_sets']
                 ]
             )
         )
 
         self.request.session.update({
-            'export': {
+            'explorer': {
                 'pixelsets': selection
             }
         })
@@ -282,8 +326,8 @@ class PixelSetSelectView(LoginRequiredMixin, FormView):
         messages.success(
             self.request,
             ngettext(
-                '%(count)d Pixel Set has been selected for export.',
-                '%(count)d Pixel Sets have been selected for export.',
+                '%(count)d Pixel Set has been added to your selection.',
+                '%(count)d Pixel Sets have been added to your selection.',
                 nb_pixelsets
             ) % {
                 'count': nb_pixelsets,
@@ -317,9 +361,7 @@ class PixelSetExportView(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
 
-        selection = []
-        if self.request.session.get('export', None):
-            selection = self.request.session['export'].get('pixelsets', [])
+        selection = get_selected_pixel_sets_from_session(self.request.session)
 
         if not len(selection):
             return self.empty_selection(request)
@@ -329,7 +371,7 @@ class PixelSetExportView(LoginRequiredMixin, View):
 
         # Reset selection
         request.session.update({
-            'export': {
+            'explorer': {
                 'pixelsets': []
             }
         })
@@ -344,23 +386,18 @@ class PixelSetExportView(LoginRequiredMixin, View):
 
         messages.error(
             request,
-            _("Cannot export empty selection")
+            _("Cannot export an empty selection.")
         )
 
         return HttpResponseRedirect(reverse('explorer:pixelset_list'))
 
 
-class PixelSetDetailView(LoginRequiredMixin, FormMixin, DetailView):
+class PixelSetDetailView(LoginRequiredMixin, SubsetSelectionMixin, DetailView):
 
-    form_class = PixelSetExportPixelsForm
     http_method_names = ['get', 'post']
     model = PixelSet
     pixels_limit = 100
     template_name = 'explorer/pixelset_detail.html'
-
-    def get_omics_units(self):
-
-        return get_omics_units_from_session(self.request.session)
 
     def get_queryset(self):
 
@@ -392,39 +429,9 @@ class PixelSetDetailView(LoginRequiredMixin, FormMixin, DetailView):
         })
         return context
 
-    def get_initial(self):
-
-        initial = super().get_initial()
-
-        initial.update({
-            'omics_units': ' '.join(self.get_omics_units()),
-        })
-        return initial
-
-    def post(self, request, *args, **kwargs):
-
-        self.object = self.get_object()
-        form = self.get_form()
-
-        if form.is_valid():
-            omics_units = form.cleaned_data['omics_units']
-            request.session.update({
-                'export': {
-                    'pixels': {
-                        'omics_units': omics_units,
-                    },
-                },
-            })
-
-            return self.form_valid(form)
-        else:
-            # We should never reach this code because the form should always be
-            # valid (no required field or validation)
-            return self.form_invalid(form)  # pragma: no cover
-
     def get_success_url(self):
 
-        return self.object.get_absolute_url()
+        return self.get_object().get_absolute_url()
 
 
 class PixelSetExportPixelsView(LoginRequiredMixin, BaseDetailView):
@@ -468,3 +475,61 @@ class PixelSetDetailQualityScoresView(LoginRequiredMixin, DataTableView):
     def get_headers(self):
 
         return {'id': ('string'), 'quality_score': ('number')}
+
+
+class PixelSetSelectionView(LoginRequiredMixin, TemplateView):
+
+    pixels_limit = 100
+    template_name = 'explorer/pixelset_selection.html'
+
+    def get(self, request, *args, **kwargs):
+
+        selection = get_selected_pixel_sets_from_session(request.session)
+
+        if not len(selection):
+            return self.empty_selection(request)
+
+        return super().get(request, *args, **kwargs)
+
+    def empty_selection(self, request):
+
+        messages.error(
+            request,
+            _("Cannot explore an empty selection.")
+        )
+
+        return HttpResponseRedirect(reverse('explorer:pixelset_list'))
+
+    def get_context_data(self, **kwargs):
+
+        context = super().get_context_data(**kwargs)
+
+        selected_pixelset_ids = get_selected_pixel_sets_from_session(
+            self.request.session
+        )
+
+        selected_pixelsets = PixelSet.objects.filter(
+            id__in=selected_pixelset_ids
+        )
+
+        qs = Pixel.objects.filter(
+            pixel_set_id__in=selected_pixelsets
+        ).select_related(
+            'omics_unit__reference'
+        )
+
+        pixels = qs[:self.pixels_limit]
+        pixels_count = qs.count()
+
+        total_count = Pixel.objects.filter(
+            pixel_set_id__in=selected_pixelsets
+        ).count()
+
+        context.update({
+            'pixels': pixels,
+            'pixels_count': pixels_count,
+            'pixels_limit': self.pixels_limit,
+            'total_count': total_count,
+            'selected_pixelsets': selected_pixelsets,
+        })
+        return context

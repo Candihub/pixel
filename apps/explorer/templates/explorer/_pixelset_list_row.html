@@ -1,0 +1,79 @@
+{% load i18n %}
+{% load files %}
+{% load explorer %}
+
+<tr class="pixelset{% if pixelset in selected_pixelsets %} in-selection{% endif %}">
+  <td>
+    <input
+      name="pixel_sets"
+      value="{{ pixelset.id }}"
+      type="checkbox"
+      {% if pixelset in selected_pixelsets %}
+      disabled="disabled"
+      title="{% trans "This Pixel Set is already selected" %}"
+      {% endif %}
+    >
+  </td>
+  <td class="filename">
+    <!-- Pixel Set file name -->
+    <a
+      href="{{ pixelset.get_absolute_url }}"
+      title="{% trans "More information about this Pixel Set" %}"
+    >
+      {{ pixelset.pixels_file.name|filename }}
+    </a>
+  </td>
+  <td class="species">
+    <!-- Species-->
+    {% for species in pixelset.cached_species %}
+      <span class="species">{{ species }}</span>
+    {% endfor %}
+  </td>
+  <td class="omics-unit-types">
+    <!-- Omics Unit Type -->
+    {% for type in pixelset.cached_omics_unit_types %}
+      <span class="omics-unit-type">{{ type }}</span>
+    {% endfor %}
+  </td>
+  <td class="omics-areas">
+    <!-- Omics Area -->
+    {% for area in pixelset.cached_omics_areas %}
+      <span class="omics-area">{{ area }}</span>
+    {% endfor %}
+  </td>
+  <td class="pixeler">
+    <!-- Pixeler -->
+    {{ pixelset.analysis.pixeler.get_full_name }}
+  </td>
+  <td class="analyses">
+    <!-- Analysis -->
+    {{ pixelset.analysis.description | highlight:highlight_term }}
+    <span class="completed-at">
+      {% trans "Completion date:" %}
+      {{ pixelset.analysis.completed_at | date }}
+    </span>
+  </td>
+  <td class="experiments">
+    <!-- Experiment -->
+    {% for experiment in pixelset.analysis.experiments.all %}
+    <span class="experiment">
+      {{ experiment.description | highlight:highlight_term }}
+    </span>
+    <span class="completed-at">
+      {% trans "Completion date:" %}
+      {{ experiment.completed_at | date }}
+    </span>
+    {% endfor %}
+  </td>
+  <td class="tags">
+    <!-- Tags -->
+    {% for tag in pixelset.analysis.tags.all %}
+      <span class="tag analysis">{{ tag }}</span>
+    {% endfor %}
+    {% for experiment in pixelset.analysis.experiments.all %}
+      {% for tag in experiment.tags.all %}
+        <span class="tag experiment">{{ tag }}</span>
+      {% endfor %}
+    {% endfor %}
+  </td>
+</tr>

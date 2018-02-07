@@ -10,3 +10,10 @@
     background-color: $body-background-alt-2;
   }
 }
+
+@mixin left-sidebar-list {
+  max-height: 200px;
+  margin-left: 0;
+  list-style: none;
+  overflow-y: auto;
+}
