@@ -1755,7 +1755,6 @@ class PixelSetSelectionViewTestCase(CoreFixturesTestCase):
             reverse('explorer:pixelset_select'), data, follow=True
         )
 
-
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, 200)
