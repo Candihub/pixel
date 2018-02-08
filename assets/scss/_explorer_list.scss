@@ -81,6 +81,11 @@
 
     .filename {
       font-family: $font-family-monospace;
+
+      // Add padding to ease navigation to the detail view.
+      a {
+        padding: 1em 0;
+      }
     }
 
     .omics-unit-types {
