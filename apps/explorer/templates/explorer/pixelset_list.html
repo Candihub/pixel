@@ -160,7 +160,7 @@
 <script>
   (function (document) {
     // Pixel Set selection
-    $rows = document.querySelectorAll('.pixelset');
+    $rows = document.querySelectorAll('.pixelset:not(.in-selection)');
 
     $rows.forEach(function ($row) {
       $row.addEventListener('click', function (e) {
