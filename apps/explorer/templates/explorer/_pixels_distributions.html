@@ -1,0 +1,23 @@
+{% load i18n %}
+
+<section class="pixels-distributions">
+  <h4>
+    {% trans "Distributions" %}
+  </h4>
+
+  <div class="histograms">
+    <div class="histogram" id="values-histogram">
+      <p>
+        <i class="fa fa-refresh fa-spin"></i>
+        {% trans "Loading the histogram for values..." %}
+      </p>
+    </div>
+
+    <div class="histogram" id="scores-histogram">
+      <p>
+        <i class="fa fa-refresh fa-spin"></i>
+        {% trans "Loading the histogram for quality scores..." %}
+      </p>
+    </div>
+  </div>
+</section>

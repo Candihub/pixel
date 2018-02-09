@@ -37,69 +37,14 @@
     {% include "explorer/_subset_selection.html" %}
   </section>
 
-  <section class="pixelset-distributions">
-    <h4>
-      {% trans "Distributions" %}
-    </h4>
-
-    <div class="histograms">
-      <div class="histogram" id="values-histogram">
-        <p>
-          <i class="fa fa-refresh fa-spin"></i>
-          {% trans "Loading the histogram for values..." %}
-        </p>
-      </div>
-
-      <div class="histogram" id="scores-histogram">
-        <p>
-          <i class="fa fa-refresh fa-spin"></i>
-          {% trans "Loading the histogram for quality scores..." %}
-        </p>
-      </div>
-    </div>
-  </section>
+  {% include "explorer/_pixels_distributions.html" %}
 
   {% include "explorer/_pixelset_detail_pixels.html" %}
 {% endblock content %}
 
 {% block javascript %}
-  <script src="//www.gstatic.com/charts/loader.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script type="text/javascript">
-    google.charts.load('current', {'packages':['corechart']});
-    google.charts.setOnLoadCallback(drawCharts);
+  {% url "explorer:pixelset_detail_values" pixelset.id as url_values %}
+  {% url "explorer:pixelset_detail_quality_scores" pixelset.id as url_scores %}
 
-    function drawCharts() {
-      var valuesChart = new google.visualization.Histogram(
-        document.getElementById('values-histogram')
-      );
-      var scoresChart = new google.visualization.Histogram(
-        document.getElementById('scores-histogram')
-      );
-
-      $.get('{% url "explorer:pixelset_detail_values" pixelset.id %}', function (data) {
-        valuesChart.draw(
-          new google.visualization.DataTable(data),
-          {
-            colors: ['#bd2222'],
-            height: 300,
-            legend: { position: 'none' },
-            title: '{% trans "Values" %}',
-          }
-        );
-      });
-
-      $.get('{% url "explorer:pixelset_detail_quality_scores" pixelset.id %}', function (data) {
-        scoresChart.draw(
-          new google.visualization.DataTable(data),
-          {
-            colors: ['#142451'],
-            height: 300,
-            legend: { position: 'none' },
-            title: '{% trans "Quality scores" %}',
-          }
-        );
-      });
-    }
-  </script>
+  {% include "explorer/_pixels_distributions.js" with url_values=url_values url_score=url_scores %}
 {% endblock javascript %}

@@ -20,6 +20,22 @@
     }
   }
 
+  .pixels-distributions {
+
+    .histograms {
+      @include xy-grid($wrap: false);
+
+      .histogram {
+        @include breakpoint(medium) {
+          @include xy-cell($size: 6, $gutter-output: false);
+        }
+
+        text-align: center;
+        padding: 2em 1em;
+      }
+    }
+  }
+
   .pixelsets-wrapper,
   .pixels-wrapper {
     @include table-scroll;
