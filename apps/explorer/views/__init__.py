@@ -14,11 +14,11 @@ from django.views.generic.edit import FormMixin
 from gviz_api import DataTable
 
 from apps.core.models import OmicsArea, Pixel, PixelSet, Tag
-from .forms import (
+from ..forms import (
     PixelSetFiltersForm, PixelSetExportForm, PixelSetSubsetSelectionForm,
     PixelSetSelectForm, SessionPixelSetSelectForm
 )
-from .utils import export_pixelsets, export_pixels
+from ..utils import export_pixelsets, export_pixels
 
 
 def get_omics_units_from_session(session, default=[]):
