@@ -39,9 +39,7 @@ def get_selected_pixel_sets_from_session(session, default=[]):
     )
 
 
-class DataTableView(BaseDetailView):
-
-    model = PixelSet
+class DataTableMixin(object):
 
     def get_headers(self):
 
@@ -58,7 +56,7 @@ class DataTableView(BaseDetailView):
                 'This endpoint should only be called from JavaScript.'
             )
 
-        qs = self.get_object().pixels
+        qs = self.get_pixels_queryset()
 
         omics_units = get_omics_units_from_session(request.session)
         # we only filter by Omics Units when specified.
@@ -69,6 +67,26 @@ class DataTableView(BaseDetailView):
         dt.LoadData(qs.values(*self.get_columns()))
 
         return HttpResponse(dt.ToJSon(), content_type='application/json')
+
+
+class DataTableDetailView(LoginRequiredMixin, DataTableMixin, BaseDetailView):
+
+    model = PixelSet
+
+    def get_pixels_queryset(self):
+
+        return self.get_object().pixels
+
+
+class DataTableSelectionView(LoginRequiredMixin, DataTableMixin, View):
+
+    def get_pixels_queryset(self):
+
+        selected_pixelset_ids = get_selected_pixel_sets_from_session(
+            self.request.session
+        )
+
+        return Pixel.objects.filter(pixel_set_id__in=selected_pixelset_ids)
 
 
 class SubsetSelectionMixin(FormMixin):
@@ -463,14 +481,14 @@ class PixelSetExportPixelsView(LoginRequiredMixin, BaseDetailView):
         return response
 
 
-class PixelSetDetailValuesView(LoginRequiredMixin, DataTableView):
+class PixelSetDetailValuesView(DataTableDetailView):
 
     def get_headers(self):
 
         return {'id': ('string'), 'value': ('number')}
 
 
-class PixelSetDetailQualityScoresView(LoginRequiredMixin, DataTableView):
+class PixelSetDetailQualityScoresView(DataTableDetailView):
 
     def get_headers(self):
 
@@ -533,3 +551,17 @@ class PixelSetSelectionView(LoginRequiredMixin, TemplateView):
             'selected_pixelsets': selected_pixelsets,
         })
         return context
+
+
+class PixelSetSelectionValuesView(DataTableSelectionView):
+
+    def get_headers(self):
+
+        return {'id': ('string'), 'value': ('number')}
+
+
+class PixelSetSelectionQualityScoresView(DataTableSelectionView):
+
+    def get_headers(self):
+
+        return {'id': ('string'), 'quality_score': ('number')}

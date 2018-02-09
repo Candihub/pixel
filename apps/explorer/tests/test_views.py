@@ -18,7 +18,7 @@ from apps.core.management.commands.make_development_fixtures import (
 )
 from apps.explorer.views import (
     PixelSetDetailView, PixelSetExportView, PixelSetExportPixelsView,
-    DataTableView,
+    DataTableDetailView, DataTableSelectionView,
     get_omics_units_from_session, get_selected_pixel_sets_from_session
 )
 
@@ -1697,15 +1697,15 @@ class PixelSetDetailQualityScoresTestCase(CoreFixturesTestCase):
         self.assertEqual(rows[0]['c'][1]['v'], selected_pixel.quality_score)
 
 
-class DataTableViewTestCase(TestCase):
+class DataTableDetailViewTestCase(TestCase):
 
     def test_get_headers_must_be_implemented(self):
 
-        class DataTableViewWithNoGetHeaders(DataTableView):
+        class DataTableDetailViewWithNoGetHeaders(DataTableDetailView):
             pass
 
         with pytest.raises(NotImplementedError):
-            view = DataTableViewWithNoGetHeaders()
+            view = DataTableDetailViewWithNoGetHeaders()
             view.get_headers()
 
 
@@ -1770,3 +1770,169 @@ class PixelSetSelectionViewTestCase(CoreFixturesTestCase):
             '<li class="pixelset">',
             count=len(pixel_sets)
         )
+
+
+class DataTableSelectionViewTestCase(TestCase):
+
+    def test_get_headers_must_be_implemented(self):
+
+        class DataTableSelectionViewWithNoGetHeaders(DataTableSelectionView):
+            pass
+
+        with pytest.raises(NotImplementedError):
+            view = DataTableSelectionViewWithNoGetHeaders()
+            view.get_headers()
+
+
+class PixelSetSelectionQualityScoresTestCase(CoreFixturesTestCase):
+
+    def setUp(self):
+
+        self.user = factories.PixelerFactory(
+            is_active=True,
+            is_staff=True,
+            is_superuser=True,
+        )
+        self.client.login(
+            username=self.user.username,
+            password=factories.PIXELER_PASSWORD,
+        )
+
+        self.pixel_set = factories.PixelSetFactory()
+        self.pixels = factories.PixelFactory.create_batch(
+            2,
+            pixel_set=self.pixel_set
+        )
+
+        self.url = reverse('explorer:pixelset_explore_quality_scores')
+
+    def test_returns_bad_request_when_not_ajax(self):
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_returns_json(self):
+
+        # select 1 pixel set
+        data = {
+            'pixel_sets': [self.pixel_set.id]
+        }
+        self.client.post(
+            reverse('explorer:pixelset_select'), data, follow=True
+        )
+
+        response = self.client.get(
+            self.url,
+            data={},
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/json')
+
+        data = json.loads(response.content)
+
+        cols = data['cols']
+        self.assertEqual(cols[0]['label'], 'id')
+        self.assertEqual(cols[1]['label'], 'quality_score')
+
+        rows = data['rows']
+        self.assertEqual(len(rows), 2)
+
+    def test_no_selected_pixel_sets_returns_empty(self):
+
+        response = self.client.get(
+            self.url,
+            data={},
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/json')
+
+        data = json.loads(response.content)
+
+        cols = data['cols']
+        self.assertEqual(cols[0]['label'], 'id')
+        self.assertEqual(cols[1]['label'], 'quality_score')
+
+        rows = data['rows']
+        self.assertEqual(len(rows), 0)
+
+
+class PixelSetSelectionValuesTestCase(CoreFixturesTestCase):
+
+    def setUp(self):
+
+        self.user = factories.PixelerFactory(
+            is_active=True,
+            is_staff=True,
+            is_superuser=True,
+        )
+        self.client.login(
+            username=self.user.username,
+            password=factories.PIXELER_PASSWORD,
+        )
+
+        self.pixel_set = factories.PixelSetFactory()
+        self.pixels = factories.PixelFactory.create_batch(
+            2,
+            pixel_set=self.pixel_set
+        )
+
+        self.url = reverse('explorer:pixelset_explore_values')
+
+    def test_returns_bad_request_when_not_ajax(self):
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_returns_json(self):
+
+        # select 1 pixel set
+        data = {
+            'pixel_sets': [self.pixel_set.id]
+        }
+        self.client.post(
+            reverse('explorer:pixelset_select'), data, follow=True
+        )
+
+        response = self.client.get(
+            self.url,
+            data={},
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/json')
+
+        data = json.loads(response.content)
+
+        cols = data['cols']
+        self.assertEqual(cols[0]['label'], 'id')
+        self.assertEqual(cols[1]['label'], 'value')
+
+        rows = data['rows']
+        self.assertEqual(len(rows), 2)
+
+    def test_no_selected_pixel_sets_returns_empty(self):
+
+        response = self.client.get(
+            self.url,
+            data={},
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/json')
+
+        data = json.loads(response.content)
+
+        cols = data['cols']
+        self.assertEqual(cols[0]['label'], 'id')
+        self.assertEqual(cols[1]['label'], 'value')
+
+        rows = data['rows']
+        self.assertEqual(len(rows), 0)

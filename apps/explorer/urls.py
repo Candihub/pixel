@@ -57,6 +57,16 @@ urlpatterns = [
         name='pixelset_explore'
     ),
     url(
+        r'^pixelset/explore/values.json$',
+        views.PixelSetSelectionValuesView.as_view(),
+        name='pixelset_explore_values'
+    ),
+    url(
+        r'^pixelset/explore/quality-scores.json$',
+        views.PixelSetSelectionQualityScoresView.as_view(),
+        name='pixelset_explore_quality_scores'
+    ),
+    url(
         r'^pixelset/(?P<pk>{})/export$'.format(UUID_REGEX),
         views.PixelSetExportPixelsView.as_view(),
         name='pixelset_export_pixels'
