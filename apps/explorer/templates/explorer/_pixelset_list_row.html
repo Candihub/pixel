@@ -2,12 +2,7 @@
 {% load files %}
 {% load explorer %}
 
-<tr
-  class="pixelset{% if pixelset in selected_pixelsets %} in-selection{% endif %}"
-  {% if pixelset in selected_pixelsets %}
-  title="{% trans "This Pixel Set is already selected" %}"
-  {% endif %}
->
+<tr class="pixelset{% if pixelset in selected_pixelsets %} in-selection" title="{% trans "This Pixel Set is already selected" %}{% endif %}">
   <td>
     <input
       name="pixel_sets"
