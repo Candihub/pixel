@@ -71,6 +71,7 @@
       &.in-selection {
         background-color: rgba($secondary-color, 0.1);
         border-left: 3px solid rgba($secondary-color, 0.3);
+        cursor: not-allowed;
       }
     }
 
@@ -80,6 +81,11 @@
 
     .filename {
       font-family: $font-family-monospace;
+
+      // Add padding to ease navigation to the detail view.
+      a {
+        padding: 1em 0;
+      }
     }
 
     .omics-unit-types {
@@ -119,7 +125,7 @@
 
     .experiments,
     .analyses {
-      min-width: 350px;
+      min-width: 450px;
     }
 
     .tags {

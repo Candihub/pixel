@@ -2,7 +2,7 @@
 {% load files %}
 {% load explorer %}
 
-<tr class="pixelset{% if pixelset in selected_pixelsets %} in-selection{% endif %}">
+<tr class="pixelset{% if pixelset in selected_pixelsets %} in-selection" title="{% trans "This Pixel Set is already selected" %}{% endif %}">
   <td>
     <input
       name="pixel_sets"
@@ -10,7 +10,6 @@
       type="checkbox"
       {% if pixelset in selected_pixelsets %}
       disabled="disabled"
-      title="{% trans "This Pixel Set is already selected" %}"
       {% endif %}
     >
   </td>

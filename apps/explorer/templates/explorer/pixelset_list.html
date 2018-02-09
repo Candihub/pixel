@@ -10,8 +10,8 @@
   {% trans "Pixel Sets" %}
 </h1>
 <span class="subheader">
-  {% trans "total:" %} {{ paginator.count }}<br/>
-  {% trans "displayed:" %} {{ pixelset_list.count }}
+  {% trans "Total:" %} {{ paginator.count }}<br/>
+  {% trans "Displayed:" %} {{ pixelset_list.count }}
 </span>
 {% endblock %}
 
@@ -160,7 +160,7 @@
 <script>
   (function (document) {
     // Pixel Set selection
-    $rows = document.querySelectorAll('.pixelset');
+    $rows = document.querySelectorAll('.pixelset:not(.in-selection)');
 
     $rows.forEach(function ($row) {
       $row.addEventListener('click', function (e) {
