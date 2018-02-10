@@ -52,8 +52,8 @@
 {% endblock content %}
 
 {% block javascript %}
-  {% url "explorer:pixelset_explore_values" as url_values %}
-  {% url "explorer:pixelset_explore_quality_scores" as url_scores %}
+  {% url "explorer:pixelset_selection_values" as url_values %}
+  {% url "explorer:pixelset_selection_quality_scores" as url_scores %}
 
   {% include "explorer/_pixels_distributions.js" with url_values=url_values url_score=url_scores %}
 {% endblock javascript %}
