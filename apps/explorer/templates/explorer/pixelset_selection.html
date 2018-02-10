@@ -18,32 +18,20 @@
 {% endblock %}
 
 {% block content %}
-  <section class="selection-pixelsets">
-    <h4>
-      {% trans "Pixel Sets" %}
-    </h4>
+  <section class="selection-overview">
+    <div class="selection-pixelsets">
+      <h4>
+        {% trans "Pixel Sets" %}
+      </h4>
 
-    <ul class="selected-pixelsets">
-      {% for pixelset in selected_pixelsets %}
-        {% include "explorer/_selected_pixelset_item.html" %}
-      {% endfor %}
-    </ul>
+      <ul class="selected-pixelsets">
+        {% for pixelset in selected_pixelsets %}
+          {% include "explorer/_selected_pixelset_item.html" %}
+        {% endfor %}
+      </ul>
+    </div>
 
-    <hr>
-
-    <p>
-      {% blocktrans count selected=pixels_count %}
-      You have selected
-      <span class="badge success">{{ selected }}</span> pixel
-      {% plural %}
-      You have selected
-      <span class="badge success">{{ selected }}</span> pixels
-      {% endblocktrans %}
-      {% blocktrans with total=total_count %}
-      among a grand total of
-      <span class="badge secondary">{{ total }}</span> pixels.
-      {% endblocktrans %}
-    </p>
+    {% include "explorer/_subset_selection.html" %}
   </section>
 
   {% include "explorer/_pixels_distributions.html" %}

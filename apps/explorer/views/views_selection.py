@@ -8,7 +8,7 @@ from django.views.generic import TemplateView, View
 from apps.core.models import Pixel, PixelSet
 
 from .helpers import get_selected_pixel_sets_from_session
-from .mixins import DataTableMixin
+from .mixins import DataTableMixin, SubsetSelectionMixin
 
 
 class DataTableSelectionView(LoginRequiredMixin, DataTableMixin, View):
@@ -36,7 +36,8 @@ class PixelSetSelectionQualityScoresView(DataTableSelectionView):
         return {'id': ('string'), 'quality_score': ('number')}
 
 
-class PixelSetSelectionView(LoginRequiredMixin, TemplateView):
+class PixelSetSelectionView(LoginRequiredMixin, SubsetSelectionMixin,
+                            TemplateView):
 
     pixels_limit = 100
     template_name = 'explorer/pixelset_selection.html'
@@ -92,3 +93,7 @@ class PixelSetSelectionView(LoginRequiredMixin, TemplateView):
             'selected_pixelsets': selected_pixelsets,
         })
         return context
+
+    def get_success_url(self):
+
+        return reverse('explorer:pixelset_selection')

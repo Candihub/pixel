@@ -6,7 +6,7 @@ from gviz_api import DataTable
 
 from ..forms import PixelSetSubsetSelectionForm
 
-from .helpers import get_omics_units_from_session
+from .helpers import get_omics_units_from_session, set_omics_units_to_session
 
 
 class DataTableMixin(object):
@@ -61,14 +61,10 @@ class SubsetSelectionMixin(FormMixin):
         form = self.get_form()
 
         if form.is_valid():
-            omics_units = form.cleaned_data['omics_units']
-            request.session.update({
-                'explorer': {
-                    'pixels': {
-                        'omics_units': omics_units,
-                    },
-                },
-            })
+            set_omics_units_to_session(
+                request.session,
+                omics_units=form.cleaned_data['omics_units']
+            )
 
             return self.form_valid(form)
         else:

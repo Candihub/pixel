@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load spurl %}
 
-<div class="selection">
+<div class="subset-selection">
   <h4>{% trans "Subset selection" %}</h4>
 
   <p>
@@ -25,7 +25,7 @@
         {% trans "Preview" %}
       </button>
 
-      {% if request.session.explorer.pixels.omics_units and pixels_count > 0 %}
+      {% if request.session.explorer.omics_units and pixels_count > 0 %}
       <a class="button" href="">
           <i class="fa fa-download" aria-hidden="true"></i>
           {% trans "Download a CSV file with the selected Pixels" %}

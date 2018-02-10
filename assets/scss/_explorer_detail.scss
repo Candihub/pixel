@@ -9,7 +9,7 @@
         }
       }
 
-      .selection {
+      .subset-selection {
         display: none;
 
         @include breakpoint(medium) {
@@ -30,12 +30,6 @@
         th {
           text-align: left;
         }
-      }
-    }
-
-    .selection {
-      .help-text {
-        margin-top: 0.4rem;
       }
     }
   }

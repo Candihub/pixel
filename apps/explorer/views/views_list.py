@@ -18,7 +18,9 @@ from ..forms import (
 )
 from ..utils import export_pixelsets
 
-from .helpers import get_selected_pixel_sets_from_session
+from .helpers import (
+    get_selected_pixel_sets_from_session, set_selected_pixel_sets_to_session
+)
 
 
 class PixelSetListView(LoginRequiredMixin, FormMixin, ListView):
@@ -133,11 +135,7 @@ class PixelSetClearView(LoginRequiredMixin, RedirectView):
 
     def post(self, request, *args, **kwargs):
 
-        request.session.update({
-            'explorer': {
-                'pixelsets': []
-            }
-        })
+        set_selected_pixel_sets_to_session(request.session, [])
 
         messages.success(
             request,
@@ -179,11 +177,10 @@ class PixelSetDeselectView(LoginRequiredMixin, FormView):
         pixel_set = form.cleaned_data['pixel_set']
         session_pixel_sets.remove(pixel_set)
 
-        self.request.session.update({
-            'explorer': {
-                'pixelsets': session_pixel_sets
-            }
-        })
+        set_selected_pixel_sets_to_session(
+            self.request.session,
+            pixel_sets=session_pixel_sets
+        )
 
         messages.success(
             self.request,
@@ -227,11 +224,10 @@ class PixelSetSelectView(LoginRequiredMixin, FormView):
             )
         )
 
-        self.request.session.update({
-            'explorer': {
-                'pixelsets': selection
-            }
-        })
+        set_selected_pixel_sets_to_session(
+            self.request.session,
+            pixel_sets=selection
+        )
 
         nb_pixelsets = len(form.cleaned_data['pixel_sets'])
 
@@ -282,11 +278,7 @@ class PixelSetExportView(LoginRequiredMixin, View):
         content = export_pixelsets(qs).getvalue()
 
         # Reset selection
-        request.session.update({
-            'explorer': {
-                'pixelsets': []
-            }
-        })
+        set_selected_pixel_sets_to_session(request.session, [])
 
         response = HttpResponse(content, content_type='application/zip')
         response['Content-Disposition'] = 'attachment; filename={}'.format(
