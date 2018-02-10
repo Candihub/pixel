@@ -52,19 +52,19 @@ urlpatterns = [
         name='pixelset_export'
     ),
     url(
-        r'^pixelset/explore$',
+        r'^pixelset/selection$',
         views.PixelSetSelectionView.as_view(),
-        name='pixelset_explore'
+        name='pixelset_selection'
     ),
     url(
-        r'^pixelset/explore/values.json$',
+        r'^pixelset/selection/values.json$',
         views.PixelSetSelectionValuesView.as_view(),
-        name='pixelset_explore_values'
+        name='pixelset_selection_values'
     ),
     url(
-        r'^pixelset/explore/quality-scores.json$',
+        r'^pixelset/selection/quality-scores.json$',
         views.PixelSetSelectionQualityScoresView.as_view(),
-        name='pixelset_explore_quality_scores'
+        name='pixelset_selection_quality_scores'
     ),
     url(
         r'^pixelset/(?P<pk>{})/export$'.format(UUID_REGEX),

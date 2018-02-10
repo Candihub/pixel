@@ -1724,7 +1724,7 @@ class PixelSetSelectionViewTestCase(CoreFixturesTestCase):
             username=self.user.username,
             password=factories.PIXELER_PASSWORD,
         )
-        self.url = reverse('explorer:pixelset_explore')
+        self.url = reverse('explorer:pixelset_selection')
 
     def test_redirects_to_list_view_when_invalid(self):
 
@@ -1806,7 +1806,7 @@ class PixelSetSelectionQualityScoresTestCase(CoreFixturesTestCase):
             pixel_set=self.pixel_set
         )
 
-        self.url = reverse('explorer:pixelset_explore_quality_scores')
+        self.url = reverse('explorer:pixelset_selection_quality_scores')
 
     def test_returns_bad_request_when_not_ajax(self):
 
@@ -1883,7 +1883,7 @@ class PixelSetSelectionValuesTestCase(CoreFixturesTestCase):
             pixel_set=self.pixel_set
         )
 
-        self.url = reverse('explorer:pixelset_explore_values')
+        self.url = reverse('explorer:pixelset_selection_values')
 
     def test_returns_bad_request_when_not_ajax(self):
 
