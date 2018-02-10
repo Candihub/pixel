@@ -6,10 +6,14 @@ from gviz_api import DataTable
 
 from ..forms import PixelSetSubsetSelectionForm
 
-from .helpers import get_omics_units_from_session, set_omics_units_to_session
+from .helpers import set_omics_units_to_session
 
 
 class DataTableMixin(object):
+
+    def get_omics_units(self, session, **kwargs):
+
+        raise NotImplementedError(_('You should define `get_omics_units()`'))
 
     def get_headers(self):
 
@@ -28,7 +32,8 @@ class DataTableMixin(object):
 
         qs = self.get_pixels_queryset()
 
-        omics_units = get_omics_units_from_session(request.session)
+        omics_units = self.get_omics_units(request.session)
+
         # we only filter by Omics Units when specified.
         if len(omics_units) > 0:
             qs = qs.filter(omics_unit__reference__identifier__in=omics_units)
@@ -43,16 +48,16 @@ class SubsetSelectionMixin(FormMixin):
 
     form_class = PixelSetSubsetSelectionForm
 
-    def get_omics_units(self):
+    def get_omics_units(self, session, **kwargs):
 
-        return get_omics_units_from_session(self.request.session)
+        raise NotImplementedError(_('You should define `get_omics_units()`'))
 
     def get_initial(self):
 
         initial = super().get_initial()
 
         initial.update({
-            'omics_units': ' '.join(self.get_omics_units()),
+            'omics_units': ' '.join(self.get_omics_units(self.request.session))
         })
         return initial
 
@@ -63,6 +68,7 @@ class SubsetSelectionMixin(FormMixin):
         if form.is_valid():
             set_omics_units_to_session(
                 request.session,
+                key=self.omics_units_session_key,
                 omics_units=form.cleaned_data['omics_units']
             )
 
