@@ -34,7 +34,7 @@
   <section class="pixelset-overview">
     {% include "explorer/_pixelset_detail_meta.html" %}
 
-    {% include "explorer/_subset_selection.html" %}
+    {% include "explorer/_subset_selection.html" with omics_units=request.session.explorer.pixelset_detail_omics_units %}
   </section>
 
   {% include "explorer/_pixels_distributions.html" %}
