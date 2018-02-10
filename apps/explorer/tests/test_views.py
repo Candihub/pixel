@@ -19,6 +19,8 @@ from apps.core.management.commands.make_development_fixtures import (
 from apps.explorer.views import (
     PixelSetDetailView, PixelSetExportView, PixelSetExportPixelsView,
     DataTableDetailView, DataTableSelectionView,
+)
+from apps.explorer.views.helpers import (
     get_omics_units_from_session, get_selected_pixel_sets_from_session
 )
 
