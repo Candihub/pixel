@@ -20,6 +20,8 @@
           title: '{% trans "Values" %}',
         }
       );
+    }).fail(function () {
+      document.getElementById('values-histogram').textContent = '{% trans "An error occured while loading this chart." %}';
     });
 
     $.get('{{ url_scores }}', function (data) {
@@ -31,6 +33,8 @@
           title: '{% trans "Quality scores" %}',
         }
       );
+    }).fail(function () {
+      document.getElementById('scores-histogram').textContent = '{% trans "An error occured while loading this chart." %}';
     });
   }
 </script>
