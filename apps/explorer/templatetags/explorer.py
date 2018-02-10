@@ -15,3 +15,9 @@ def highlight(text, word):
     return mark_safe(
         text.replace(word, '<span class="highlight">{}</span>'.format(word))
     )
+
+
+@register.filter
+@stringfilter
+def concat(left, right):
+    return str(left) + str(right)

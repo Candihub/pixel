@@ -1,15 +1,10 @@
 .explorer.selection {
-  .content {
-    .selection-overview {
-      @include xy-grid($wrap: false);
 
-      .selection-pixelsets {
-        @include xy-cell($size: 6, $gutter-output: false);
-      }
+  .pixelset-item {
+    margin: 1em 1em 2em;
 
-      .subset-selection {
-        @include xy-cell($size: 6, $gutter-position: 'left');
-      }
+    h5 {
+      border-bottom: 1px solid $primary-color;
     }
   }
 }

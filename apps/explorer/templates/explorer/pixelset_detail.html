@@ -37,14 +37,27 @@
     {% include "explorer/_subset_selection.html" with omics_units=request.session.explorer.pixelset_detail_omics_units %}
   </section>
 
-  {% include "explorer/_pixels_distributions.html" %}
+  <section class="pixels-distributions">
+    <h4>
+      {% trans "Distributions" %}
+    </h4>
+
+    {% include "explorer/_pixels_distributions.html" %}
+  </section>
 
   {% include "explorer/_pixelset_detail_pixels.html" %}
 {% endblock content %}
 
 {% block javascript %}
-  {% url "explorer:pixelset_detail_values" pixelset.id as url_values %}
-  {% url "explorer:pixelset_detail_quality_scores" pixelset.id as url_scores %}
+<script src="//www.gstatic.com/charts/loader.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript">
+  google.charts.load('current', {'packages':['corechart']});
+  google.charts.setOnLoadCallback(function () {
+    {% url "explorer:pixelset_detail_values" pixelset.id as url_values %}
+    {% url "explorer:pixelset_detail_quality_scores" pixelset.id as url_scores %}
 
-  {% include "explorer/_pixels_distributions.js" with url_values=url_values url_score=url_scores %}
+    {% include "explorer/_pixels_distributions.js" with url_values=url_values url_scores=url_scores only %}
+  });
+</script>
 {% endblock javascript %}
