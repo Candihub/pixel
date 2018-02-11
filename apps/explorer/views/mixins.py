@@ -1,6 +1,8 @@
 from django.core.exceptions import SuspiciousOperation
 from django.http import HttpResponse
+from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
+from django.views.decorators.gzip import gzip_page
 from django.views.generic.edit import FormMixin
 from gviz_api import DataTable
 
@@ -23,6 +25,7 @@ class DataTableMixin(object):
 
         return list(self.get_headers().keys())
 
+    @method_decorator(gzip_page)
     def get(self, request, *args, **kwargs):
 
         if not request.is_ajax():
