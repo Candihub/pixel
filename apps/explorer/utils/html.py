@@ -45,7 +45,10 @@ def create_html_table_for_pixelsets(pixel_set_ids, omics_units=None,
     )
 
     for index, pixel_set_id in enumerate(pixel_set_ids):
-        short_id = uuid.UUID(pixel_set_id).hex[:7]
+        if not isinstance(pixel_set_id, uuid.UUID):
+            pixel_set_id = uuid.UUID(pixel_set_id)
+
+        short_id = pixel_set_id.hex[:7]
 
         value_col = f'Value {short_id}'
         score_col = f'QS {short_id}'
@@ -57,6 +60,8 @@ def create_html_table_for_pixelsets(pixel_set_ids, omics_units=None,
             pixel_set_id=pixel_set_id
         ).select_related(
             'omics_unit__reference'
+        ).order_by(
+            'omics_unit__reference__identifier'
         )
 
         for pixel in qs:
