@@ -12,7 +12,22 @@ from .helpers import get_omics_units_from_session
 from .mixins import DataTableMixin, SubsetSelectionMixin
 
 
-class DataTableDetailView(LoginRequiredMixin, DataTableMixin, BaseDetailView):
+class GetOmicsUnitsMixin(object):
+
+    omics_units_session_key = 'pixelset_detail_omics_units'
+
+    def get_omics_units(self, session, **kwargs):
+
+        return get_omics_units_from_session(
+            session,
+            key=self.omics_units_session_key,
+            **kwargs
+        )
+
+
+class DataTableDetailView(LoginRequiredMixin, GetOmicsUnitsMixin,
+                          DataTableMixin,
+                          BaseDetailView):
 
     model = PixelSet
 
@@ -35,7 +50,9 @@ class PixelSetDetailQualityScoresView(DataTableDetailView):
         return {'id': ('string'), 'quality_score': ('number')}
 
 
-class PixelSetDetailView(LoginRequiredMixin, SubsetSelectionMixin, DetailView):
+class PixelSetDetailView(LoginRequiredMixin, GetOmicsUnitsMixin,
+                         SubsetSelectionMixin,
+                         DetailView):
 
     http_method_names = ['get', 'post']
     model = PixelSet
@@ -56,7 +73,7 @@ class PixelSetDetailView(LoginRequiredMixin, SubsetSelectionMixin, DetailView):
 
         qs = self.object.pixels.select_related('omics_unit__reference')
 
-        omics_units = self.get_omics_units()
+        omics_units = self.get_omics_units(self.request.session)
 
         if len(omics_units) > 0:
             qs = qs.filter(omics_unit__reference__identifier__in=omics_units)
@@ -77,7 +94,8 @@ class PixelSetDetailView(LoginRequiredMixin, SubsetSelectionMixin, DetailView):
         return self.get_object().get_absolute_url()
 
 
-class PixelSetExportPixelsView(LoginRequiredMixin, BaseDetailView):
+class PixelSetExportPixelsView(LoginRequiredMixin, GetOmicsUnitsMixin,
+                               BaseDetailView):
 
     ATTACHEMENT_FILENAME = 'pixels_{date_time}.csv'
 
@@ -85,12 +103,14 @@ class PixelSetExportPixelsView(LoginRequiredMixin, BaseDetailView):
 
     @staticmethod
     def get_export_archive_filename():
+
         return PixelSetExportPixelsView.ATTACHEMENT_FILENAME.format(
             date_time=timezone.now().strftime('%Y%m%d_%Hh%Mm%Ss')
         )
 
     def get(self, request, *args, **kwargs):
-        omics_units = get_omics_units_from_session(request.session)
+
+        omics_units = self.get_omics_units(request.session)
 
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename={}'.format(

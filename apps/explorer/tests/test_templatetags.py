@@ -30,3 +30,11 @@ class HighlightTestCase(TestCase):
 
         expected = 'l<span class="highlight">ooo</span>oong word'
         assert explorer.highlight('looooong word', 'ooo') == expected
+
+
+class ConcatTestCase(TestCase):
+
+    def test_concat(self):
+
+        expected = 'foo-bar'
+        assert explorer.concat('foo-', 'bar') == expected

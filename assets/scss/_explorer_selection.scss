@@ -1,2 +1,10 @@
 .explorer.selection {
+
+  .pixelset-item {
+    margin: 1em 1em 2em;
+
+    h5 {
+      border-bottom: 1px solid $primary-color;
+    }
+  }
 }

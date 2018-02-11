@@ -57,12 +57,22 @@ urlpatterns = [
         name='pixelset_selection'
     ),
     url(
-        r'^pixelset/selection/values.json$',
+        r'^pixelset/selection/cumulative-values.json$',
+        views.PixelSetSelectionCumulativeValuesView.as_view(),
+        name='pixelset_selection_cumulative_values'
+    ),
+    url(
+        r'^pixelset/selection/cumulative-quality-scores.json$',
+        views.PixelSetSelectionCumulativeQualityScoresView.as_view(),
+        name='pixelset_selection_cumulative_quality_scores'
+    ),
+    url(
+        r'^pixelset/selection/(?P<pk>{})/values.json$'.format(UUID_REGEX),
         views.PixelSetSelectionValuesView.as_view(),
         name='pixelset_selection_values'
     ),
     url(
-        r'^pixelset/selection/quality-scores.json$',
+        r'^pixelset/selection/(?P<pk>{})/quality-scores.json$'.format(UUID_REGEX),  # noqa
         views.PixelSetSelectionQualityScoresView.as_view(),
         name='pixelset_selection_quality_scores'
     ),
