@@ -8,6 +8,8 @@ from django.views.generic.detail import BaseDetailView
 
 from apps.core.models import Pixel, PixelSet
 
+from ..utils import create_html_table_for_pixelsets
+
 from .helpers import (
     get_omics_units_from_session, get_selected_pixel_sets_from_session
 )
@@ -83,7 +85,7 @@ class PixelSetSelectionView(LoginRequiredMixin, GetOmicsUnitsMixin,
                             SubsetSelectionMixin,
                             TemplateView):
 
-    pixels_limit = 100
+    omics_units_limit = 100
     template_name = 'explorer/pixelset_selection.html'
 
     def get(self, request, *args, **kwargs):
@@ -127,19 +129,25 @@ class PixelSetSelectionView(LoginRequiredMixin, GetOmicsUnitsMixin,
         if len(omics_units) > 0:
             qs = qs.filter(omics_unit__reference__identifier__in=omics_units)
 
-        pixels = qs[:self.pixels_limit]
         pixels_count = qs.count()
 
         total_count = Pixel.objects.filter(
             pixel_set_id__in=selected_pixelsets
         ).count()
 
+        html_table = create_html_table_for_pixelsets(
+            selected_pixelset_ids,
+            omics_units=omics_units,
+            # we do not display all the data
+            display_limit=self.omics_units_limit,
+        )
+
         context.update({
-            'pixels': pixels,
-            'pixels_count': pixels_count,
-            'pixels_limit': self.pixels_limit,
-            'total_count': total_count,
+            'html_table': html_table,
+            'omics_units_limit': self.omics_units_limit,
             'selected_pixelsets': selected_pixelsets,
+            'pixels_count': pixels_count,
+            'total_count': total_count,
         })
         return context
 

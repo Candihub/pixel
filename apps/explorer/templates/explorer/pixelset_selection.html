@@ -20,10 +20,6 @@
 
 {% block content %}
   <section class="selection-overview">
-    <h4>
-      {% trans "Pixel Sets" %}
-    </h4>
-
     {% for pixelset in selected_pixelsets %}
     <div class="pixelset-item">
       <h5>
@@ -39,7 +35,7 @@
         </a>
       </h5>
 
-      <section class="pixels-distributions">
+      <section class="distributions">
         <h6>
           {% trans "Distributions" %}
         </h6>
@@ -55,7 +51,7 @@
     {% endfor %}
   </section>
 
-  <section class="pixels-distributions">
+  <section class="cumulative-distributions distributions">
     <h4>
       {% trans "Cumulative distributions" %}
     </h4>
@@ -65,7 +61,27 @@
 
   {% include "explorer/_subset_selection.html" %}
 
-  {% include "explorer/_pixelset_detail_pixels.html" %}
+  <section class="pixelsets-data">
+    <h4>
+      {% trans "Pixels" %}
+    </h4>
+
+    {% if pixels_count > omics_units_limit %}
+      <div class="callout secondary">
+        {% blocktrans %}
+        The following table is an overview of the pixels from the Pixel Set(s)
+        you have selected. Only <strong>{{ omics_units_limit }}</strong> Omics
+        Units are shown.
+        {% endblocktrans %}
+      </div>
+    {% endif %}
+
+    <div class="pixels-wrapper">
+      {{ html_table|safe }}
+    </div>
+
+    {% include "explorer/_help_table.html" %}
+  </section>
 {% endblock content %}
 
 {% block javascript %}

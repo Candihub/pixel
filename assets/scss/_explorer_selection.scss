@@ -1,10 +1,32 @@
 .explorer.selection {
 
   .pixelset-item {
-    margin: 1em 1em 2em;
+    margin: 1em 0 2em;
 
     h5 {
       border-bottom: 1px solid $primary-color;
+    }
+  }
+
+  .pixels-wrapper {
+    .dataframe {
+      th,
+      td {
+        min-width: 140px;
+      }
+
+      th:first-child,
+      td:first-child {
+        min-width: 20px;
+      }
+
+      td:nth-child(3) {
+        min-width: 500px;
+      }
+
+      td:nth-child(n + 4) {
+        font-family: $font-family-monospace;
+      }
     }
   }
 }

@@ -27,7 +27,7 @@
     }
   }
 
-  .pixels-distributions {
+  .distributions {
 
     .histograms {
       @include xy-grid($wrap: false);
@@ -54,11 +54,12 @@
   }
 
   .table-preview-pixels {
-
     td:nth-child(2) {
       min-width: 250px;
     }
+  }
 
+  .table-preview-pixels {
     .value,
     .quality-score {
       font-family: $font-family-monospace;
