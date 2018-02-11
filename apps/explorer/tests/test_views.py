@@ -1616,8 +1616,8 @@ class PixelSetDetailValuesViewTestCase(GetOmicsUnitsDetailMixin,
         self.assertEqual(rows[0]['c'][1]['v'], selected_pixel.value)
 
 
-class PixelSetDetailQualityScoresTestCase(GetOmicsUnitsDetailMixin,
-                                          CoreFixturesTestCase):
+class PixelSetDetailQualityScoresViewTestCase(GetOmicsUnitsDetailMixin,
+                                              CoreFixturesTestCase):
 
     def setUp(self):
 
@@ -1773,7 +1773,7 @@ class PixelSetSelectionViewTestCase(CoreFixturesTestCase):
 
         self.assertContains(
             response,
-            '<li class="pixelset">',
+            '<div class="pixelset-item">',
             count=len(pixel_sets)
         )
 
@@ -1790,7 +1790,7 @@ class DataTableSelectionViewTestCase(TestCase):
             view.get_headers()
 
 
-class PixelSetSelectionQualityScoresTestCase(CoreFixturesTestCase):
+class PixelSetSelectionCumulativeQualityScoresViewTestCase(CoreFixturesTestCase):  # noqa
 
     def setUp(self):
 
@@ -1810,7 +1810,9 @@ class PixelSetSelectionQualityScoresTestCase(CoreFixturesTestCase):
             pixel_set=self.pixel_set
         )
 
-        self.url = reverse('explorer:pixelset_selection_quality_scores')
+        self.url = reverse(
+            'explorer:pixelset_selection_cumulative_quality_scores'
+        )
 
     def test_returns_bad_request_when_not_ajax(self):
 
@@ -1867,7 +1869,7 @@ class PixelSetSelectionQualityScoresTestCase(CoreFixturesTestCase):
         self.assertEqual(len(rows), 0)
 
 
-class PixelSetSelectionValuesTestCase(CoreFixturesTestCase):
+class PixelSetSelectionCumulativeValuesViewTestCase(CoreFixturesTestCase):
 
     def setUp(self):
 
@@ -1887,7 +1889,7 @@ class PixelSetSelectionValuesTestCase(CoreFixturesTestCase):
             pixel_set=self.pixel_set
         )
 
-        self.url = reverse('explorer:pixelset_selection_values')
+        self.url = reverse('explorer:pixelset_selection_cumulative_values')
 
     def test_returns_bad_request_when_not_ajax(self):
 

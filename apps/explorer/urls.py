@@ -63,7 +63,7 @@ urlpatterns = [
     ),
     url(
         r'^pixelset/selection/cumulative-quality-scores.json$',
-        views.PixelSetSelectionCumulativeValuesView.as_view(),
+        views.PixelSetSelectionCumulativeQualityScoresView.as_view(),
         name='pixelset_selection_cumulative_quality_scores'
     ),
     url(
