@@ -84,12 +84,7 @@
       {{ html_table|safe }}
     </div>
 
-    <p class="help-text">
-      {% blocktrans %}
-      You can scroll horizontally on the table above by pressing the
-      <code>SHIFT</code> key on your keyboard and using the scroll wheel.
-      {% endblocktrans %}
-    </p>
+    {% include "explorer/_help_table.html" %}
   </section>
 {% endblock content %}
 
