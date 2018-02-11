@@ -27,7 +27,7 @@ class SubmissionTagsForm(forms.ModelForm):
     new_experiment_tags = forms.CharField(
         label=_("and/or add new tags"),
         help_text=_(
-            "Type coma-separated tags. Tree level separator is the slash. "
+            "Type comma-separated tags. Tree level separator is the slash. "
             "Example: 'NGS, single-cell/RNA' will add the 'NGS' tag and the "
             "'RNA' tag that has 'single-cell' as parent tag in the tag tree."
         ),
@@ -42,7 +42,7 @@ class SubmissionTagsForm(forms.ModelForm):
     new_analysis_tags = forms.CharField(
         label=_("and/or add new tags"),
         help_text=_(
-            "Type coma-separated tags. Tree level separator is the slash. "
+            "Type comma-separated tags. Tree level separator is the slash. "
             "Example: 'NGS, single-cell/RNA' will add the 'NGS' tag and the "
             "'RNA' tag that has 'single-cell' as parent tag in the tag tree."
         ),
