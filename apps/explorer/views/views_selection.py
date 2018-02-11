@@ -18,11 +18,12 @@ class GetOmicsUnitsMixin(object):
 
     omics_units_session_key = 'pixelset_selection_omics_units'
 
-    def get_omics_units(self, session):
+    def get_omics_units(self, session, **kwargs):
 
         return get_omics_units_from_session(
             session,
-            key=self.omics_units_session_key
+            key=self.omics_units_session_key,
+            **kwargs
         )
 
 

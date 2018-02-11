@@ -7,13 +7,15 @@ from .views_list import (
     PixelSetListView, PixelSetSelectView,
 )
 from .views_selection import (
-    DataTableSelectionView, PixelSetSelectionCumulativeValuesView,
+    DataTableCumulativeView, DataTableSelectionView,
+    PixelSetSelectionCumulativeValuesView,
     PixelSetSelectionCumulativeQualityScoresView, PixelSetSelectionValuesView,
     PixelSetSelectionView, PixelSetSelectionQualityScoresView,
 )
 
 
 __all__ = [
+    DataTableCumulativeView,
     DataTableDetailView,
     DataTableSelectionView,
     PixelSetClearView,
