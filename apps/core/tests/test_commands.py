@@ -43,6 +43,11 @@ class MakeDevelopmentFixturesCommandTestCase(CoreFixturesTestCase):
             n_pixelsets * DEFAULT_N_PIXELS_PER_SET
         )
 
+        pixel_set = models.PixelSet.objects.first()
+        self.assertTrue(pixel_set.cached_species)
+        self.assertTrue(pixel_set.cached_omics_areas)
+        self.assertTrue(pixel_set.cached_omics_unit_types)
+
         expected_output = (
             'Will generate {} experiments and {} pixel sets with {} '
             'pixels each…\n'

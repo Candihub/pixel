@@ -44,6 +44,9 @@ def make_development_fixtures(n_pixel_sets=DEFAULT_N_PIXELSETS,
             pixel_set=pixel_set
         )
 
+        # Update cached fields
+        pixel_set.update_cached_fields()
+
 
 class Command(BaseCommand):
     help = _("Generate development fixtures")
