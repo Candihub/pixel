@@ -75,7 +75,7 @@ def create_html_table_for_pixelsets(pixel_set_ids, omics_units=None,
                 df = df.append({
                     omics_unit_col: omics_unit,
                     omics_unit_link_col: link,
-                    description_col: description,
+                    description_col: description.replace('\n', ' '),
                 }, ignore_index=True)
 
             df.loc[
@@ -92,7 +92,6 @@ def create_html_table_for_pixelsets(pixel_set_ids, omics_units=None,
     html = df.to_html(
         columns=columns,
         escape=False,
-        index=False,
         max_rows=display_limit,
     ).replace(' border="1"', '')  # pandas hardcodes table borders...
 
