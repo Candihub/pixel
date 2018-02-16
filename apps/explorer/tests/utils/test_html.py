@@ -1,5 +1,6 @@
 from apps.core import factories
 from apps.core.tests import CoreFixturesTestCase
+from apps.data.factories import EntryFactory
 from apps.explorer.utils import create_html_table_for_pixelsets
 
 
@@ -21,6 +22,11 @@ class CreateHtmlTableForPixelSetsTestCase(CoreFixturesTestCase):
             </tr>
           </thead>
           <tbody>
+            <tr class="empty">
+              <td colspan="3">
+                Your selection gave no results
+              </td>
+            </tr>
           </tbody>
         </table>
         """
@@ -46,6 +52,11 @@ class CreateHtmlTableForPixelSetsTestCase(CoreFixturesTestCase):
             </tr>
           </thead>
           <tbody>
+            <tr class="empty">
+              <td colspan="7">
+                Your selection gave no results
+              </td>
+            </tr>
           </tbody>
         </table>
         """.format(
@@ -76,6 +87,11 @@ class CreateHtmlTableForPixelSetsTestCase(CoreFixturesTestCase):
             </tr>
           </thead>
           <tbody>
+            <tr class="empty">
+              <td colspan="7">
+                Your selection gave no results
+              </td>
+            </tr>
           </tbody>
         </table>
         """.format(
@@ -169,3 +185,41 @@ class CreateHtmlTableForPixelSetsTestCase(CoreFixturesTestCase):
         )
         self.assertInHTML('<th>0</th>', html)
         self.assertNotInHTML('<th>1</th>', html)
+
+    def test_fills_rows_correctly(self):
+
+        entity = EntryFactory.create()
+        pixel_sets = factories.PixelSetFactory.create_batch(2)
+        pixel_1 = factories.PixelFactory.create(
+          omics_unit__reference=entity,
+          pixel_set=pixel_sets[0]
+        )
+        pixel_2 = factories.PixelFactory.create(
+            omics_unit__reference=entity,
+            pixel_set=pixel_sets[1]
+        )
+
+        pixel_set_ids = [pixel_set.id for pixel_set in pixel_sets]
+
+        expected_row = """
+        <tr>
+          <th>0</th>
+          <td><a href="{url}">{identifier}</a></td>
+          <td>{description}</td>
+          <td>{value_1}</td>
+          <td>{quality_score_1}</td>
+          <td>{value_2}</td>
+          <td>{quality_score_2}</td>
+        </tr>
+        """.format(
+          url=entity.url,
+          identifier=entity.identifier,
+          description=entity.description,
+          value_1=pixel_1.value,
+          quality_score_1=pixel_1.quality_score,
+          value_2=pixel_2.value,
+          quality_score_2=pixel_2.quality_score,
+        )
+
+        html = create_html_table_for_pixelsets(pixel_set_ids=pixel_set_ids)
+        self.assertInHTML(expected_row, html)
