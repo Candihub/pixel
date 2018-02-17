@@ -10,23 +10,8 @@ from apps.core.models import Pixel, PixelSet
 
 from ..utils import create_html_table_for_pixelsets
 
-from .helpers import (
-    get_omics_units_from_session, get_selected_pixel_sets_from_session
-)
-from .mixins import DataTableMixin, SubsetSelectionMixin
-
-
-class GetOmicsUnitsMixin(object):
-
-    omics_units_session_key = 'pixelset_selection_omics_units'
-
-    def get_omics_units(self, session, **kwargs):
-
-        return get_omics_units_from_session(
-            session,
-            key=self.omics_units_session_key,
-            **kwargs
-        )
+from .helpers import get_selected_pixel_sets_from_session
+from .mixins import DataTableMixin, GetOmicsUnitsMixin, SubsetSelectionMixin
 
 
 class DataTableCumulativeView(LoginRequiredMixin, GetOmicsUnitsMixin,

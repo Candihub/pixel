@@ -1,5 +1,6 @@
 import datetime
 import json
+import pandas
 import pytest
 
 from django.core.urlresolvers import reverse
@@ -16,6 +17,7 @@ from apps.core.tests import CoreFixturesTestCase
 from apps.core.management.commands.make_development_fixtures import (
     make_development_fixtures
 )
+from apps.explorer.utils import PIXELSET_EXPORT_PIXELS_FILENAME
 from apps.explorer.views import (
     PixelSetDetailView, PixelSetExportView, PixelSetExportPixelsView,
     DataTableDetailView,
@@ -1124,7 +1126,7 @@ class PixelSetDeselectViewTestCase(CoreFixturesTestCase):
         )
 
 
-class PixelSetExportViewTestCase(CoreFixturesTestCase):
+class PixelSetExportViewTestCase(GetOmicsUnitsMixin, CoreFixturesTestCase):
 
     def setUp(self):
 
@@ -1154,7 +1156,7 @@ class PixelSetExportViewTestCase(CoreFixturesTestCase):
                 reverse('explorer:pixelset_select'), data, follow=True
             )
 
-            response = self.client.post(self.url)
+            response = self.client.get(self.url)
 
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response['Content-Type'], 'application/zip')
@@ -1171,30 +1173,9 @@ class PixelSetExportViewTestCase(CoreFixturesTestCase):
             finally:
                 zip.close()
 
-    def test_cleans_pixel_set_selection_after_export(self):
-
-        pixel_sets = factories.PixelSetFactory.create_batch(2)
-        data = {
-            'pixel_sets': [str(p.id) for p in pixel_sets]
-        }
-        self.client.post(
-            reverse('explorer:pixelset_select'), data, follow=True
-        )
-
-        session_pixel_sets = get_selected_pixel_sets_from_session(
-            self.client.session
-        )
-        self.assertEqual(len(session_pixel_sets), len(pixel_sets))
-
-        self.client.post(self.url)
-        session_pixel_sets = get_selected_pixel_sets_from_session(
-            self.client.session
-        )
-        self.assertEqual(len(session_pixel_sets), 0)
-
     def test_displays_message_after_redirect_when_selection_is_empty(self):
 
-        response = self.client.post(self.url, follow=True)
+        response = self.client.get(self.url, follow=True)
 
         self.assertContains(
             response,
@@ -1206,9 +1187,60 @@ class PixelSetExportViewTestCase(CoreFixturesTestCase):
             html=True
         )
 
+    def test_filters_omics_units(self):
 
-class PixelSetDetailViewTestCase(GetOmicsUnitsMixin,
-                                 CoreFixturesTestCase):
+        pixel_set = factories.PixelSetFactory.create()
+        pixels = factories.PixelFactory.create_batch(2, pixel_set=pixel_set)
+
+        # select pixel set, otherwise we cannot set omics units
+        self.client.post(
+            reverse('explorer:pixelset_select'),
+            {'pixel_sets': [pixel_set.id]},
+            follow=True
+        )
+        response = self.client.get(self.url)
+
+        self.assertIsNone(
+            self.get_omics_units(self.client.session, default=None)
+        )
+
+        selected_pixel = pixels[1]
+
+        # set `omics_units` in session
+        response = self.client.post(reverse('explorer:pixelset_selection'), {
+            'omics_units': selected_pixel.omics_unit.reference.identifier,
+        }, follow=True)
+
+        fake_dt = timezone.make_aware(datetime.datetime(2018, 1, 12, 11, 00))
+
+        with patch.object(timezone, 'now', return_value=fake_dt):
+
+            response = self.client.get('{}?{}=1'.format(
+                self.url,
+                PixelSetExportView.SUBSET_QUERY_PARAM,
+            ))
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response['Content-Type'], 'application/zip')
+            self.assertEqual(
+                response['Content-Disposition'],
+                'attachment; filename={}'.format(
+                    PixelSetExportView.get_export_archive_filename()
+                )
+            )
+
+            try:
+                zip = ZipFile(BytesIO(response.content), 'r')
+                self.assertIsNone(zip.testzip())
+
+                with zip.open(PIXELSET_EXPORT_PIXELS_FILENAME) as pixels_file:
+                    pixels_csv = pandas.read_csv(pixels_file)
+                    self.assertEqual(len(pixels_csv.index), 1)
+            finally:
+                zip.close()
+
+
+class PixelSetDetailViewTestCase(GetOmicsUnitsMixin, CoreFixturesTestCase):
 
     def setUp(self):
 

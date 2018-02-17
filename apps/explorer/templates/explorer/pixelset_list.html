@@ -57,15 +57,9 @@
       />
     </form>
 
-    <form action="{% url 'explorer:pixelset_export' %}" method="post" id="export-form">
-      {% csrf_token %}
-      <input
-        type="submit"
-        name="export"
-        value="{% trans "Export" %}"
-        class="button secondary action-submit"
-      />
-    </form>
+    <a class="button secondary action-submit" href="{% url "explorer:pixelset_export" %}">
+      {% trans "Export" %}
+    </a>
 
     <a href="{% url 'explorer:pixelset_selection' %}" class="button action-explore">
       {% trans "Explore" %}

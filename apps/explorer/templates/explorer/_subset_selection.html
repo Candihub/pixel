@@ -24,11 +24,34 @@
         {% trans "Preview" %}
       </button>
 
-      {% if omics_units and pixels_count > 0 %}
-      <a class="button" href="">
-          <i class="fa fa-download" aria-hidden="true"></i>
-          {% trans "Download a CSV file with the selected Pixels" %}
-        </a>
+      {% if is_selection %}
+        {% with request.session.explorer.pixelset_selection_omics_units as omics_units %}
+          {% if omics_units and pixels_count > 0 %}
+            <a class="button" href="{% url "explorer:pixelset_export" %}?only-subset=1">
+              <i class="fa fa-download" aria-hidden="true"></i>
+              {% trans "Export this subset only" %}
+            </a>
+            &nbsp;
+            &nbsp;
+            &nbsp;
+            &nbsp;
+            <a class="button hollow secondary" href="{% url "explorer:pixelset_export" %}">
+          {% else %}
+            <a class="button" href="{% url "explorer:pixelset_export" %}">
+          {% endif %}
+            <i class="fa fa-download" aria-hidden="true"></i>
+            {% trans "Export all the Pixel Sets" %}
+          </a>
+        {% endwith %}
+      {% else %}
+        {% with request.session.explorer.pixelset_detail_omics_units as omics_units %}
+          {% if omics_units and pixels_count > 0 %}
+            <a class="button" href="{{ pixelset.get_export_pixels_url }}">
+              <i class="fa fa-download" aria-hidden="true"></i>
+              {% trans "Download a CSV file with the selected Pixels" %}
+            </a>
+          {% endif %}
+        {% endwith %}
       {% endif %}
     <p>
   </form>
