@@ -1,16 +1,135 @@
-import numpy as np
 import pandas
+import uuid
 import yaml
 import zipfile
 
 from io import BytesIO, StringIO
+
+from apps.core.models import Pixel
 
 
 PIXELSET_EXPORT_META_FILENAME = 'meta.yaml'
 PIXELSET_EXPORT_PIXELS_FILENAME = 'pixels.csv'
 
 
-def export_pixelsets(pixel_sets):
+def get_dataframe_and_meta_for_pixelsets(pixel_set_ids, omics_units=None,
+                                         descriptions=dict(),
+                                         with_links=False):
+    """The function takes Pixel Set IDs and optionally a list of Omics Units.
+
+    The list of Omics Units should contain identifiers and will be used to
+    filter the pixels.
+
+    Parameters
+    ----------
+
+    pixel_set_ids: list
+        A list of Pixel Set ids.
+    omics_units: list
+        A list of Omics Units ids.
+    descriptions: dict
+        A hash map containing Pixel Set descriptions indexed by ID.
+    with_links: bool
+        Whether the omics units should have URLs or not.
+
+    Returns
+    -------
+    df: pandas.DataFrame
+        A pandas DataFrame.
+    meta: dict
+        A hash map indexed by Pixel Set ID. Values are dict with information
+        for each Pixel Set.
+    """
+
+    columns = ['Omics Unit', 'Description']
+    indexes = set()
+    meta = dict()
+    pixels = dict()
+
+    # we build a dict with the pixel information for each omics unit, and we
+    # compute the list of indexes and columns to construct the pandas dataframe
+    # after. It is better to prepare these information than to dynamically
+    # build the dataframe.
+    for index, pixel_set_id in enumerate(pixel_set_ids):
+        if not isinstance(pixel_set_id, uuid.UUID):
+            short_id = uuid.UUID(pixel_set_id).hex[:7]
+        else:
+            short_id = pixel_set_id.hex[:7]
+
+        value_col = f'Value {short_id}'
+        score_col = f'QS {short_id}'
+
+        # add columns for this pixel set
+        columns.append(value_col)
+        columns.append(score_col)
+
+        # add metadata for this pixel set
+        meta[short_id] = {
+            'columns': [(index * 2) + 1, (index * 2) + 2],
+            'pixelset': short_id,
+            'description': descriptions.get(pixel_set_id, ''),
+        }
+
+        if short_id not in pixels:
+            pixels[short_id] = []
+
+        qs = Pixel.objects.filter(
+            pixel_set_id=pixel_set_id
+        ).select_related(
+            'omics_unit__reference'
+        ).order_by(
+            'omics_unit__reference__identifier'
+        )
+
+        for pixel in qs:
+            omics_unit = pixel.omics_unit.reference.identifier
+
+            # filter by omics_units if supplied
+            if omics_units and omics_unit not in omics_units:
+                continue
+
+            description = pixel.omics_unit.reference.description
+            link = '<a href="{}">{}</a>'.format(
+                pixel.omics_unit.reference.url,
+                omics_unit,
+            )
+
+            pixels[short_id].append({
+                'description': description.replace('\n', ' '),
+                'link': link,
+                'omics_unit': omics_unit,
+                'quality_score': pixel.quality_score,
+                'value': pixel.value,
+            })
+            indexes.add(omics_unit)
+
+    df = pandas.DataFrame(index=sorted(indexes), columns=columns)
+    if indexes:
+        # populate the dataframe with each pixel information
+        for short_id in pixels.keys():
+            for pixel in pixels[short_id]:
+                df.loc[
+                    pixel['omics_unit'],
+                    [
+                        'Omics Unit',
+                        'Description',
+                        f'Value {short_id}',
+                        f'QS {short_id}',
+                    ]
+                ] = [
+                    pixel['link'] if with_links else pixel['omics_unit'],
+                    pixel['description'],
+                    pixel['value'],
+                    pixel['quality_score'],
+                ]
+        # drop the indexes to get numerical indexes instead of omics units (so
+        # that we have numbers displayed in the HTML table)
+        df = df.reset_index(drop=True)
+
+    return df, meta
+
+
+def export_pixelsets(pixel_sets, omics_units=[]):
     """This function exports a list of PixelSet objects as a ZIP archive.
 
     The (in-memory) ZIP archive contains a `meta.yaml` file and a `pixels.csv`
@@ -29,42 +148,16 @@ def export_pixelsets(pixel_sets):
 
     """
 
-    pixelsets_meta = {}
+    descriptions = {}
+    for pixel_set in pixel_sets:
+        descriptions[pixel_set.id] = pixel_set.description
 
-    omics_unit_col = 'Omics Unit'
-    df = pandas.DataFrame(columns=(omics_unit_col,))
+    df, pixelsets_meta = get_dataframe_and_meta_for_pixelsets(
+        pixel_set_ids=descriptions.keys(),
+        omics_units=omics_units,
+        descriptions=descriptions,
+    )
 
-    for index, pixel_set in enumerate(pixel_sets):
-        pixel_set_id = pixel_set.get_short_uuid()
-
-        # add metadata for this pixel set
-        pixelsets_meta[pixel_set_id] = {
-            'pixelset': pixel_set_id,
-            'description': pixel_set.description,
-            'columns': [(index * 2) + 1, (index * 2) + 2],
-        }
-
-        value_col = f'Value {pixel_set_id}'
-        score_col = f'QS {pixel_set_id}'
-
-        # add new columns for the current pixel set
-        df = df.assign(**{value_col: np.NaN, score_col: np.NaN, })
-
-        for pixel in pixel_set.pixels.all():
-            omics_unit = pixel.omics_unit.reference.identifier
-
-            if not (df[omics_unit_col] == omics_unit).any():
-                # we create an empty row for this new omics unit
-                df = df.append({omics_unit_col: omics_unit}, ignore_index=True)
-
-            df.loc[
-                df[omics_unit_col] == omics_unit, value_col
-            ] = pixel.value
-            df.loc[
-                df[omics_unit_col] == omics_unit, score_col
-            ] = pixel.quality_score
-
-    # create in-memory archive
     stream = BytesIO()
     archive = zipfile.ZipFile(
         stream,

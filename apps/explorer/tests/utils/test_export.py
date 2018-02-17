@@ -39,8 +39,8 @@ class ExportPixelSetsTestCase(CoreFixturesTestCase):
         with zip_archive.open(PIXELSET_EXPORT_PIXELS_FILENAME) as pixels_file:
             pixels_csv = pandas.read_csv(pixels_file).to_dict()
 
-            # Only the 'Omics Unit' column is present
-            assert len(pixels_csv) == 1
+            # Only the 'Omics Unit' and 'Description columns are present
+            assert len(pixels_csv) == 2
 
     def test_export_pixelset_without_pixels(self):
 
@@ -57,8 +57,8 @@ class ExportPixelSetsTestCase(CoreFixturesTestCase):
         with zip_archive.open(PIXELSET_EXPORT_PIXELS_FILENAME) as pixels_file:
             pixels_csv = pandas.read_csv(pixels_file).to_dict()
 
-            # 'Omics Unit' column + 2 columns per pixel set
-            assert len(pixels_csv) == (2 * len(pixel_sets)) + 1
+            # 'Omics Unit', 'Description' columns + 2 columns per pixel set
+            assert len(pixels_csv) == (2 * len(pixel_sets)) + 2
 
     def test_export_pixelsets(self):
 
@@ -84,8 +84,8 @@ class ExportPixelSetsTestCase(CoreFixturesTestCase):
         with zip_archive.open(PIXELSET_EXPORT_PIXELS_FILENAME) as pixels_file:
             pixels_csv = pandas.read_csv(pixels_file).to_dict()
 
-            # 'Omics Unit' column + 2 columns per pixel set
-            assert len(pixels_csv) == 2 * len(pixel_sets) + 1
+            # 'Omics Unit', 'Description' columns + 2 columns per pixel set
+            assert len(pixels_csv) == (2 * len(pixel_sets)) + 2
 
     def test_export_merged_pixelsets_ensures_unique_omics_unit_rows(self):
 
@@ -106,8 +106,8 @@ class ExportPixelSetsTestCase(CoreFixturesTestCase):
         with zip_archive.open(PIXELSET_EXPORT_PIXELS_FILENAME) as pixels_file:
             pixels_csv = pandas.read_csv(pixels_file).to_dict()
 
-            # 'Omics Unit' column + 2 columns per pixel set
-            assert len(pixels_csv) == 2 * len(pixel_sets) + 1
+            # 'Omics Unit', 'Description' columns + 2 columns per pixel set
+            assert len(pixels_csv) == (2 * len(pixel_sets)) + 2
 
     def test_export_merged_pixelsets(self):
 
@@ -139,16 +139,17 @@ class ExportPixelSetsTestCase(CoreFixturesTestCase):
         with zip_archive.open(PIXELSET_EXPORT_PIXELS_FILENAME) as pixels_file:
             pixels_csv = pandas.read_csv(pixels_file).to_dict()
 
-            # 'Omics Unit' column + 2 columns per pixel set
-            assert len(pixels_csv) == 2 * len(pixel_sets) + 1
+            # 'Omics Unit', 'Description' columns + 2 columns per pixel set
+            assert len(pixels_csv) == (2 * len(pixel_sets)) + 2
 
             col_0 = 'Omics Unit'
-            col_1 = f'Value {pixel_sets[0].get_short_uuid()}'
-            col_2 = f'QS {pixel_sets[0].get_short_uuid()}'
-            col_3 = f'Value {pixel_sets[1].get_short_uuid()}'
-            col_4 = f'QS {pixel_sets[1].get_short_uuid()}'
-            col_5 = f'Value {pixel_sets[2].get_short_uuid()}'
-            col_6 = f'QS {pixel_sets[2].get_short_uuid()}'
+            col_1 = 'Description'
+            col_2 = f'Value {pixel_sets[0].get_short_uuid()}'
+            col_3 = f'QS {pixel_sets[0].get_short_uuid()}'
+            col_4 = f'Value {pixel_sets[1].get_short_uuid()}'
+            col_5 = f'QS {pixel_sets[1].get_short_uuid()}'
+            col_6 = f'Value {pixel_sets[2].get_short_uuid()}'
+            col_7 = f'QS {pixel_sets[2].get_short_uuid()}'
 
             assert col_0 in pixels_csv
             assert col_1 in pixels_csv
@@ -157,9 +158,10 @@ class ExportPixelSetsTestCase(CoreFixturesTestCase):
             assert col_4 in pixels_csv
             assert col_5 in pixels_csv
             assert col_6 in pixels_csv
+            assert col_7 in pixels_csv
 
             # first pixel set is the only one with pixels
-            for column_name in (col_1, col_2,):
+            for column_name in (col_2, col_3,):
                 assert all(
                     map(
                         lambda value: not pandas.isna(value),
@@ -168,7 +170,7 @@ class ExportPixelSetsTestCase(CoreFixturesTestCase):
                 )
 
             # other pixel sets do not have the omics units
-            for column_name in (col_3, col_4, col_5, col_6,):
+            for column_name in (col_4, col_5, col_6, col_7,):
                 assert all(
                     map(
                         lambda value: pandas.isna(value),
@@ -182,8 +184,8 @@ class ExportPixelSetsTestCase(CoreFixturesTestCase):
                 row = [index for index, value in pixels_csv[col_0].items() if
                        value == pixel.omics_unit.reference.identifier][0]
 
-                assert pixels_csv[col_1][row] == pytest.approx(pixel.value)
-                assert (pixels_csv[col_2][row] ==
+                assert pixels_csv[col_2][row] == pytest.approx(pixel.value)
+                assert (pixels_csv[col_3][row] ==
                         pytest.approx(pixel.quality_score))
 
 

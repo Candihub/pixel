@@ -277,9 +277,6 @@ class PixelSetExportView(LoginRequiredMixin, View):
         qs = PixelSet.objects.filter(id__in=selection)
         content = export_pixelsets(qs).getvalue()
 
-        # Reset selection
-        set_selected_pixel_sets_to_session(request.session, [])
-
         response = HttpResponse(content, content_type='application/zip')
         response['Content-Disposition'] = 'attachment; filename={}'.format(
             self.get_export_archive_filename()
