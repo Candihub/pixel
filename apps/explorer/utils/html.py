@@ -1,6 +1,8 @@
-import numpy as np
 import pandas
+import re
 import uuid
+
+from django.utils.translation import ugettext as _
 
 from apps.core.models import Pixel
 
@@ -37,13 +39,14 @@ def create_html_table_for_pixelsets(pixel_set_ids, omics_units=None,
     # tell pandas not to format floats
     pandas.set_option('display.float_format', lambda val: '{}'.format(val))
 
-    omics_unit_col = 'ID'
-    description_col = 'Description'
-    omics_unit_link_col = 'Omics Unit'
-    df = pandas.DataFrame(
-        columns=(omics_unit_col, omics_unit_link_col, description_col,)
-    )
+    columns = ['Omics Unit', 'Description']
+    indexes = set()
+    pixels = dict()
 
+    # we build a dict with the pixel information for each omics unit, and we
+    # compute the list of indexes and columns to construct the pandas dataframe
+    # after. It is better to prepare these information than to dynamically
+    # build the dataframe.
     for index, pixel_set_id in enumerate(pixel_set_ids):
         if not isinstance(pixel_set_id, uuid.UUID):
             pixel_set_id = uuid.UUID(pixel_set_id)
@@ -53,8 +56,8 @@ def create_html_table_for_pixelsets(pixel_set_ids, omics_units=None,
         value_col = f'Value {short_id}'
         score_col = f'QS {short_id}'
 
-        # add new columns for the current pixel set
-        df = df.assign(**{value_col: np.NaN, score_col: np.NaN, })
+        columns.append(value_col)
+        columns.append(score_col)
 
         qs = Pixel.objects.filter(
             pixel_set_id=pixel_set_id
@@ -66,38 +69,71 @@ def create_html_table_for_pixelsets(pixel_set_ids, omics_units=None,
 
         for pixel in qs:
             omics_unit = pixel.omics_unit.reference.identifier
-            description = pixel.omics_unit.reference.description
-            url = pixel.omics_unit.reference.url
 
-            # we filter by omics_units if supplied
+            # filter by omics_units if supplied
             if omics_units and omics_unit not in omics_units:
                 continue
 
-            if not (df[omics_unit_col] == omics_unit).any():
-                link = '<a href="{}">{}</a>'.format(url, omics_unit)
+            if short_id not in pixels:
+                pixels[short_id] = []
 
-                # we create an empty row for this new omics unit
-                df = df.append({
-                    omics_unit_col: omics_unit,
-                    omics_unit_link_col: link,
-                    description_col: description.replace('\n', ' '),
-                }, ignore_index=True)
+            description = pixel.omics_unit.reference.description
+            link = '<a href="{}">{}</a>'.format(
+                pixel.omics_unit.reference.url,
+                omics_unit,
+            )
 
-            df.loc[
-                df[omics_unit_col] == omics_unit, value_col
-            ] = pixel.value
-            df.loc[
-                df[omics_unit_col] == omics_unit, score_col
-            ] = pixel.quality_score
+            pixels[short_id].append({
+                'omics_unit': omics_unit,
+                'link': link,
+                'description': description.replace('\n', ' '),
+                'value': pixel.value,
+                'quality_score': pixel.quality_score,
+            })
+            indexes.add(omics_unit)
 
-    # Do not display the `ID` column
-    columns = list(df.columns)
-    columns.remove(omics_unit_col)
+    df = pandas.DataFrame(index=sorted(indexes), columns=columns)
+
+    if indexes:
+        # populate the dataframe with each pixel information
+        for short_id in pixels.keys():
+            for pixel in pixels[short_id]:
+                df.loc[
+                    pixel['omics_unit'],
+                    [
+                        'Omics Unit',
+                        'Description',
+                        f'Value {short_id}',
+                        f'QS {short_id}',
+                    ]
+                ] = [
+                    pixel['link'],
+                    pixel['description'],
+                    pixel['value'],
+                    pixel['quality_score'],
+                ]
+        # drop the indexes to get numerical indexes instead of omics units (so
+        # that we have numbers displayed in the HTML table)
+        df = df.reset_index(drop=True)
 
     html = df.to_html(
-        columns=columns,
         escape=False,
         max_rows=display_limit,
     ).replace(' border="1"', '')  # pandas hardcodes table borders...
+
+    # replace the empty table body with a message.
+    if not indexes:
+        html = re.sub(
+            r'<tbody>\s*\n\s*</tbody>',
+            (
+                '<tbody>'
+                '<tr class="empty"><td colspan="{}">{}</td></tr>'
+                '</tbody>'
+            ).format(
+                len(columns)+1,
+                _("Your selection gave no results"),
+            ),
+            html
+        )
 
     return html
