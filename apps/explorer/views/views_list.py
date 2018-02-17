@@ -21,6 +21,7 @@ from ..utils import export_pixelsets
 from .helpers import (
     get_selected_pixel_sets_from_session, set_selected_pixel_sets_to_session
 )
+from .mixins import GetOmicsUnitsMixin
 
 
 class PixelSetListView(LoginRequiredMixin, FormMixin, ListView):
@@ -256,10 +257,10 @@ class PixelSetSelectView(LoginRequiredMixin, FormView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class PixelSetExportView(LoginRequiredMixin, View):
+class PixelSetExportView(LoginRequiredMixin, GetOmicsUnitsMixin, View):
 
     ATTACHEMENT_FILENAME = 'pixelsets_{date_time}.zip'
-    http_method_names = ['post', ]
+    SUBSET_QUERY_PARAM = 'only-subset'
 
     @staticmethod
     def get_export_archive_filename():
@@ -267,18 +268,23 @@ class PixelSetExportView(LoginRequiredMixin, View):
             date_time=timezone.now().strftime('%Y%m%d_%Hh%Mm%Ss')
         )
 
-    def post(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
 
         selection = get_selected_pixel_sets_from_session(self.request.session)
 
         if not len(selection):
             return self.empty_selection(request)
 
-        qs = PixelSet.objects.filter(id__in=selection)
-        content = export_pixelsets(qs).getvalue()
+        omics_units = []
+        # only take omics units into account if it is requested.
+        if request.GET.get(self.SUBSET_QUERY_PARAM, False):
+            omics_units = self.get_omics_units(self.request.session)
 
-        # Reset selection
-        set_selected_pixel_sets_to_session(request.session, [])
+        qs = PixelSet.objects.filter(id__in=selection)
+        content = export_pixelsets(
+            pixel_sets=qs,
+            omics_units=omics_units,
+        ).getvalue()
 
         response = HttpResponse(content, content_type='application/zip')
         response['Content-Disposition'] = 'attachment; filename={}'.format(

@@ -8,7 +8,7 @@ from gviz_api import DataTable
 
 from ..forms import PixelSetSubsetSelectionForm
 
-from .helpers import set_omics_units_to_session
+from .helpers import get_omics_units_from_session, set_omics_units_to_session
 
 
 class DataTableMixin(object):
@@ -80,3 +80,16 @@ class SubsetSelectionMixin(FormMixin):
             # We should never reach this code because the form should always be
             # valid (no required field or validation)
             return self.form_invalid(form)  # pragma: no cover
+
+
+class GetOmicsUnitsMixin(object):
+
+    omics_units_session_key = 'pixelset_selection_omics_units'
+
+    def get_omics_units(self, session, **kwargs):
+
+        return get_omics_units_from_session(
+            session,
+            key=self.omics_units_session_key,
+            **kwargs
+        )
