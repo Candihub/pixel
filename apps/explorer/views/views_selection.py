@@ -8,7 +8,7 @@ from django.views.generic.detail import BaseDetailView
 
 from apps.core.models import Pixel, PixelSet
 
-from ..utils import create_html_table_for_pixelsets
+from ..utils import export_pixelsets_as_html
 
 from .helpers import get_selected_pixel_sets_from_session
 from .mixins import DataTableMixin, GetOmicsUnitsMixin, SubsetSelectionMixin
@@ -120,7 +120,7 @@ class PixelSetSelectionView(LoginRequiredMixin, GetOmicsUnitsMixin,
             pixel_set_id__in=selected_pixelsets
         ).count()
 
-        html_table = create_html_table_for_pixelsets(
+        html_table = export_pixelsets_as_html(
             selected_pixelset_ids,
             omics_units=omics_units,
             # we do not display all the data
