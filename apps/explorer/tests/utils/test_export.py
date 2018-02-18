@@ -192,9 +192,9 @@ class ExportPixelSetsTestCase(CoreFixturesTestCase):
 
 class ExportPixelsTestCase(CoreFixturesTestCase):
 
-    def _export_pixels(self, pixel_set, omics_units=[]):
+    def _export_pixels(self, pixel_set, search_terms=[]):
 
-        csv = export_pixels(pixel_set, omics_units=omics_units)
+        csv = export_pixels(pixel_set, search_terms=search_terms)
         csv.seek(0)
         return pandas.read_csv(csv).to_dict()
 
@@ -210,7 +210,7 @@ class ExportPixelsTestCase(CoreFixturesTestCase):
         assert 'Value' in pixels_csv
         assert 'QS' in pixels_csv
 
-    def test_export_all_pixels_when_no_omics_units_specified(self):
+    def test_export_all_pixels_when_no_search_terms_supplied(self):
 
         pixel_set = factories.PixelSetFactory.create()
         pixels = factories.PixelFactory.create_batch(3, pixel_set=pixel_set)
@@ -237,7 +237,7 @@ class ExportPixelsTestCase(CoreFixturesTestCase):
 
         pixels_csv = self._export_pixels(
             pixel_set,
-            omics_units=[selected_pixel.omics_unit.reference.identifier]
+            search_terms=[selected_pixel.omics_unit.reference.identifier]
         )
 
         assert len(pixels_csv['Omics Unit'].items()) == 1
@@ -426,7 +426,7 @@ class ExportPixelsetsAsHtmlTestCase(CoreFixturesTestCase):
 
         html = export_pixelsets_as_html(
           pixel_set_ids=pixel_set_ids,
-          omics_units=omics_units,
+          search_terms=omics_units,
         )
         self.assertInHTML('<th>0</th>', html)
         self.assertNotInHTML('<th>1</th>', html)

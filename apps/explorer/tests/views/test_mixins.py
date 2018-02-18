@@ -7,27 +7,27 @@ from apps.explorer.views.mixins import DataTableMixin, SubsetSelectionMixin
 
 class DataTableMixinTestCase(TestCase):
 
-    def test_get_omics_units_must_be_implemented(self):
+    def test_get_search_terms_must_be_implemented(self):
 
-        class DataTableWithNoGetOmicsUnits(DataTableMixin):
+        class DataTableWithNoGetSearchTerms(DataTableMixin):
             pass
 
         with pytest.raises(NotImplementedError):
             fake_session = dict()
 
-            obj = DataTableWithNoGetOmicsUnits()
-            obj.get_omics_units(fake_session)
+            obj = DataTableWithNoGetSearchTerms()
+            obj.get_search_terms(fake_session)
 
 
 class SubsetSelectionMixinTestCase(TestCase):
 
-    def test_get_omics_units_must_be_implemented(self):
+    def test_get_search_terms_must_be_implemented(self):
 
-        class SubsetSelectionWithNoGetOmicsUnits(SubsetSelectionMixin):
+        class SubsetSelectionWithNoGetSearchTerms(SubsetSelectionMixin):
             pass
 
         with pytest.raises(NotImplementedError):
             fake_session = dict()
 
-            obj = SubsetSelectionWithNoGetOmicsUnits()
-            obj.get_omics_units(fake_session)
+            obj = SubsetSelectionWithNoGetSearchTerms()
+            obj.get_search_terms(fake_session)

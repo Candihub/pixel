@@ -1,28 +1,28 @@
 from apps.explorer.views.helpers import (
-    get_omics_units_from_session, get_selected_pixel_sets_from_session,
-    set_omics_units_to_session, set_selected_pixel_sets_to_session,
+    get_search_terms_from_session, get_selected_pixel_sets_from_session,
+    set_search_terms_to_session, set_selected_pixel_sets_to_session,
 )
 
 
-def test_get_omics_units_from_session_returns_empty_list():
+def test_get_search_terms_from_session_returns_empty_list():
 
     empty_session = dict()
 
-    omics_units = get_omics_units_from_session(empty_session, key='foo')
-    assert omics_units == []
+    search_terms = get_search_terms_from_session(empty_session, key='foo')
+    assert search_terms == []
 
 
-def test_get_omics_units_from_session_returns_default_if_supplied():
+def test_get_search_terms_from_session_returns_default_if_supplied():
 
     empty_session = dict()
     default = 'some-default-value'
 
-    omics_units = get_omics_units_from_session(
+    search_terms = get_search_terms_from_session(
         empty_session,
         key='foo',
         default=default
     )
-    assert omics_units == default
+    assert search_terms == default
 
 
 def test_get_selected_pixel_sets_from_session_returns_empty_list():
@@ -45,42 +45,42 @@ def test_get_selected_pixel_sets_from_session_returns_default_if_supplied():
     assert selected_pixel_sets == default
 
 
-def test_set_omics_units_to_session():
+def test_set_search_terms_to_session():
 
     session = dict()
-    omics_units = ['bar']
+    search_terms = ['bar']
 
-    set_omics_units_to_session(
+    set_search_terms_to_session(
         session,
         key='foo',
-        omics_units=omics_units
+        search_terms=search_terms
     )
     assert 'explorer' in session
     assert 'foo' in session['explorer']
-    assert session['explorer']['foo'] == omics_units
+    assert session['explorer']['foo'] == search_terms
 
 
-def test_set_omics_units_to_session_preserves_other_values():
+def test_set_search_terms_to_session_preserves_other_values():
 
     session = dict()
 
     # create a default session, without anything inside
-    set_omics_units_to_session(session, key='something-else')
+    set_search_terms_to_session(session, key='something-else')
     assert 'explorer' in session
     assert 'something-else' in session['explorer']
 
     # set omics units now
-    omics_units = ['bar']
+    search_terms = ['bar']
 
-    set_omics_units_to_session(
+    set_search_terms_to_session(
         session,
         key='foo',
-        omics_units=omics_units
+        search_terms=search_terms
     )
     assert 'explorer' in session
     assert 'foo' in session['explorer']
     assert 'something-else' in session['explorer']
-    assert session['explorer']['foo'] == omics_units
+    assert session['explorer']['foo'] == search_terms
 
 
 def test_set_selected_pixel_sets_to_session():
@@ -102,7 +102,7 @@ def test_set_selected_pixel_sets_to_session_preserves_other_values():
     session = dict()
 
     # create a default session, without anything inside
-    set_omics_units_to_session(session, key='something-else')
+    set_search_terms_to_session(session, key='something-else')
     assert 'explorer' in session
     assert 'something-else' in session['explorer']
 

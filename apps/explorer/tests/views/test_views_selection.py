@@ -7,7 +7,7 @@ from django.test import TestCase
 from apps.core import factories
 from apps.core.tests import CoreFixturesTestCase
 from apps.explorer.views import DataTableCumulativeView, DataTableSelectionView
-from apps.explorer.views.views_selection import GetOmicsUnitsMixin
+from apps.explorer.views.views_selection import GetSearchTermsMixin
 
 
 class PixelSetSelectionViewTestCase(CoreFixturesTestCase):
@@ -128,7 +128,7 @@ class DataTableSelectionViewTestCase(TestCase):
             view.get_headers()
 
 
-class PixelSetSelectionValuesViewTestCase(GetOmicsUnitsMixin,
+class PixelSetSelectionValuesViewTestCase(GetSearchTermsMixin,
                                           CoreFixturesTestCase):
 
     def setUp(self):
@@ -192,13 +192,13 @@ class PixelSetSelectionValuesViewTestCase(GetOmicsUnitsMixin,
         )
         response = self.client.get(self.url)
 
-        self.assertIsNone(self.get_omics_units(session, default=None))
+        self.assertIsNone(self.get_search_terms(session, default=None))
 
         selected_pixel = self.pixels[0]
 
-        # set `omics_units` in session
+        # set search terms in session
         response = self.client.post(reverse('explorer:pixelset_selection'), {
-            'omics_units': selected_pixel.omics_unit.reference.identifier,
+            'search_terms': selected_pixel.omics_unit.reference.identifier,
         }, follow=True)
 
         self.assertRedirects(response, reverse('explorer:pixelset_selection'))
@@ -224,7 +224,7 @@ class PixelSetSelectionValuesViewTestCase(GetOmicsUnitsMixin,
         self.assertEqual(rows[0]['c'][1]['v'], selected_pixel.value)
 
 
-class PixelSetSelectionQualityScoresViewTestCase(GetOmicsUnitsMixin,
+class PixelSetSelectionQualityScoresViewTestCase(GetSearchTermsMixin,
                                                  CoreFixturesTestCase):
 
     def setUp(self):
@@ -288,13 +288,13 @@ class PixelSetSelectionQualityScoresViewTestCase(GetOmicsUnitsMixin,
         )
         response = self.client.get(self.url)
 
-        self.assertIsNone(self.get_omics_units(session, default=None))
+        self.assertIsNone(self.get_search_terms(session, default=None))
 
         selected_pixel = self.pixels[0]
 
-        # set `omics_units` in session
+        # set search terms in session
         response = self.client.post(reverse('explorer:pixelset_selection'), {
-            'omics_units': selected_pixel.omics_unit.reference.identifier,
+            'search_terms': selected_pixel.omics_unit.reference.identifier,
         }, follow=True)
 
         self.assertRedirects(response, reverse('explorer:pixelset_selection'))

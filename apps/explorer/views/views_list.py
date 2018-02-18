@@ -21,7 +21,7 @@ from ..utils import export_pixelsets
 from .helpers import (
     get_selected_pixel_sets_from_session, set_selected_pixel_sets_to_session
 )
-from .mixins import GetOmicsUnitsMixin
+from .views_selection import GetSearchTermsMixin
 
 
 class PixelSetListView(LoginRequiredMixin, FormMixin, ListView):
@@ -257,7 +257,7 @@ class PixelSetSelectView(LoginRequiredMixin, FormView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class PixelSetExportView(LoginRequiredMixin, GetOmicsUnitsMixin, View):
+class PixelSetExportView(LoginRequiredMixin, GetSearchTermsMixin, View):
 
     ATTACHEMENT_FILENAME = 'pixelsets_{date_time}.zip'
     SUBSET_QUERY_PARAM = 'only-subset'
@@ -275,15 +275,15 @@ class PixelSetExportView(LoginRequiredMixin, GetOmicsUnitsMixin, View):
         if not len(selection):
             return self.empty_selection(request)
 
-        omics_units = []
+        search_terms = []
         # only take omics units into account if it is requested.
         if request.GET.get(self.SUBSET_QUERY_PARAM, False):
-            omics_units = self.get_omics_units(self.request.session)
+            search_terms = self.get_search_terms(self.request.session)
 
         qs = PixelSet.objects.filter(id__in=selection)
         content = export_pixelsets(
             pixel_sets=qs,
-            omics_units=omics_units,
+            search_terms=search_terms,
         ).getvalue()
 
         response = HttpResponse(content, content_type='application/zip')

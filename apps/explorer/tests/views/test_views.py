@@ -23,7 +23,7 @@ from apps.explorer.views import (
     DataTableDetailView,
 )
 from apps.explorer.views.helpers import get_selected_pixel_sets_from_session
-from apps.explorer.views.views_detail import GetOmicsUnitsMixin
+from apps.explorer.views.views_detail import GetSearchTermsMixin
 
 
 class PixelSetListViewTestCase(CoreFixturesTestCase):
@@ -1126,7 +1126,7 @@ class PixelSetDeselectViewTestCase(CoreFixturesTestCase):
         )
 
 
-class PixelSetExportViewTestCase(GetOmicsUnitsMixin, CoreFixturesTestCase):
+class PixelSetExportViewTestCase(GetSearchTermsMixin, CoreFixturesTestCase):
 
     def setUp(self):
 
@@ -1201,14 +1201,14 @@ class PixelSetExportViewTestCase(GetOmicsUnitsMixin, CoreFixturesTestCase):
         response = self.client.get(self.url)
 
         self.assertIsNone(
-            self.get_omics_units(self.client.session, default=None)
+            self.get_search_terms(self.client.session, default=None)
         )
 
         selected_pixel = pixels[1]
 
-        # set `omics_units` in session
+        # set search terms in session
         response = self.client.post(reverse('explorer:pixelset_selection'), {
-            'omics_units': selected_pixel.omics_unit.reference.identifier,
+            'search_terms': selected_pixel.omics_unit.reference.identifier,
         }, follow=True)
 
         fake_dt = timezone.make_aware(datetime.datetime(2018, 1, 12, 11, 00))
@@ -1240,7 +1240,7 @@ class PixelSetExportViewTestCase(GetOmicsUnitsMixin, CoreFixturesTestCase):
                 zip.close()
 
 
-class PixelSetDetailViewTestCase(GetOmicsUnitsMixin, CoreFixturesTestCase):
+class PixelSetDetailViewTestCase(GetSearchTermsMixin, CoreFixturesTestCase):
 
     def setUp(self):
 
@@ -1420,15 +1420,15 @@ class PixelSetDetailViewTestCase(GetOmicsUnitsMixin, CoreFixturesTestCase):
         session = self.client.session
         omics_unit_id = self.pixels[0].omics_unit.reference.identifier
 
-        self.assertIsNone(self.get_omics_units(session, default=None))
+        self.assertIsNone(self.get_search_terms(session, default=None))
 
         response = self.client.post(self.url, {
-            'omics_units': omics_unit_id,
+            'search_terms': omics_unit_id,
         }, follow=True)
 
         self.assertRedirects(response, self.pixel_set.get_absolute_url())
         self.assertEqual(
-            self.get_omics_units(self.client.session),
+            self.get_search_terms(self.client.session),
             [omics_unit_id]
         )
         self.assertContains(
@@ -1445,15 +1445,15 @@ class PixelSetDetailViewTestCase(GetOmicsUnitsMixin, CoreFixturesTestCase):
 
         session = self.client.session
 
-        self.assertIsNone(self.get_omics_units(session, default=None))
+        self.assertIsNone(self.get_search_terms(session, default=None))
 
         response = self.client.post(self.url, {
-            'omics_units': 'invalid',
+            'search_terms': 'invalid',
         }, follow=True)
 
         self.assertRedirects(response, self.pixel_set.get_absolute_url())
         self.assertEqual(
-            self.get_omics_units(self.client.session),
+            self.get_search_terms(self.client.session),
             ['invalid']
         )
         self.assertContains(
@@ -1472,15 +1472,15 @@ class PixelSetDetailViewTestCase(GetOmicsUnitsMixin, CoreFixturesTestCase):
         omics_unit_id_1 = self.pixels[0].omics_unit.reference.identifier
         omics_unit_id_2 = self.pixels[1].omics_unit.reference.identifier
 
-        self.assertIsNone(self.get_omics_units(session, default=None))
+        self.assertIsNone(self.get_search_terms(session, default=None))
 
         response = self.client.post(self.url, {
-            'omics_units': f'{omics_unit_id_1}, {omics_unit_id_2}',
+            'search_terms': f'{omics_unit_id_1}, {omics_unit_id_2}',
         }, follow=True)
 
         self.assertRedirects(response, self.pixel_set.get_absolute_url())
         self.assertEqual(
-            set(self.get_omics_units(self.client.session)),
+            set(self.get_search_terms(self.client.session)),
             set([omics_unit_id_1, omics_unit_id_2])
         )
         self.assertContains(
@@ -1492,12 +1492,12 @@ class PixelSetDetailViewTestCase(GetOmicsUnitsMixin, CoreFixturesTestCase):
     def test_empty_subset_returns_all_pixels(self):
 
         session = self.client.session
-        self.assertIsNone(self.get_omics_units(session, default=None))
+        self.assertIsNone(self.get_search_terms(session, default=None))
 
         response = self.client.post(self.url, follow=True)
 
         self.assertRedirects(response, self.pixel_set.get_absolute_url())
-        self.assertIsNone(self.get_omics_units(session, default=None))
+        self.assertIsNone(self.get_search_terms(session, default=None))
         self.assertContains(
             response,
             '<tr class="pixel">',
@@ -1559,7 +1559,7 @@ class PixelSetExportPixelsViewTestCase(CoreFixturesTestCase):
             )
 
 
-class PixelSetDetailValuesViewTestCase(GetOmicsUnitsMixin,
+class PixelSetDetailValuesViewTestCase(GetSearchTermsMixin,
                                        CoreFixturesTestCase):
 
     def setUp(self):
@@ -1616,11 +1616,11 @@ class PixelSetDetailValuesViewTestCase(GetOmicsUnitsMixin,
         session = self.client.session
         selected_pixel = self.pixels[0]
 
-        self.assertIsNone(self.get_omics_units(session, default=None))
+        self.assertIsNone(self.get_search_terms(session, default=None))
 
-        # set `omics_units` in session
+        # set search terms in session
         response = self.client.post(self.pixel_set.get_absolute_url(), {
-            'omics_units': selected_pixel.omics_unit.reference.identifier,
+            'search_terms': selected_pixel.omics_unit.reference.identifier,
         }, follow=True)
 
         self.assertRedirects(response, self.pixel_set.get_absolute_url())
@@ -1646,7 +1646,7 @@ class PixelSetDetailValuesViewTestCase(GetOmicsUnitsMixin,
         self.assertEqual(rows[0]['c'][1]['v'], selected_pixel.value)
 
 
-class PixelSetDetailQualityScoresViewTestCase(GetOmicsUnitsMixin,
+class PixelSetDetailQualityScoresViewTestCase(GetSearchTermsMixin,
                                               CoreFixturesTestCase):
 
     def setUp(self):
@@ -1703,11 +1703,11 @@ class PixelSetDetailQualityScoresViewTestCase(GetOmicsUnitsMixin,
         session = self.client.session
         selected_pixel = self.pixels[0]
 
-        self.assertIsNone(self.get_omics_units(session, default=None))
+        self.assertIsNone(self.get_search_terms(session, default=None))
 
-        # set `omics_units` in session
+        # set search terms in session
         response = self.client.post(self.pixel_set.get_absolute_url(), {
-            'omics_units': selected_pixel.omics_unit.reference.identifier,
+            'search_terms': selected_pixel.omics_unit.reference.identifier,
         }, follow=True)
 
         self.assertRedirects(response, self.pixel_set.get_absolute_url())

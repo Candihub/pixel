@@ -102,7 +102,7 @@ class SessionPixelSetSelectForm(forms.Form):
 
 class PixelSetSubsetSelectionForm(forms.Form):
 
-    omics_units = forms.CharField(
+    search_terms = forms.CharField(
         widget=forms.Textarea(
             attrs={
                 'placeholder': _('CAGL0F02695g, CAGL0D06336g, CAGL0G06666g'),
@@ -116,5 +116,5 @@ class PixelSetSubsetSelectionForm(forms.Form):
         required=False,
     )
 
-    def clean_omics_units(self):
-        return list(str_to_set(self.cleaned_data['omics_units']))
+    def clean_search_terms(self):
+        return list(str_to_set(self.cleaned_data['search_terms']))
