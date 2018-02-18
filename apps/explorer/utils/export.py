@@ -1,9 +1,11 @@
 import pandas
+import re
 import uuid
 import yaml
 import zipfile
 
 from io import BytesIO, StringIO
+from django.utils.translation import ugettext as _
 
 from apps.core.models import Pixel
 
@@ -12,10 +14,14 @@ PIXELSET_EXPORT_META_FILENAME = 'meta.yaml'
 PIXELSET_EXPORT_PIXELS_FILENAME = 'pixels.csv'
 
 
-def get_dataframe_and_meta_for_pixelsets(pixel_set_ids, omics_units=None,
-                                         descriptions=dict(),
-                                         with_links=False):
-    """The function takes Pixel Set IDs and optionally a list of Omics Units.
+def _get_pixelsets_dataframe_and_metadata(pixel_set_ids,
+                                          omics_units=None,
+                                          descriptions=dict(),
+                                          with_links=False):
+    """The function takes Pixel Set IDs and optionally a list of Omics Units, a
+    hash map of Pixel Set descriptions, and a boolean to determine whether to
+    build URLs for omics units. This function returns a pandas.DataFrame and a
+    hash map containing metadata related to the Pixel Sets.
 
     The list of Omics Units should contain identifiers and will be used to
     filter the pixels.
@@ -152,7 +158,7 @@ def export_pixelsets(pixel_sets, omics_units=[]):
     for pixel_set in pixel_sets:
         descriptions[pixel_set.id] = pixel_set.description
 
-    df, pixelsets_meta = get_dataframe_and_meta_for_pixelsets(
+    df, pixelsets_meta = _get_pixelsets_dataframe_and_metadata(
         pixel_set_ids=descriptions.keys(),
         omics_units=omics_units,
         descriptions=descriptions,
@@ -234,3 +240,65 @@ def export_pixels(pixel_set, omics_units=[], output=None):
     )
 
     return output
+
+
+def export_pixelsets_as_html(pixel_set_ids,
+                             omics_units=None,
+                             display_limit=None):
+    """This function creates a HTML table displaying the pixels related to the
+    set of Pixel Sets given as first argument.
+
+    The function takes Pixel Set IDs, and optionally a list of Omics Units and
+    a number of rows to render in the HTML table.
+
+    The list of Omics Units should contain identifiers and will be used to
+    filter the pixels.
+
+    Parameters
+    ----------
+
+    pixel_set_ids: list
+        A list of Pixel Set ids.
+    omics_units: list
+        A list of Omics Units ids.
+    display_limit: int
+        The number of rows to render in the HTML table.
+
+    Returns
+    -------
+    str
+        A string containing the HTML table (not escaped).
+    """
+
+    # tell pandas not to truncate strings
+    pandas.set_option('display.max_colwidth', -1)
+    # tell pandas not to format floats
+    pandas.set_option('display.float_format', lambda val: '{}'.format(val))
+
+    df, __ = _get_pixelsets_dataframe_and_metadata(
+        pixel_set_ids,
+        omics_units=omics_units,
+        with_links=True,
+    )
+
+    html = df.to_html(
+        escape=False,
+        max_rows=display_limit,
+    ).replace(' border="1"', '')  # pandas hardcodes table borders...
+
+    # replace the empty table body with a message.
+    if len(df.index) == 0:
+        html = re.sub(
+            r'<tbody>\s*\n\s*</tbody>',
+            (
+                '<tbody>'
+                '<tr class="empty"><td colspan="{}">{}</td></tr>'
+                '</tbody>'
+            ).format(
+                len(df.columns)+1,
+                _("Your selection gave no results"),
+            ),
+            html
+        )
+
+    return html
