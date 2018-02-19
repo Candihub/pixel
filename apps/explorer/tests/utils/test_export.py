@@ -248,6 +248,74 @@ class ExportPixelsTestCase(CoreFixturesTestCase):
         assert (pixels_csv['QS'][0] ==
                 pytest.approx(selected_pixel.quality_score))
 
+    def test_export_pixels_with_term_in_description(self):
+
+        pixel_set = factories.PixelSetFactory.create()
+        pixels = factories.PixelFactory.create_batch(3, pixel_set=pixel_set)
+        selected_pixel = pixels[1]
+
+        description = selected_pixel.omics_unit.reference.description
+        first_word = description.split(' ')[0]
+
+        pixels_csv = self._export_pixels(
+            pixel_set,
+            search_terms=[first_word]
+        )
+
+        assert len(pixels_csv['Omics Unit'].items()) == 1
+
+        assert (pixels_csv['Omics Unit'][0] ==
+                selected_pixel.omics_unit.reference.identifier)
+        assert pixels_csv['Value'][0] == pytest.approx(selected_pixel.value)
+        assert (pixels_csv['QS'][0] ==
+                pytest.approx(selected_pixel.quality_score))
+
+    def test_export_pixels_with_two_terms_in_description(self):
+
+        pixel_set = factories.PixelSetFactory.create()
+        pixels = factories.PixelFactory.create_batch(3, pixel_set=pixel_set)
+        selected_pixel = pixels[1]
+
+        description = selected_pixel.omics_unit.reference.description
+        first_word = description.split(' ')[0]
+
+        pixels_csv = self._export_pixels(
+            pixel_set,
+            # we use a AND clause between the search terms when searching in
+            # the description field, so we should not get any result if one of
+            # the terms does not exist in the description.
+            search_terms=[first_word, 'thisShouldNotBeInDescription']
+        )
+
+        assert len(pixels_csv['Omics Unit'].items()) == 0
+
+    def test_export_pixels_with_two_terms_in_description_and_omics_unit(self):
+
+        pixel_set = factories.PixelSetFactory.create()
+        pixels = factories.PixelFactory.create_batch(3, pixel_set=pixel_set)
+        selected_pixel = pixels[1]
+
+        description = selected_pixel.omics_unit.reference.description
+        first_word = description.split(' ')[0]
+
+        pixels_csv = self._export_pixels(
+            pixel_set,
+            # we use a AND clause between the search terms when searching in
+            # the description field, so we should not get any result if one of
+            # the terms does not exist in the description.
+            #
+            # yet, we use a OR clause between the description filter and the
+            # omics unit ID filter, so this should return a result thanks to
+            # the omics unit filter.
+            search_terms=[
+                selected_pixel.omics_unit.reference.identifier,
+                first_word,
+                'thisShouldNotBeInDescription',
+            ]
+        )
+
+        assert len(pixels_csv['Omics Unit'].items()) == 1
+
 
 class ExportPixelsetsAsHtmlTestCase(CoreFixturesTestCase):
 

@@ -18,6 +18,15 @@ class DataTableMixinTestCase(TestCase):
             obj = DataTableWithNoGetSearchTerms()
             obj.get_search_terms(fake_session)
 
+    def test_get_pixels_queryset_must_be_implemented(self):
+
+        class DataTableWithoGetPixelsQuerySet(DataTableMixin):
+            pass
+
+        with pytest.raises(NotImplementedError):
+            obj = DataTableWithoGetPixelsQuerySet()
+            obj.get_pixels_queryset()
+
 
 class SubsetSelectionMixinTestCase(TestCase):
 

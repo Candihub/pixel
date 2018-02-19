@@ -223,6 +223,52 @@ class PixelSetSelectionValuesViewTestCase(GetSearchTermsMixin,
         self.assertEqual(rows[0]['c'][0]['v'], str(selected_pixel.id))
         self.assertEqual(rows[0]['c'][1]['v'], selected_pixel.value)
 
+    def test_filters_by_term_in_description(self):
+
+        session = self.client.session
+
+        # select pixel set, otherwise we cannot set omics units
+        self.client.post(
+            reverse('explorer:pixelset_select'),
+            {'pixel_sets': [self.pixel_set.id]},
+            follow=True
+        )
+        response = self.client.get(self.url)
+
+        self.assertIsNone(self.get_search_terms(session, default=None))
+
+        selected_pixel = self.pixels[0]
+
+        description = selected_pixel.omics_unit.reference.description
+        first_word = description.split(' ')[0]
+
+        # set search terms in session
+        response = self.client.post(reverse('explorer:pixelset_selection'), {
+            'search_terms': first_word,
+        }, follow=True)
+
+        self.assertRedirects(response, reverse('explorer:pixelset_selection'))
+
+        response = self.client.get(
+            self.url,
+            data={},
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/json')
+
+        data = json.loads(response.content)
+
+        cols = data['cols']
+        self.assertEqual(cols[0]['label'], 'id')
+        self.assertEqual(cols[1]['label'], 'value')
+
+        rows = data['rows']
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]['c'][0]['v'], str(selected_pixel.id))
+        self.assertEqual(rows[0]['c'][1]['v'], selected_pixel.value)
+
 
 class PixelSetSelectionQualityScoresViewTestCase(GetSearchTermsMixin,
                                                  CoreFixturesTestCase):
@@ -295,6 +341,52 @@ class PixelSetSelectionQualityScoresViewTestCase(GetSearchTermsMixin,
         # set search terms in session
         response = self.client.post(reverse('explorer:pixelset_selection'), {
             'search_terms': selected_pixel.omics_unit.reference.identifier,
+        }, follow=True)
+
+        self.assertRedirects(response, reverse('explorer:pixelset_selection'))
+
+        response = self.client.get(
+            self.url,
+            data={},
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/json')
+
+        data = json.loads(response.content)
+
+        cols = data['cols']
+        self.assertEqual(cols[0]['label'], 'id')
+        self.assertEqual(cols[1]['label'], 'quality_score')
+
+        rows = data['rows']
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]['c'][0]['v'], str(selected_pixel.id))
+        self.assertEqual(rows[0]['c'][1]['v'], selected_pixel.quality_score)
+
+    def test_filters_by_term_in_description(self):
+
+        session = self.client.session
+
+        # select pixel set, otherwise we cannot set omics units
+        self.client.post(
+            reverse('explorer:pixelset_select'),
+            {'pixel_sets': [self.pixel_set.id]},
+            follow=True
+        )
+        response = self.client.get(self.url)
+
+        self.assertIsNone(self.get_search_terms(session, default=None))
+
+        selected_pixel = self.pixels[0]
+
+        description = selected_pixel.omics_unit.reference.description
+        first_word = description.split(' ')[0]
+
+        # set search terms in session
+        response = self.client.post(reverse('explorer:pixelset_selection'), {
+            'search_terms': first_word,
         }, follow=True)
 
         self.assertRedirects(response, reverse('explorer:pixelset_selection'))

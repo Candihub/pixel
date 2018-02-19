@@ -1611,7 +1611,45 @@ class PixelSetDetailValuesViewTestCase(GetSearchTermsMixin,
         rows = data['rows']
         self.assertEqual(len(rows), 2)
 
-    def test_filters_by_omics_units(self):
+    def test_filters_by_term_in_description(self):
+
+        session = self.client.session
+
+        selected_pixel = self.pixels[0]
+
+        description = selected_pixel.omics_unit.reference.description
+        first_words = description.split(' ')[0:2]
+
+        self.assertIsNone(self.get_search_terms(session, default=None))
+
+        # set search terms in session
+        response = self.client.post(self.pixel_set.get_absolute_url(), {
+            'search_terms': first_words,
+        }, follow=True)
+
+        self.assertRedirects(response, self.pixel_set.get_absolute_url())
+
+        response = self.client.get(
+            self.url,
+            data={},
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/json')
+
+        data = json.loads(response.content)
+
+        cols = data['cols']
+        self.assertEqual(cols[0]['label'], 'id')
+        self.assertEqual(cols[1]['label'], 'value')
+
+        rows = data['rows']
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]['c'][0]['v'], str(selected_pixel.id))
+        self.assertEqual(rows[0]['c'][1]['v'], selected_pixel.value)
+
+    def test_filters_by_(self):
 
         session = self.client.session
         selected_pixel = self.pixels[0]
@@ -1708,6 +1746,44 @@ class PixelSetDetailQualityScoresViewTestCase(GetSearchTermsMixin,
         # set search terms in session
         response = self.client.post(self.pixel_set.get_absolute_url(), {
             'search_terms': selected_pixel.omics_unit.reference.identifier,
+        }, follow=True)
+
+        self.assertRedirects(response, self.pixel_set.get_absolute_url())
+
+        response = self.client.get(
+            self.url,
+            data={},
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/json')
+
+        data = json.loads(response.content)
+
+        cols = data['cols']
+        self.assertEqual(cols[0]['label'], 'id')
+        self.assertEqual(cols[1]['label'], 'quality_score')
+
+        rows = data['rows']
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]['c'][0]['v'], str(selected_pixel.id))
+        self.assertEqual(rows[0]['c'][1]['v'], selected_pixel.quality_score)
+
+    def test_filters_by_term_in_description(self):
+
+        session = self.client.session
+
+        selected_pixel = self.pixels[0]
+
+        description = selected_pixel.omics_unit.reference.description
+        first_words = description.split(' ')[0:2]
+
+        self.assertIsNone(self.get_search_terms(session, default=None))
+
+        # set search terms in session
+        response = self.client.post(self.pixel_set.get_absolute_url(), {
+            'search_terms': first_words,
         }, follow=True)
 
         self.assertRedirects(response, self.pixel_set.get_absolute_url())
