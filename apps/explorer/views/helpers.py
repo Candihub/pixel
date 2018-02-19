@@ -1,6 +1,6 @@
 
 
-def get_omics_units_from_session(session, key, default=[]):
+def get_search_terms_from_session(session, key, default=[]):
 
     return session.get(
         'explorer', {}
@@ -18,10 +18,10 @@ def get_selected_pixel_sets_from_session(session, default=[]):
     )
 
 
-def set_omics_units_to_session(session, key, omics_units=[]):
+def set_search_terms_to_session(session, key, search_terms=[]):
 
     explorer = session.get('explorer', {})
-    explorer.update({key: omics_units})
+    explorer.update({key: search_terms})
 
     session['explorer'] = explorer
 

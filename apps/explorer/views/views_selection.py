@@ -8,13 +8,32 @@ from django.views.generic.detail import BaseDetailView
 
 from apps.core.models import Pixel, PixelSet
 
-from ..utils import export_pixelsets_as_html
+from ..utils import (
+    export_pixelsets_as_html,
+    get_queryset_filtered_by_search_terms
+)
 
-from .helpers import get_selected_pixel_sets_from_session
-from .mixins import DataTableMixin, GetOmicsUnitsMixin, SubsetSelectionMixin
+from .helpers import (
+    get_search_terms_from_session,
+    get_selected_pixel_sets_from_session,
+)
+from .mixins import DataTableMixin, SubsetSelectionMixin
 
 
-class DataTableCumulativeView(LoginRequiredMixin, GetOmicsUnitsMixin,
+class GetSearchTermsMixin(object):
+
+    search_terms_session_key = 'pixelset_selection_search_terms'
+
+    def get_search_terms(self, session, **kwargs):
+
+        return get_search_terms_from_session(
+            session,
+            key=self.search_terms_session_key,
+            **kwargs
+        )
+
+
+class DataTableCumulativeView(LoginRequiredMixin, GetSearchTermsMixin,
                               DataTableMixin,
                               View):
 
@@ -41,7 +60,7 @@ class PixelSetSelectionCumulativeQualityScoresView(DataTableCumulativeView):
         return {'id': ('string'), 'quality_score': ('number')}
 
 
-class DataTableSelectionView(LoginRequiredMixin, GetOmicsUnitsMixin,
+class DataTableSelectionView(LoginRequiredMixin, GetSearchTermsMixin,
                              DataTableMixin,
                              BaseDetailView):
 
@@ -66,7 +85,7 @@ class PixelSetSelectionQualityScoresView(DataTableSelectionView):
         return {'id': ('string'), 'quality_score': ('number')}
 
 
-class PixelSetSelectionView(LoginRequiredMixin, GetOmicsUnitsMixin,
+class PixelSetSelectionView(LoginRequiredMixin, GetSearchTermsMixin,
                             SubsetSelectionMixin,
                             TemplateView):
 
@@ -109,10 +128,11 @@ class PixelSetSelectionView(LoginRequiredMixin, GetOmicsUnitsMixin,
             'omics_unit__reference'
         )
 
-        omics_units = self.get_omics_units(self.request.session)
-
-        if len(omics_units) > 0:
-            qs = qs.filter(omics_unit__reference__identifier__in=omics_units)
+        search_terms = self.get_search_terms(self.request.session)
+        qs = get_queryset_filtered_by_search_terms(
+            qs,
+            search_terms=search_terms
+        )
 
         pixels_count = qs.count()
 
@@ -122,7 +142,7 @@ class PixelSetSelectionView(LoginRequiredMixin, GetOmicsUnitsMixin,
 
         html_table = export_pixelsets_as_html(
             selected_pixelset_ids,
-            omics_units=omics_units,
+            search_terms=search_terms,
             # we do not display all the data
             display_limit=self.omics_units_limit,
         )

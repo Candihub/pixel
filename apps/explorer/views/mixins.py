@@ -7,19 +7,26 @@ from django.views.generic.edit import FormMixin
 from gviz_api import DataTable
 
 from ..forms import PixelSetSubsetSelectionForm
+from ..utils import get_queryset_filtered_by_search_terms
 
-from .helpers import get_omics_units_from_session, set_omics_units_to_session
+from .helpers import set_search_terms_to_session
 
 
 class DataTableMixin(object):
 
-    def get_omics_units(self, session, **kwargs):
+    def get_search_terms(self, session, **kwargs):
 
-        raise NotImplementedError(_('You should define `get_omics_units()`'))
+        raise NotImplementedError(_('You should define `get_search_terms()`'))
 
     def get_headers(self):
 
         raise NotImplementedError(_('You should define `get_headers()`'))
+
+    def get_pixels_queryset(self):
+
+        raise NotImplementedError(
+            _('You should define `get_pixels_queryset()`')
+        )
 
     def get_columns(self):
 
@@ -33,13 +40,12 @@ class DataTableMixin(object):
                 'This endpoint should only be called from JavaScript.'
             )
 
-        qs = self.get_pixels_queryset()
+        search_terms = self.get_search_terms(request.session)
 
-        omics_units = self.get_omics_units(request.session)
-
-        # we only filter by Omics Units when specified.
-        if len(omics_units) > 0:
-            qs = qs.filter(omics_unit__reference__identifier__in=omics_units)
+        qs = get_queryset_filtered_by_search_terms(
+            self.get_pixels_queryset(),
+            search_terms=search_terms
+        )
 
         dt = DataTable(self.get_headers())
         dt.LoadData(qs.values(*self.get_columns()))
@@ -51,16 +57,18 @@ class SubsetSelectionMixin(FormMixin):
 
     form_class = PixelSetSubsetSelectionForm
 
-    def get_omics_units(self, session, **kwargs):
+    def get_search_terms(self, session, **kwargs):
 
-        raise NotImplementedError(_('You should define `get_omics_units()`'))
+        raise NotImplementedError(_('You should define `get_search_terms()`'))
 
     def get_initial(self):
 
         initial = super().get_initial()
 
         initial.update({
-            'omics_units': ' '.join(self.get_omics_units(self.request.session))
+            'search_terms': ' '.join(
+                self.get_search_terms(self.request.session)
+            )
         })
         return initial
 
@@ -69,10 +77,10 @@ class SubsetSelectionMixin(FormMixin):
         form = self.get_form()
 
         if form.is_valid():
-            set_omics_units_to_session(
+            set_search_terms_to_session(
                 request.session,
-                key=self.omics_units_session_key,
-                omics_units=form.cleaned_data['omics_units']
+                key=self.search_terms_session_key,
+                search_terms=form.cleaned_data['search_terms']
             )
 
             return self.form_valid(form)
@@ -80,16 +88,3 @@ class SubsetSelectionMixin(FormMixin):
             # We should never reach this code because the form should always be
             # valid (no required field or validation)
             return self.form_invalid(form)  # pragma: no cover
-
-
-class GetOmicsUnitsMixin(object):
-
-    omics_units_session_key = 'pixelset_selection_omics_units'
-
-    def get_omics_units(self, session, **kwargs):
-
-        return get_omics_units_from_session(
-            session,
-            key=self.omics_units_session_key,
-            **kwargs
-        )

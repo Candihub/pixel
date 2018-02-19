@@ -5,6 +5,7 @@ import yaml
 import zipfile
 
 from io import BytesIO, StringIO
+from django.db.models import Q
 from django.utils.translation import ugettext as _
 
 from apps.core.models import Pixel
@@ -15,13 +16,14 @@ PIXELSET_EXPORT_PIXELS_FILENAME = 'pixels.csv'
 
 
 def _get_pixelsets_dataframe_and_metadata(pixel_set_ids,
-                                          omics_units=None,
+                                          search_terms=None,
                                           descriptions=dict(),
                                           with_links=False):
-    """The function takes Pixel Set IDs and optionally a list of Omics Units, a
-    hash map of Pixel Set descriptions, and a boolean to determine whether to
-    build URLs for omics units. This function returns a pandas.DataFrame and a
-    hash map containing metadata related to the Pixel Sets.
+    """The function takes Pixel Set IDs and optionally a list of search terms
+    like Omics Units identifiers or terms in descriptions, a hash map of Pixel
+    Set descriptions, and a boolean to determine whether to build URLs for
+    omics units. This function returns a pandas.DataFrame and a hash map
+    containing metadata related to the Pixel Sets.
 
     The list of Omics Units should contain identifiers and will be used to
     filter the pixels.
@@ -31,11 +33,11 @@ def _get_pixelsets_dataframe_and_metadata(pixel_set_ids,
 
     pixel_set_ids: list
         A list of Pixel Set ids.
-    omics_units: list
-        A list of Omics Units ids.
-    descriptions: dict
+    search_terms: list, optional
+        A list of search terms.
+    descriptions: dict, optional
         A hash map containing Pixel Set descriptions indexed by ID.
-    with_links: bool
+    with_links: bool, optional
         Whether the omics units should have URLs or not.
 
     Returns
@@ -87,14 +89,15 @@ def _get_pixelsets_dataframe_and_metadata(pixel_set_ids,
             'omics_unit__reference__identifier'
         )
 
+        qs = get_queryset_filtered_by_search_terms(
+            qs,
+            search_terms=search_terms
+        )
+
         for pixel in qs:
             omics_unit = pixel.omics_unit.reference.identifier
-
-            # filter by omics_units if supplied
-            if omics_units and omics_unit not in omics_units:
-                continue
-
             description = pixel.omics_unit.reference.description
+
             link = '<a href="{}">{}</a>'.format(
                 pixel.omics_unit.reference.url,
                 omics_unit,
@@ -135,7 +138,23 @@ def _get_pixelsets_dataframe_and_metadata(pixel_set_ids,
     return df, meta
 
 
-def export_pixelsets(pixel_sets, omics_units=[]):
+def get_queryset_filtered_by_search_terms(qs, search_terms=None):
+    # we only filter by search terms when specified
+    if search_terms:
+        clauses = Q(
+            omics_unit__reference__description__icontains=search_terms[0]
+        )
+        for term in search_terms[1:]:
+            clauses &= Q(omics_unit__reference__description__icontains=term)
+
+        qs = qs.filter(
+            Q(omics_unit__reference__identifier__in=search_terms) | clauses
+        )
+
+    return qs
+
+
+def export_pixelsets(pixel_sets, search_terms=None):
     """This function exports a list of PixelSet objects as a ZIP archive.
 
     The (in-memory) ZIP archive contains a `meta.yaml` file and a `pixels.csv`
@@ -146,6 +165,8 @@ def export_pixelsets(pixel_sets, omics_units=[]):
     pixel_sets : iterable
         A sequence, an iterator, or some other object which supports iteration,
         containing PixelSet objects.
+    search_terms: list, optional
+        A list of search terms.
 
     Returns
     -------
@@ -160,7 +181,7 @@ def export_pixelsets(pixel_sets, omics_units=[]):
 
     df, pixelsets_meta = _get_pixelsets_dataframe_and_metadata(
         pixel_set_ids=descriptions.keys(),
-        omics_units=omics_units,
+        search_terms=search_terms,
         descriptions=descriptions,
     )
 
@@ -192,17 +213,17 @@ def export_pixelsets(pixel_sets, omics_units=[]):
     return stream
 
 
-def export_pixels(pixel_set, omics_units=[], output=None):
+def export_pixels(pixel_set, search_terms=None, output=None):
     """This function exports the Pixels of a given PixelSet as a CSV file.
 
-    If the list of `omics_units` is empty, all Pixels will be exported.
+    If the list of `search_terms` is empty, all Pixels will be exported.
 
     Parameters
     ----------
     pixel_set : apps.core.models.PixelSet
         A PixelSet object.
-    omics_units: list, optional
-        A list of omics unit identifiers to export.
+    search_terms: list, optional
+        A list of search terms.
     output : String or File handler, optional
         A string or file handler to write the CSV content.
 
@@ -215,10 +236,7 @@ def export_pixels(pixel_set, omics_units=[], output=None):
     """
 
     qs = pixel_set.pixels.select_related('omics_unit__reference')
-
-    # we only filter by Omics Units when specified.
-    if len(omics_units) > 0:
-        qs = qs.filter(omics_unit__reference__identifier__in=omics_units)
+    qs = get_queryset_filtered_by_search_terms(qs, search_terms=search_terms)
 
     data = list(
         qs.values_list(
@@ -243,7 +261,7 @@ def export_pixels(pixel_set, omics_units=[], output=None):
 
 
 def export_pixelsets_as_html(pixel_set_ids,
-                             omics_units=None,
+                             search_terms=None,
                              display_limit=None):
     """This function creates a HTML table displaying the pixels related to the
     set of Pixel Sets given as first argument.
@@ -259,8 +277,8 @@ def export_pixelsets_as_html(pixel_set_ids,
 
     pixel_set_ids: list
         A list of Pixel Set ids.
-    omics_units: list
-        A list of Omics Units ids.
+    search_terms: list, optional
+        A list of search terms.
     display_limit: int
         The number of rows to render in the HTML table.
 
@@ -277,7 +295,7 @@ def export_pixelsets_as_html(pixel_set_ids,
 
     df, __ = _get_pixelsets_dataframe_and_metadata(
         pixel_set_ids,
-        omics_units=omics_units,
+        search_terms=search_terms,
         with_links=True,
     )
 

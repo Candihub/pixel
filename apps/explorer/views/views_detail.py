@@ -6,26 +6,26 @@ from django.views.generic.detail import BaseDetailView
 
 from apps.core.models import PixelSet
 
-from ..utils import export_pixels
+from ..utils import export_pixels, get_queryset_filtered_by_search_terms
 
-from .helpers import get_omics_units_from_session
+from .helpers import get_search_terms_from_session
 from .mixins import DataTableMixin, SubsetSelectionMixin
 
 
-class GetOmicsUnitsMixin(object):
+class GetSearchTermsMixin(object):
 
-    omics_units_session_key = 'pixelset_detail_omics_units'
+    search_terms_session_key = 'pixelset_detail_search_terms'
 
-    def get_omics_units(self, session, **kwargs):
+    def get_search_terms(self, session, **kwargs):
 
-        return get_omics_units_from_session(
+        return get_search_terms_from_session(
             session,
-            key=self.omics_units_session_key,
+            key=self.search_terms_session_key,
             **kwargs
         )
 
 
-class DataTableDetailView(LoginRequiredMixin, GetOmicsUnitsMixin,
+class DataTableDetailView(LoginRequiredMixin, GetSearchTermsMixin,
                           DataTableMixin,
                           BaseDetailView):
 
@@ -50,7 +50,7 @@ class PixelSetDetailQualityScoresView(DataTableDetailView):
         return {'id': ('string'), 'quality_score': ('number')}
 
 
-class PixelSetDetailView(LoginRequiredMixin, GetOmicsUnitsMixin,
+class PixelSetDetailView(LoginRequiredMixin, GetSearchTermsMixin,
                          SubsetSelectionMixin,
                          DetailView):
 
@@ -71,12 +71,11 @@ class PixelSetDetailView(LoginRequiredMixin, GetOmicsUnitsMixin,
 
         context = super().get_context_data(**kwargs)
 
-        qs = self.object.pixels.select_related('omics_unit__reference')
-
-        omics_units = self.get_omics_units(self.request.session)
-
-        if len(omics_units) > 0:
-            qs = qs.filter(omics_unit__reference__identifier__in=omics_units)
+        search_terms = self.get_search_terms(self.request.session)
+        qs = get_queryset_filtered_by_search_terms(
+            self.object.pixels.select_related('omics_unit__reference'),
+            search_terms=search_terms
+        )
 
         pixels = qs[:self.pixels_limit]
 
@@ -94,7 +93,7 @@ class PixelSetDetailView(LoginRequiredMixin, GetOmicsUnitsMixin,
         return self.get_object().get_absolute_url()
 
 
-class PixelSetExportPixelsView(LoginRequiredMixin, GetOmicsUnitsMixin,
+class PixelSetExportPixelsView(LoginRequiredMixin, GetSearchTermsMixin,
                                BaseDetailView):
 
     ATTACHEMENT_FILENAME = 'pixels_{date_time}.csv'
@@ -110,7 +109,7 @@ class PixelSetExportPixelsView(LoginRequiredMixin, GetOmicsUnitsMixin,
 
     def get(self, request, *args, **kwargs):
 
-        omics_units = self.get_omics_units(request.session)
+        search_terms = self.get_search_terms(request.session)
 
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename={}'.format(
@@ -119,7 +118,7 @@ class PixelSetExportPixelsView(LoginRequiredMixin, GetOmicsUnitsMixin,
 
         export_pixels(
             self.get_object(),
-            omics_units=omics_units,
+            search_terms=search_terms,
             output=response
         )
 
