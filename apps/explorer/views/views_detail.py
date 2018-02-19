@@ -6,7 +6,7 @@ from django.views.generic.detail import BaseDetailView
 
 from apps.core.models import PixelSet
 
-from ..utils import export_pixels
+from ..utils import export_pixels, get_queryset_filtered_by_search_terms
 
 from .helpers import get_search_terms_from_session
 from .mixins import DataTableMixin, SubsetSelectionMixin
@@ -71,12 +71,11 @@ class PixelSetDetailView(LoginRequiredMixin, GetSearchTermsMixin,
 
         context = super().get_context_data(**kwargs)
 
-        qs = self.object.pixels.select_related('omics_unit__reference')
-
         search_terms = self.get_search_terms(self.request.session)
-
-        if len(search_terms) > 0:
-            qs = qs.filter(omics_unit__reference__identifier__in=search_terms)
+        qs = get_queryset_filtered_by_search_terms(
+            self.object.pixels.select_related('omics_unit__reference'),
+            search_terms=search_terms
+        )
 
         pixels = qs[:self.pixels_limit]
 

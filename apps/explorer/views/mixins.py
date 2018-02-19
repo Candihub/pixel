@@ -7,6 +7,7 @@ from django.views.generic.edit import FormMixin
 from gviz_api import DataTable
 
 from ..forms import PixelSetSubsetSelectionForm
+from ..utils import get_queryset_filtered_by_search_terms
 
 from .helpers import set_search_terms_to_session
 
@@ -21,6 +22,12 @@ class DataTableMixin(object):
 
         raise NotImplementedError(_('You should define `get_headers()`'))
 
+    def get_pixels_queryset(self):
+
+        raise NotImplementedError(
+            _('You should define `get_pixels_queryset()`')
+        )
+
     def get_columns(self):
 
         return list(self.get_headers().keys())
@@ -33,13 +40,12 @@ class DataTableMixin(object):
                 'This endpoint should only be called from JavaScript.'
             )
 
-        qs = self.get_pixels_queryset()
-
         search_terms = self.get_search_terms(request.session)
 
-        # we only filter by search terms when specified
-        if len(search_terms) > 0:
-            qs = qs.filter(omics_unit__reference__identifier__in=search_terms)
+        qs = get_queryset_filtered_by_search_terms(
+            self.get_pixels_queryset(),
+            search_terms=search_terms
+        )
 
         dt = DataTable(self.get_headers())
         dt.LoadData(qs.values(*self.get_columns()))

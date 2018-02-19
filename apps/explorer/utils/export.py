@@ -5,6 +5,7 @@ import yaml
 import zipfile
 
 from io import BytesIO, StringIO
+from django.db.models import Q
 from django.utils.translation import ugettext as _
 
 from apps.core.models import Pixel
@@ -88,14 +89,15 @@ def _get_pixelsets_dataframe_and_metadata(pixel_set_ids,
             'omics_unit__reference__identifier'
         )
 
+        qs = get_queryset_filtered_by_search_terms(
+            qs,
+            search_terms=search_terms
+        )
+
         for pixel in qs:
             omics_unit = pixel.omics_unit.reference.identifier
-
-            # filter by search_terms if supplied
-            if search_terms and omics_unit not in search_terms:
-                continue
-
             description = pixel.omics_unit.reference.description
+
             link = '<a href="{}">{}</a>'.format(
                 pixel.omics_unit.reference.url,
                 omics_unit,
@@ -136,7 +138,23 @@ def _get_pixelsets_dataframe_and_metadata(pixel_set_ids,
     return df, meta
 
 
-def export_pixelsets(pixel_sets, search_terms=[]):
+def get_queryset_filtered_by_search_terms(qs, search_terms=None):
+    # we only filter by search terms when specified
+    if search_terms:
+        clauses = Q(
+            omics_unit__reference__description__icontains=search_terms[0]
+        )
+        for term in search_terms[1:]:
+            clauses &= Q(omics_unit__reference__description__icontains=term)
+
+        qs = qs.filter(
+            Q(omics_unit__reference__identifier__in=search_terms) | clauses
+        )
+
+    return qs
+
+
+def export_pixelsets(pixel_sets, search_terms=None):
     """This function exports a list of PixelSet objects as a ZIP archive.
 
     The (in-memory) ZIP archive contains a `meta.yaml` file and a `pixels.csv`
@@ -195,7 +213,7 @@ def export_pixelsets(pixel_sets, search_terms=[]):
     return stream
 
 
-def export_pixels(pixel_set, search_terms=[], output=None):
+def export_pixels(pixel_set, search_terms=None, output=None):
     """This function exports the Pixels of a given PixelSet as a CSV file.
 
     If the list of `search_terms` is empty, all Pixels will be exported.
@@ -218,10 +236,7 @@ def export_pixels(pixel_set, search_terms=[], output=None):
     """
 
     qs = pixel_set.pixels.select_related('omics_unit__reference')
-
-    # filter by search terms
-    if len(search_terms) > 0:
-        qs = qs.filter(omics_unit__reference__identifier__in=search_terms)
+    qs = get_queryset_filtered_by_search_terms(qs, search_terms=search_terms)
 
     data = list(
         qs.values_list(

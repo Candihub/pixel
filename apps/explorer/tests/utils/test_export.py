@@ -192,7 +192,7 @@ class ExportPixelSetsTestCase(CoreFixturesTestCase):
 
 class ExportPixelsTestCase(CoreFixturesTestCase):
 
-    def _export_pixels(self, pixel_set, search_terms=[]):
+    def _export_pixels(self, pixel_set, search_terms=None):
 
         csv = export_pixels(pixel_set, search_terms=search_terms)
         csv.seek(0)

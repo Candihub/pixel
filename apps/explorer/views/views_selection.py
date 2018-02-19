@@ -8,7 +8,10 @@ from django.views.generic.detail import BaseDetailView
 
 from apps.core.models import Pixel, PixelSet
 
-from ..utils import export_pixelsets_as_html
+from ..utils import (
+    export_pixelsets_as_html,
+    get_queryset_filtered_by_search_terms
+)
 
 from .helpers import (
     get_search_terms_from_session,
@@ -126,9 +129,10 @@ class PixelSetSelectionView(LoginRequiredMixin, GetSearchTermsMixin,
         )
 
         search_terms = self.get_search_terms(self.request.session)
-
-        if len(search_terms) > 0:
-            qs = qs.filter(omics_unit__reference__identifier__in=search_terms)
+        qs = get_queryset_filtered_by_search_terms(
+            qs,
+            search_terms=search_terms
+        )
 
         pixels_count = qs.count()
 
