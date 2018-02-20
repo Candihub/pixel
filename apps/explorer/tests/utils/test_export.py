@@ -373,8 +373,8 @@ class ExportPixelsetsAsHtmlTestCase(CoreFixturesTestCase):
           </tbody>
         </table>
         """.format(
-          id_1=pixel_sets[0].get_short_uuid(),
-          id_2=pixel_sets[1].get_short_uuid(),
+            id_1=pixel_sets[0].get_short_uuid(),
+            id_2=pixel_sets[1].get_short_uuid(),
         )
 
         pixel_set_ids = [pixelset.id for pixelset in pixel_sets]
@@ -408,8 +408,8 @@ class ExportPixelsetsAsHtmlTestCase(CoreFixturesTestCase):
           </tbody>
         </table>
         """.format(
-          id_1=pixel_sets[0].get_short_uuid(),
-          id_2=pixel_sets[1].get_short_uuid(),
+            id_1=pixel_sets[0].get_short_uuid(),
+            id_2=pixel_sets[1].get_short_uuid(),
         )
 
         # here, we create str ids to make sure the function handles uuid.UUID
@@ -423,8 +423,8 @@ class ExportPixelsetsAsHtmlTestCase(CoreFixturesTestCase):
 
         pixel_set = factories.PixelSetFactory.create()
         pixels = factories.PixelFactory.create_batch(
-          2,
-          pixel_set=pixel_set
+            2,
+            pixel_set=pixel_set
         )
 
         pixel_set_ids = [pixel_set.id]
@@ -440,11 +440,11 @@ class ExportPixelsetsAsHtmlTestCase(CoreFixturesTestCase):
           <td>{quality_score}</td>
         </tr>
         """.format(
-          url=reference_1.url,
-          identifier=reference_1.identifier,
-          description=reference_1.description,
-          value=pixels[0].value,
-          quality_score=pixels[0].quality_score,
+            url=reference_1.url,
+            identifier=reference_1.identifier,
+            description=reference_1.description,
+            value=pixels[0].value,
+            quality_score=pixels[0].quality_score,
         )
 
         expected_row_2 = """
@@ -456,11 +456,11 @@ class ExportPixelsetsAsHtmlTestCase(CoreFixturesTestCase):
           <td>{quality_score}</td>
         </tr>
         """.format(
-          url=reference_2.url,
-          identifier=reference_2.identifier,
-          description=reference_2.description,
-          value=pixels[1].value,
-          quality_score=pixels[1].quality_score,
+            url=reference_2.url,
+            identifier=reference_2.identifier,
+            description=reference_2.description,
+            value=pixels[1].value,
+            quality_score=pixels[1].quality_score,
         )
 
         html = export_pixelsets_as_html(pixel_set_ids=pixel_set_ids)
@@ -475,8 +475,8 @@ class ExportPixelsetsAsHtmlTestCase(CoreFixturesTestCase):
         pixel_set_ids = [pixel_set.id]
 
         html = export_pixelsets_as_html(
-          pixel_set_ids=pixel_set_ids,
-          display_limit=1
+            pixel_set_ids=pixel_set_ids,
+            display_limit=1
         )
         self.assertInHTML('<th>0</th>', html)
         self.assertNotInHTML('<th>1</th>', html)
@@ -485,16 +485,16 @@ class ExportPixelsetsAsHtmlTestCase(CoreFixturesTestCase):
 
         pixel_set = factories.PixelSetFactory.create()
         pixels = factories.PixelFactory.create_batch(
-          2,
-          pixel_set=pixel_set
+            2,
+            pixel_set=pixel_set
         )
 
         pixel_set_ids = [pixel_set.id]
         omics_units = [pixels[0].omics_unit.reference.identifier]
 
         html = export_pixelsets_as_html(
-          pixel_set_ids=pixel_set_ids,
-          search_terms=omics_units,
+            pixel_set_ids=pixel_set_ids,
+            search_terms=omics_units,
         )
         self.assertInHTML('<th>0</th>', html)
         self.assertNotInHTML('<th>1</th>', html)
@@ -504,8 +504,8 @@ class ExportPixelsetsAsHtmlTestCase(CoreFixturesTestCase):
         entity = EntryFactory.create()
         pixel_sets = factories.PixelSetFactory.create_batch(2)
         pixel_1 = factories.PixelFactory.create(
-          omics_unit__reference=entity,
-          pixel_set=pixel_sets[0]
+            omics_unit__reference=entity,
+            pixel_set=pixel_sets[0]
         )
         pixel_2 = factories.PixelFactory.create(
             omics_unit__reference=entity,
@@ -525,14 +525,36 @@ class ExportPixelsetsAsHtmlTestCase(CoreFixturesTestCase):
           <td>{quality_score_2}</td>
         </tr>
         """.format(
-          url=entity.url,
-          identifier=entity.identifier,
-          description=entity.description,
-          value_1=pixel_1.value,
-          quality_score_1=pixel_1.quality_score,
-          value_2=pixel_2.value,
-          quality_score_2=pixel_2.quality_score,
+            url=entity.url,
+            identifier=entity.identifier,
+            description=entity.description,
+            value_1=pixel_1.value,
+            quality_score_1=pixel_1.quality_score,
+            value_2=pixel_2.value,
+            quality_score_2=pixel_2.quality_score,
         )
 
         html = export_pixelsets_as_html(pixel_set_ids=pixel_set_ids)
         self.assertInHTML(expected_row, html)
+
+        self.assertNotIn('<span class="highlight">', html)
+
+    def test_filters_by_terms_in_description(self):
+
+        pixel_set = factories.PixelSetFactory.create()
+        pixels = factories.PixelFactory.create_batch(
+            2,
+            pixel_set=pixel_set
+        )
+
+        pixel_set_ids = [pixel_set.id]
+        first_words = pixels[0].omics_unit.reference.description.split(' ')[:2]
+
+        html = export_pixelsets_as_html(
+            pixel_set_ids=pixel_set_ids,
+            search_terms=first_words,
+        )
+        self.assertInHTML('<th>0</th>', html)
+        self.assertNotInHTML('<th>1</th>', html)
+
+        self.assertIn('<span class="highlight">', html)
