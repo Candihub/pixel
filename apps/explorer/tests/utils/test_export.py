@@ -255,11 +255,11 @@ class ExportPixelsTestCase(CoreFixturesTestCase):
         selected_pixel = pixels[1]
 
         description = selected_pixel.omics_unit.reference.description
-        first_word = description.split(' ')[0]
+        first_words = description.split(' ')[:2]
 
         pixels_csv = self._export_pixels(
             pixel_set,
-            search_terms=[first_word]
+            search_terms=first_words
         )
 
         assert len(pixels_csv['Omics Unit'].items()) == 1
