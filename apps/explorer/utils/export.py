@@ -299,9 +299,22 @@ def export_pixelsets_as_html(pixel_set_ids,
         with_links=True,
     )
 
+    search_terms_re = (
+        r'({})'.format('|'.join(search_terms)) if search_terms else None
+    )
+
     html = df.to_html(
         escape=False,
         max_rows=display_limit,
+        formatters={
+            # Highlight search terms in description column
+            'Description': lambda description: re.sub(
+                search_terms_re,
+                '<span class="highlight">\\1</span>',
+                description,
+                flags=re.IGNORECASE
+            ) if search_terms_re else description,
+        },
     ).replace(' border="1"', '')  # pandas hardcodes table borders...
 
     # replace the empty table body with a message.
