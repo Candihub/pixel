@@ -51,6 +51,10 @@
       {% trans "Completion date:" %}
       {{ pixelset.analysis.completed_at | date }}
     </span>
+    <span class="analysis-id">
+      {% trans "ID:" %}
+      {{ pixelset.analysis.get_short_uuid }}
+    </span>
   </td>
   <td class="experiments">
     <!-- Experiment -->

@@ -98,7 +98,12 @@
 
     .completed-at {
       @include label;
-      background-color: $info-color;
+      background-color: darken($info-color, 5%);
+    }
+
+    .analysis-id {
+      @include label;
+      background-color: darken($info-color, 20%);
     }
 
     .released-at {
