@@ -240,11 +240,11 @@ class PixelSetSelectionValuesViewTestCase(GetSearchTermsMixin,
         selected_pixel = self.pixels[0]
 
         description = selected_pixel.omics_unit.reference.description
-        first_word = description.split(' ')[0]
+        first_words = description.split(' ')[:2]
 
         # set search terms in session
         response = self.client.post(reverse('explorer:pixelset_selection'), {
-            'search_terms': first_word,
+            'search_terms': first_words,
         }, follow=True)
 
         self.assertRedirects(response, reverse('explorer:pixelset_selection'))
