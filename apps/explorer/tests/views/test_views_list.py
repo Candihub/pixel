@@ -691,6 +691,52 @@ class PixelSetListViewTestCase(CoreFixturesTestCase):
             html=True,
         )
 
+    def test_search_filter_with_analysis_id(self):
+
+        # Create 8 pixelset
+        make_development_fixtures(
+            n_pixel_sets=8,
+            n_pixels_per_set=1
+        )
+
+        pixel_set = models.PixelSet.objects.all()[4]
+        analysis_id = pixel_set.analysis.id
+
+        # no filter
+        response = self.client.get(self.url)
+        self.assertContains(
+            response,
+            '<tr class="pixelset">',
+            count=8
+        )
+
+        data = {
+            # search by short uuid
+            'search': str(analysis_id.hex[:7])
+        }
+        response = self.client.get(self.url, data)
+        self.assertContains(
+            response,
+            '<tr class="pixelset">',
+            count=1
+        )
+        self.assertContains(
+            response,
+            (
+                '<td class="filename">'
+                '<a'
+                f'  href="{pixel_set.get_absolute_url()}"'
+                '  title="More information about this Pixel Set"'
+                '>'
+                '<!-- Pixel Set file name -->'
+                f'{filename(pixel_set.pixels_file.name)}'
+                '</a>'
+                '</td>'
+            ),
+            count=1,
+            html=True,
+        )
+
     def test_search_filter_with_keywords(self):
 
         # Create 8 pixelset

@@ -59,7 +59,8 @@ class PixelSetFiltersForm(forms.Form):
             }
         ),
         help_text=_(
-            "Type a gene name or a key word, e.g. CAGL0A02321g or LIMMA"
+            'Type a gene name, an analysis ID or a keyword, e.g. CAGL0A02321g,'
+            ' c4236e3 or LIMMA'
         ),
         required=False,
     )
@@ -110,8 +111,8 @@ class PixelSetSubsetSelectionForm(forms.Form):
             }
         ),
         help_text=_(
-            'Type omics units or words separated by a comma, a carriage return'
-            ' or a space.'
+            'Type omics units or keywords separated by a comma, a carriage'
+            ' return or a space.'
         ),
         required=False,
     )
