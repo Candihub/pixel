@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load explorer %}
 
 <section class="preview-pixels">
   <h4>
@@ -36,7 +37,7 @@
               </a>
             </td>
             <td class="description">
-              {{ pixel.omics_unit.reference.description }}
+              {{ pixel.omics_unit.reference.description | highlight_terms:search_terms }}
             </td>
             <td class="value">
               {{ pixel.value }}

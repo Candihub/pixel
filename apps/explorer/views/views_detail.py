@@ -83,6 +83,7 @@ class PixelSetDetailView(LoginRequiredMixin, GetSearchTermsMixin,
             'pixels': pixels,
             'pixels_count': qs.count(),
             'pixels_limit': self.pixels_limit,
+            'search_terms': search_terms,
             'total_count': self.object.pixels.count(),
             'pixelset_experiments': self.object.analysis.experiments.all(),
         })
