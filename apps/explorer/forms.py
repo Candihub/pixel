@@ -110,8 +110,8 @@ class PixelSetSubsetSelectionForm(forms.Form):
             }
         ),
         help_text=_(
-            'Type omics units separated by a comma, a carriage return or a'
-            ' space'
+            'Type omics units or words separated by a comma, a carriage return'
+            ' or a space.'
         ),
         required=False,
     )

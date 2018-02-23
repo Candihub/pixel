@@ -244,7 +244,10 @@ class PixelSetSelectionValuesViewTestCase(GetSearchTermsMixin,
 
         # set search terms in session
         response = self.client.post(reverse('explorer:pixelset_selection'), {
-            'search_terms': first_words,
+            # here, we pass a single term made of two words to hopefully match
+            # only one omics unit (randomly generated values are... sometimes
+            # annoying).
+            'search_terms': ' '.join(first_words),
         }, follow=True)
 
         self.assertRedirects(response, reverse('explorer:pixelset_selection'))

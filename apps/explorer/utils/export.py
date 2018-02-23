@@ -9,6 +9,7 @@ from django.db.models import Q
 from django.utils.translation import ugettext as _
 
 from apps.core.models import Pixel
+from apps.explorer.templatetags.explorer import highlight_terms
 
 
 PIXELSET_EXPORT_META_FILENAME = 'meta.yaml'
@@ -299,21 +300,15 @@ def export_pixelsets_as_html(pixel_set_ids,
         with_links=True,
     )
 
-    search_terms_re = (
-        r'({})'.format('|'.join(search_terms)) if search_terms else None
-    )
-
     html = df.to_html(
         escape=False,
         max_rows=display_limit,
         formatters={
             # Highlight search terms in description column
-            'Description': lambda description: re.sub(
-                search_terms_re,
-                '<span class="highlight">\\1</span>',
+            'Description': lambda description: highlight_terms(
                 description,
-                flags=re.IGNORECASE
-            ) if search_terms_re else description,
+                search_terms
+            ),
         },
     ).replace(' border="1"', '')  # pandas hardcodes table borders...
 
