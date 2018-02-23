@@ -42,28 +42,28 @@ class ConcatTestCase(TestCase):
 
 class HighlightTermsTestCase(TestCase):
 
-    def test_highlight_returns_text_when_empty_words(self):
+    def test_returns_text_when_empty_words(self):
 
         expected = 'foo bar baz'
-        assert explorer.highlight('foo bar baz', []) == expected
+        assert explorer.highlight_terms('foo bar baz', []) == expected
 
-    def test_highlight_returns_text_when_no_words(self):
+    def test_returns_text_when_no_words(self):
 
         expected = 'foo bar baz'
-        assert explorer.highlight('foo bar baz', None) == expected
+        assert explorer.highlight_terms('foo bar baz', None) == expected
 
     def test_highlight_terms(self):
 
         expected = '<span class="highlight">foo</span> bar baz'
-        assert explorer.highlight('foo bar baz', ['foo']) == expected
+        assert explorer.highlight_terms('foo bar baz', ['foo']) == expected
 
-    def test_highlight_matches_all_occurences(self):
+    def test_matches_all_occurences(self):
 
         expected = (
             '<span class="highlight">foo</span> bar baz'
             ' nope <span class="highlight">foo</span> bar baz'
         )
-        assert explorer.highlight(
+        assert explorer.highlight_terms(
             'foo bar baz nope foo bar baz',
             ['foo']
         ) == expected
