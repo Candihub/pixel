@@ -89,6 +89,7 @@ class PixelSetListView(LoginRequiredMixin, FormMixin, ListView):
             search = form.cleaned_data.get('search')
             if len(search):
                 qs = qs.filter(
+                    Q(analysis__id__istartswith=search) |
                     Q(analysis__experiments__description__icontains=search) |
                     Q(analysis__description__icontains=search) |
                     Q(pixel__omics_unit__reference__identifier__iexact=search)
