@@ -595,3 +595,55 @@ class DataTableDetailViewTestCase(TestCase):
         with pytest.raises(NotImplementedError):
             view = DataTableDetailViewWithNoGetHeaders()
             view.get_headers()
+
+
+class PixelSetDetailClearViewTestCase(GetSearchTermsMixin,
+                                      CoreFixturesTestCase):
+
+    def setUp(self):
+
+        self.user = factories.PixelerFactory(
+            is_active=True,
+            is_staff=True,
+            is_superuser=True,
+        )
+        self.client.login(
+            username=self.user.username,
+            password=factories.PIXELER_PASSWORD,
+        )
+        self.pixel_set = factories.PixelSetFactory()
+        self.pixels = factories.PixelFactory.create_batch(
+            2,
+            pixel_set=self.pixel_set
+        )
+        self.url = self.pixel_set.get_absolute_url()
+
+    def test_clear_search_terms_in_session(self):
+
+        session = self.client.session
+        omics_unit_id = self.pixels[0].omics_unit.reference.identifier
+
+        self.assertIsNone(self.get_search_terms(session, default=None))
+
+        response = self.client.post(self.url, {
+            'search_terms': omics_unit_id,
+        }, follow=True)
+
+        self.assertEqual(
+            self.get_search_terms(self.client.session, default=None),
+            [omics_unit_id]
+        )
+
+        # no let's clear the search terms
+        response = self.client.post(
+            reverse(
+                'explorer:pixelset_detail_clear',
+                kwargs={'pk': str(self.pixel_set.id)}
+            )
+        )
+
+        self.assertRedirects(response, self.url)
+        self.assertEqual(
+            self.get_search_terms(self.client.session, default=None),
+            []
+        )

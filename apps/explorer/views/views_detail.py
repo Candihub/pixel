@@ -1,14 +1,15 @@
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.utils import timezone
+from django.utils.translation import ugettext as _
 from django.views.generic import DetailView
 from django.views.generic.detail import BaseDetailView
-
 from apps.core.models import PixelSet
 
 from ..utils import export_pixels, get_queryset_filtered_by_search_terms
 
-from .helpers import get_search_terms_from_session
+from .helpers import get_search_terms_from_session, set_search_terms_to_session
 from .mixins import DataTableMixin, SubsetSelectionMixin
 
 
@@ -124,3 +125,27 @@ class PixelSetExportPixelsView(LoginRequiredMixin, GetSearchTermsMixin,
         )
 
         return response
+
+
+class PixelSetDetailClearView(LoginRequiredMixin, BaseDetailView):
+
+    http_method_names = ['post', ]
+    model = PixelSet
+    search_terms_session_key = 'pixelset_detail_search_terms'
+
+    def post(self, request, *args, **kwargs):
+
+        set_search_terms_to_session(
+            request.session,
+            key=self.search_terms_session_key,
+            search_terms=[]
+        )
+
+        messages.success(request, _("The selection has been cleared."))
+
+        return HttpResponseRedirect(
+            request.POST.get(
+                'redirect_to',
+                self.get_object().get_absolute_url()
+            )
+        )

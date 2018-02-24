@@ -3,7 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext as _
 from django.urls.base import reverse
-from django.views.generic import TemplateView, View
+from django.views.generic import RedirectView, TemplateView, View
 from django.views.generic.detail import BaseDetailView
 
 from apps.core.models import Pixel, PixelSet
@@ -16,6 +16,7 @@ from ..utils import (
 from .helpers import (
     get_search_terms_from_session,
     get_selected_pixel_sets_from_session,
+    set_search_terms_to_session,
 )
 from .mixins import DataTableMixin, SubsetSelectionMixin
 
@@ -159,3 +160,27 @@ class PixelSetSelectionView(LoginRequiredMixin, GetSearchTermsMixin,
     def get_success_url(self):
 
         return reverse('explorer:pixelset_selection')
+
+
+class PixelSetSelectionClearView(LoginRequiredMixin, RedirectView):
+
+    http_method_names = ['post', ]
+    search_terms_session_key = 'pixelset_selection_search_terms'
+
+    def get_redirect_url(self, *args, **kwargs):
+        return self.request.POST.get(
+            'redirect_to',
+            reverse('explorer:pixelset_selection')
+        )
+
+    def post(self, request, *args, **kwargs):
+
+        set_search_terms_to_session(
+            request.session,
+            key=self.search_terms_session_key,
+            search_terms=[]
+        )
+
+        messages.success(request, _("The selection has been cleared."))
+
+        return super().post(request, *args, **kwargs)

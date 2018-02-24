@@ -130,6 +130,7 @@ class PixelSetClearView(LoginRequiredMixin, RedirectView):
     http_method_names = ['post', ]
 
     def get_redirect_url(self, *args, **kwargs):
+
         return self.request.POST.get(
             'redirect_to',
             reverse('explorer:pixelset_list')

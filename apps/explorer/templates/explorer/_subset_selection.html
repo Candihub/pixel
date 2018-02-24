@@ -6,7 +6,8 @@
 
   <p>
     {% blocktrans %}
-      Copy/paste a list of Omics Units below to select a subset of pixels.
+      Copy/paste a list of Omics Units or enter keywords to match in the
+      descriptions of the different genes to select a subset of pixels.
     {% endblocktrans %}
   </p>
 
@@ -19,7 +20,7 @@
 
     {% include "foundation/form.html" %}
 
-    <p>
+    <p class="pixel-selection-form-actions">
       <button type="submit" class="button secondary">
         {% trans "Preview" %}
       </button>
@@ -53,7 +54,22 @@
           {% endif %}
         {% endwith %}
       {% endif %}
-    <p>
+    </p>
+  </form>
+
+  {% if is_selection %}
+  <form action="{% url 'explorer:pixelset_selection_clear' %}" method="post" class="clear-form">
+  {% else %}
+  <form action="{% url 'explorer:pixelset_detail_clear' pixelset.id %}" method="post" class="clear-form">
+  {% endif %}
+    {% csrf_token %}
+    <input type="hidden" name="redirect_to" value="{{ request.build_absolute_uri }}">
+    <input
+      type="submit"
+      name="clear"
+      value="{% trans "Clear" %}"
+      class="button secondary clear action-clear"
+    />
   </form>
 
   <hr>

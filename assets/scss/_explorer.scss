@@ -25,6 +25,17 @@
     .help-text {
       margin-top: 0.4rem;
     }
+
+    @include breakpoint(large) {
+      .pixel-selection-form-actions {
+        margin-left: 75px;
+      }
+
+      .clear-form {
+        width: 100px;
+        margin-top: -72px;
+      }
+    }
   }
 
   .distributions {

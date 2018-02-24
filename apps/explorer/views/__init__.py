@@ -1,6 +1,7 @@
 from .views_detail import (
-    DataTableDetailView, PixelSetDetailQualityScoresView,
-    PixelSetDetailValuesView, PixelSetDetailView, PixelSetExportPixelsView,
+    DataTableDetailView, PixelSetDetailClearView,
+    PixelSetDetailQualityScoresView, PixelSetDetailValuesView,
+    PixelSetDetailView, PixelSetExportPixelsView,
 )
 from .views_list import (
     PixelSetClearView, PixelSetDeselectView, PixelSetExportView,
@@ -8,7 +9,7 @@ from .views_list import (
 )
 from .views_selection import (
     DataTableCumulativeView, DataTableSelectionView,
-    PixelSetSelectionCumulativeValuesView,
+    PixelSetSelectionClearView, PixelSetSelectionCumulativeValuesView,
     PixelSetSelectionCumulativeQualityScoresView, PixelSetSelectionValuesView,
     PixelSetSelectionView, PixelSetSelectionQualityScoresView,
 )
@@ -20,6 +21,7 @@ __all__ = [
     DataTableSelectionView,
     PixelSetClearView,
     PixelSetDeselectView,
+    PixelSetDetailClearView,
     PixelSetDetailQualityScoresView,
     PixelSetDetailValuesView,
     PixelSetDetailView,
@@ -27,6 +29,7 @@ __all__ = [
     PixelSetExportView,
     PixelSetListView,
     PixelSetSelectView,
+    PixelSetSelectionClearView,
     PixelSetSelectionCumulativeQualityScoresView,
     PixelSetSelectionCumulativeValuesView,
     PixelSetSelectionQualityScoresView,
