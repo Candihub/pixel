@@ -581,3 +581,50 @@ class PixelSetSelectionCumulativeValuesViewTestCase(CoreFixturesTestCase):
 
         rows = data['rows']
         self.assertEqual(len(rows), 0)
+
+
+class PixelSetSelectionClearViewTestCase(GetSearchTermsMixin,
+                                         CoreFixturesTestCase):
+
+    def setUp(self):
+
+        self.user = factories.PixelerFactory(
+            is_active=True,
+            is_staff=True,
+            is_superuser=True,
+        )
+        self.client.login(
+            username=self.user.username,
+            password=factories.PIXELER_PASSWORD,
+        )
+        self.url = reverse('explorer:pixelset_selection_clear')
+
+    def test_clear_search_terms_in_session(self):
+
+        # select 2 pixel sets
+        pixel_sets = factories.PixelSetFactory.create_batch(2)
+        data = {
+            'pixel_sets': [str(p.id) for p in pixel_sets]
+        }
+        self.client.post(
+            reverse('explorer:pixelset_select'), data, follow=True
+        )
+
+        search_terms = ['a-omics-unit']
+        response = self.client.post(reverse('explorer:pixelset_selection'), {
+            'search_terms': search_terms,
+        }, follow=True)
+
+        self.assertEqual(
+            self.get_search_terms(self.client.session, default=None),
+            search_terms
+        )
+
+        # no let's clear the search terms
+        response = self.client.post(self.url)
+
+        self.assertRedirects(response, reverse('explorer:pixelset_selection'))
+        self.assertEqual(
+            self.get_search_terms(self.client.session, default=None),
+            []
+        )
