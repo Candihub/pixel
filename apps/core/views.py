@@ -77,7 +77,7 @@ class HomeView(TemplateView):
                 " from core_tag;"
             ))
 
-        return render(request, 'core/home-authenticated.html', {
+            return render(request, 'core/home-authenticated.html', {
                 'pixels_by_species': {
                     'title': _('Pixels by Species'),
                     'data': [[row.name, row.nb] for row in pixels_by_species],
