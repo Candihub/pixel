@@ -3,32 +3,214 @@
 {% load i18n %}
 
 {% block content %}
-  <h2>{% trans "Welcome to Pixel" %}</h2>
+<style> html{min-width: 600px} </style>
+<h2 style="text-align : center;">{% trans "Welcome to Pixel" %}</h2>
 
+<div style="text-align:center; width:100%; min-width:500px">
+    <a
+      href="{% url 'explorer:pixelset_list' %}"
+      class="button"
+    >
+      {% trans "Search in Pixel" %}
+    </a>
+</div>
+
+<h4 style="text-align: center;"> Different organisms... </h4>
   <div class="grid-x">
-    <div class="cell">
-      <div id="pixels-by-species" style="height: 500px"></div>
+    <div class="cell large-6">
+      <div id="pixels-by-species" style="height: 400px"></div>
     </div>
+    <div class="cell large-6" style="margin: auto;">
+      <!-- coming soon -->
+    </div>
+  </div>
+
+  <h4 style="text-align: center;"> ...with different types of data... </h4>
+  <div class="grid-x">
+    <div class="cell large-6" style="margin: auto;">
+      <!-- coming soon -->
+    </div>
+    <div class="cell large-6">
+      <div id="pixels_by_OmicsUnitType" style="height: 400px"></div>
+    </div>
+  </div>
+
+  <h4 style="text-align: center;"> ... in different areas... </h4>
+  <div class="grid-x">
+    <div class="cell large-6">
+      <div id="pixels_by_OmicsArea" style="height: 400px"></div>
+    </div>
+    <div class="cell large-6" style="margin: auto;">
+      <!-- coming soon -->
+    </div>
+  </div>
+
+  <h4 style="text-align: center;"> ... characterized by tags. </h4>
+  <div class="grid-x">
+    <div class="cell large-6">
+        <div id="tags_charts" style="height: 400px;  "></div>
+    </div>
+    <div class="cell large-6" style="margin: auto;">
+      <!-- coming soon -->
+    </div>
+  </div>
+
+  <h4 style="text-align: center;"> New data added over time... </h4>
+  <div class="grid-x">
+    <div class="cell large-12" style="margin: auto;">
+      <!-- coming soon -->
+    </div>
+    <div class="cell large-12">
+      <div id = "CD_div" style="width:100%;">
+        <div id="calendar_basic" style="height: 200px; width: 600px"></div>
+      </div>
+
+    </div>
+  </div>
+
+<h4 style="text-align: center;"> ...by a community of experts. </h4>
+  <div class="grid-x">
+    <div class="cell large-6" style="margin: auto;">
+      <!-- coming soon -->
+    </div>
+    <div class="cell large-6">
+        <table style="margin: 0 auto;">
+          <thead>
+            <tr>
+              <th width="200">Names</th>
+              <th>Email</th>
+              <th width="150">Date joined</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for first_name,last_name, email, date in pixelers_infos.data %}
+            <tr>
+              <td>{{first_name}} {{last_name}}</td>
+              <td>{{email}}</td>
+              <td>{{date}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+    </div>
+
   </div>
 {% endblock content %}
 
 {% block javascript %}
   <script type="text/javascript" src="//www.gstatic.com/charts/loader.js"></script>
   <script type="text/javascript">
-    google.charts.load('current', {'packages':['corechart']});
+
+    document.getElementById('CD_div').style.paddingLeft = ((parseInt(document.getElementById('CD_div').offsetWidth)-600)/2)+'px';
+    document.getElementById('CD_div').style.paddingRight = ((parseInt(document.getElementById('CD_div').offsetWidth)-600)/2)+'px';
+
+    document.getElementById('main').style.paddingLeft = '30px';
+    document.getElementById('main').style.paddingRight = '30px';
+
+    google.charts.load('current', {'packages':['corechart', 'bar', 'calendar']});
     google.charts.setOnLoadCallback(drawCharts);
+    google.charts.setOnLoadCallback(drawBasic);
 
     function drawCharts() {
+
+      /* Graphic 1 : Pixels by Species */
       var pixelBySpecies = new google.visualization.PieChart(
         document.getElementById('pixels-by-species')
       );
-      pixelBySpecies.draw(
-        google.visualization.arrayToDataTable(
-          {{ pixels_by_species.data|safe }},
-          true
-        ),
-        { title: '{{ pixels_by_species.title }}' }
+
+      var datable_pixels_by_species = new google.visualization.arrayToDataTable(
+        {{ pixels_by_species.data|safe }},
+        true
+      )
+
+      pixelBySpecies.draw(datable_pixels_by_species);
+
+      /* Graphic 2 : Pixels by omics_unit_type */
+
+      var pixelByOmicsUnitType = new google.visualization.PieChart(
+        document.getElementById('pixels_by_OmicsUnitType')
       );
+
+      pixelByOmicsUnitType.draw(
+        google.visualization.arrayToDataTable(
+          {{ pixels_by_OmicsUnitType.data|safe }},
+          true
+        )
+      );
+
+      /* Graphic 3 : Pixels by omics area */
+
+      var pixelByOmicsArea = new google.visualization.PieChart(
+        document.getElementById('pixels_by_OmicsArea')
+      );
+
+      pixelByOmicsArea.draw(
+        google.visualization.arrayToDataTable(
+          {{ pixels_by_OmicsArea.data|safe }},
+          true
+        )
+      );
+
+      /* Graphic 5 : Saved analysis by month */
+
+      var dataTable = new google.visualization.DataTable();
+      dataTable.addColumn({ type: 'date', id: 'Date' });
+      dataTable.addColumn({ type: 'number', id: 'Analysis' });
+      dataTable.addRows([
+        {% for date, count in saved_analysis.data %}
+        /* Google chart calendar default : months start in 0 */
+          [ new Date("{{date}}".split(",")[0], "{{date}}".split(",")[1] - 1, "{{date}}".split(",")[2]), {{count}} ],
+        {% endfor %}
+       ]);
+
+      var chart = new google.visualization.Calendar(document.getElementById('calendar_basic'));
+
+      var options = {
+        calendar: { cellSize: 10 },
+        colorAxis:{minValue: 0,  colors: ['#ffff00', '#ff3300']}
+      };
+
+      chart.draw(dataTable, options);
+
     }
+
+    function drawBasic() {
+
+      var data_tags = new google.visualization.arrayToDataTable(
+        {{ tags_infos.data|safe }},
+        true
+      )
+      var options_tags = {
+        legend: {position: 'none'},
+
+        hAxis: {
+          title: 'Tags'
+        },
+        vAxis: {
+          title: 'Number of tags'
+        }
+      };
+
+      var chart_tags = new google.visualization.ColumnChart(
+        document.getElementById('tags_charts'));
+
+      chart_tags.draw(data_tags, options_tags);
+    }
+
+    function resize () {
+      drawCharts()
+      drawBasic();
+      document.getElementById('CD_div').style.paddingLeft = ((parseInt(document.getElementById('CD_div').offsetWidth)-600)/2)+'px';
+      document.getElementById('CD_div').style.paddingRight = ((parseInt(document.getElementById('CD_div').offsetWidth)-600)/2)+'px';
+      document.body.clientWidth;
+
+    }
+    if (window.addEventListener) {
+        window.addEventListener('resize', resize);
+    }
+    else {
+        window.attachEvent('onresize', resize);
+    }
+
   </script>
 {% endblock javascript %}
