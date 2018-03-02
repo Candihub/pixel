@@ -158,7 +158,8 @@
       dataTable.addColumn({ type: 'number', id: 'Analysis' });
       dataTable.addRows([
         {% for date, count in saved_analysis.data %}
-          [ new Date({{date}}), {{count}} ],
+        /* Google chart calendar default : months start in 0 */
+          [ new Date("{{date}}".split(",")[0], "{{date}}".split(",")[1] - 1, "{{date}}".split(",")[2]), {{count}} ],
         {% endfor %}
        ]);
 

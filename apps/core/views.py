@@ -53,6 +53,7 @@ class HomeView(TemplateView):
                 '   core_Experiment.id'
                 ' JOIN core_OmicsArea'
                 '   ON core_Experiment.omics_area_id = core_OmicsArea.id'
+                ' where core_OmicsArea.level = 0'
                 ' GROUP BY core_OmicsArea.name'
             ))
 
