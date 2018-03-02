@@ -9,13 +9,16 @@
     <div class="cell">
       <div id="pixels-by-species" style="height: 500px"></div>
     </div>
+    <div class="cell">
+      <div id="omicsarea-tree"></div>
+    </div>
   </div>
 {% endblock content %}
 
 {% block javascript %}
   <script type="text/javascript" src="//www.gstatic.com/charts/loader.js"></script>
   <script type="text/javascript">
-    google.charts.load('current', {'packages':['corechart']});
+    google.charts.load('current', {'packages':['corechart', 'orgchart']});
     google.charts.setOnLoadCallback(drawCharts);
 
     function drawCharts() {
@@ -28,6 +31,17 @@
           true
         ),
         { title: '{{ pixels_by_species.title }}' }
+      );
+
+      var omicsareaTree = new google.visualization.OrgChart(
+        document.getElementById('omicsarea-tree')
+      );
+      omicsareaTree.draw(
+        google.visualization.arrayToDataTable(
+          {{ omics_area_tree.data|safe }},
+          true
+        ),
+        { title: '{{ omics_area_tree.title }}' }
       );
     }
   </script>
