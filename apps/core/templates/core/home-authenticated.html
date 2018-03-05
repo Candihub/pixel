@@ -12,6 +12,9 @@
     <div class="cell">
       <div id="omicsarea-tree" class="unstriped"></div>
     </div>
+    <div class="cell">
+      <div id="pixels-by-omics-unit-type" style="height: 500px"></div>
+    </div>
   </div>
 {% endblock content %}
 
@@ -43,6 +46,18 @@
           true
         ),
         { title: '{{ omics_area_tree.title }}' }
+      );
+
+      var pixelsByOmicsUnitType = new google.visualization.PieChart(
+        document.getElementById('pixels-by-omics-unit-type')
+      );
+
+      pixelsByOmicsUnitType.draw(
+        google.visualization.arrayToDataTable(
+          {{ pixels_by_omics_unit_type.data|safe }},
+          true
+        ),
+        { title: '{{ pixels_by_omics_unit_type.title }}' }
       );
     }
   </script>
