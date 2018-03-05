@@ -5,7 +5,7 @@
 {% block content %}
   <h2>{% trans "Welcome to Pixel" %}</h2>
 
-  <div class="grid-x">
+  <div class="grid-x dashboard">
     <div class="cell">
       <div id="pixels-by-species" style="height: 500px"></div>
     </div>
@@ -54,6 +54,13 @@
 
     <div class="cell">
       <div id="analysis-calendar" style="height: 200px; width: 600px"></div>
+    </div>
+
+    <div class="cell">
+      <p class="google-title">
+        {% trans "Number of Pixels" %}
+      </p>
+      <span class="count-value">{{ number_of_pixels }}</span>
     </div>
   </div>
 {% endblock content %}
