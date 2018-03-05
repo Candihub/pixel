@@ -35,6 +35,17 @@ class HomeView(TemplateView):
                 " ON core_omicsarea_1.parent_id = core_omicsarea_2.id;"
             ))
 
+            pixels_by_omics_unit_type = Pixel.objects.raw((
+                'SELECT core_omicsunittype.name AS name, count(*) AS nb,'
+                ' 1 AS id'  # this is a hack to overcome Django ORM limitations
+                ' FROM core_pixel'
+                ' JOIN core_omicsunit'
+                '   ON omics_unit_id = core_omicsunit.id'
+                ' JOIN core_omicsunittype'
+                '   ON core_omicsunit.type_id = core_omicsunittype.id'
+                ' GROUP BY core_omicsunittype.name'
+            ))
+
             return render(request, 'core/home-authenticated.html', {
                 'pixels_by_species': {
                     'title': _('Pixels by Species'),
@@ -45,6 +56,12 @@ class HomeView(TemplateView):
                     'title': _('Omics area tree'),
                     'data': [[row.area, row.parent] for row
                              in omics_area_tree],
+                },
+
+                'pixels_by_omics_unit_type': {
+                    'title': _('Pixels by Omics unit type'),
+                    'data': [[row.name, row.nb] for row in
+                             pixels_by_omics_unit_type],
                 },
             })
 
