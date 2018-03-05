@@ -4,6 +4,7 @@ from django.shortcuts import render
 
 
 from apps.core.models import Pixel
+from apps.core.models import Pixeler
 
 
 class HomeView(TemplateView):
@@ -66,6 +67,8 @@ class HomeView(TemplateView):
                 ' GROUP BY core_omicsarea.name'
             ))
 
+            number_of_pixelers = Pixeler.objects.count()
+
             return render(request, 'core/home-authenticated.html', {
                 'pixels_by_species': {
                     'title': _('Pixels by Species'),
@@ -90,6 +93,7 @@ class HomeView(TemplateView):
                              pixels_by_omics_area],
                 },
 
+                'number_of_pixelers': number_of_pixelers,
 
             })
 
