@@ -1,11 +1,18 @@
-#omicsarea-tree tr {
-  background: transparent;
-}
+.dashboard {
+  #omicsarea-tree tr {
+    background: transparent;
+  }
 
-.google-title {
-  color: $black;
-  font-family: 'Arial';
-  font-size: 15px;
-  font-weight: bold;
-  text-align: center;
+  .google-title {
+    color: $black;
+    font-family: 'Arial';
+    font-size: 15px;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  .count-value {
+    font-size: 3em;
+    text-align: center;
+  }
 }

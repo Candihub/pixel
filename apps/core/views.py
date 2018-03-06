@@ -69,8 +69,10 @@ class HomeView(TemplateView):
             count_tags = Tag.objects.values('slug', 'count')
 
             pixelers = Pixeler.objects.values(
-                "first_name", "last_name", "last_name", "date_joined",
-            ).order_by("last_name")
+                'first_name', 'last_name', 'last_name', 'date_joined',
+            ).order_by('last_name')
+
+            number_of_pixels = Pixel.objects.count()
 
             count_analyses = Analysis.objects.raw((
                 "SELECT TO_CHAR(saved_at, 'YYYY-MM-DD') AS date,"
@@ -108,6 +110,7 @@ class HomeView(TemplateView):
                     'title': _('Date of analysis submission'),
                     'data': count_analyses,
                 },
+                'number_of_pixels': number_of_pixels,
             })
 
         return super().get(request, *args, **kwargs)
