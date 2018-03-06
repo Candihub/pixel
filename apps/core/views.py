@@ -69,7 +69,7 @@ class HomeView(TemplateView):
             count_tags = Tag.objects.values('slug', 'count')
 
             pixelers = Pixeler.objects.values(
-                'first_name', 'last_name', 'last_name', 'date_joined',
+                'first_name', 'last_name', 'email', 'date_joined',
             ).order_by('last_name')
 
             number_of_pixels = Pixel.objects.count()

@@ -1,66 +1,118 @@
 {% extends "base.html" %}
+{% block body_class %}{{ block.super }} dashboard{% endblock %}
 
 {% load i18n %}
 
 {% block content %}
   <h2>{% trans "Welcome to Pixel" %}</h2>
 
-  <div class="grid-x dashboard">
-    <div class="cell">
-      <div id="pixels-by-species" style="height: 500px"></div>
+  <div class="grid-x grid-padding-x grid-padding-y">
+    <div class="cell medium-3">
+      <div class="widget">
+        <p class="google-title">
+          {% trans "Number of Pixels" %}
+        </p>
+        <span class="count-value">{{ number_of_pixels }}</span>
+      </div>
     </div>
 
-    <div class="cell">
-      <div id="omicsarea-tree" class="unstriped"></div>
+    <div class="cell medium-3">
+      <div class="widget">
+        <p class="google-title">
+          {% trans "Number of Pixels" %}
+        </p>
+        <span class="count-value">{{ number_of_pixels }}</span>
+      </div>
     </div>
 
-    <div class="cell">
-      <div id="pixels-by-omics-area" style="height: 500px"></div>
+    <div class="cell medium-3">
+      <div class="widget">
+        <p class="google-title">
+          {% trans "Number of Pixels" %}
+        </p>
+        <span class="count-value">{{ number_of_pixels }}</span>
+      </div>
     </div>
 
-    <div class="cell">
-      <div id="pixels-by-omics-unit-type" style="height: 500px"></div>
+    <div class="cell medium-3">
+      <div class="widget">
+        <p class="google-title">
+          {% trans "Number of Pixels" %}
+        </p>
+        <span class="count-value">{{ number_of_pixels }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-x grid-padding-x grid-padding-y">
+    <div class="cell medium-6">
+      <div class="widget">
+        <div id="pixels-by-species"></div>
+      </div>
     </div>
 
-    <div class="cell">
-      <div id="count-tags" style="height: 400px;"></div>
+    <div class="cell medium-6">
+      <div class="widget">
+        <div id="pixels-by-omics-unit-type"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-x grid-padding-x grid-padding-y">
+    <div class="cell medium-6">
+      <div class="widget">
+        <div id="pixels-by-omics-area"></div>
+      </div>
     </div>
 
+    <div class="cell medium-6">
+      <div class="widget">
+        <div id="omicsarea-tree" class="unstriped"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-x grid-padding-x grid-padding-y">
     <div class="cell">
-      <p class="google-title">
-        {% trans "Who are the Pixelers?" %}
-      </p>
-      <table>
-        <thead>
-          <tr>
-            <th>{% trans "Name" %}</th>
-            <th>{% trans "Email" %}</th>
-            <th>{% trans "Joined on" %}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for pixeler in pixelers %}
-          <tr>
-            <td>{{ pixeler.first_name }} {{ pixeler.last_name }}</td>
-            <td>
-              <a href="mailto:{{ pixeler.email }}">{{ pixeler.email }}</a>
-            </td>
-            <td>{{ pixeler.date_joined|date:'Y-m-d' }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+      <div class="widget">
+        <div id="analysis-calendar"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-x grid-padding-x grid-padding-y">
+    <div class="cell  medium-6">
+      <div class="widget">
+        <div id="count-tags"></div>
+      </div>
     </div>
 
-    <div class="cell">
-      <div id="analysis-calendar" style="height: 200px; width: 600px"></div>
-    </div>
-
-    <div class="cell">
-      <p class="google-title">
-        {% trans "Number of Pixels" %}
-      </p>
-      <span class="count-value">{{ number_of_pixels }}</span>
+    <div class="cell medium-6">
+      <div class="widget">
+        <p class="google-title">
+          {% trans "Who are the Pixelers?" %}
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>{% trans "Name" %}</th>
+              <th>{% trans "Email" %}</th>
+              <th>{% trans "Joined on" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for pixeler in pixelers %}
+            <tr>
+              <td>{{ pixeler.first_name }} {{ pixeler.last_name }}</td>
+              <td>
+                <a href="mailto:{{ pixeler.email }}">{{ pixeler.email }}</a>
+              </td>
+              <td>{{ pixeler.date_joined|date:'Y-m-d' }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 {% endblock content %}
