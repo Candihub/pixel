@@ -3,8 +3,7 @@ from django.views.generic import TemplateView
 from django.shortcuts import render
 
 
-from apps.core.models import Pixel
-from apps.core.models import Tag
+from apps.core.models import Pixel, Pixeler, Tag
 
 
 class HomeView(TemplateView):
@@ -69,6 +68,10 @@ class HomeView(TemplateView):
 
             count_tags = Tag.objects.values('slug', 'count')
 
+            pixelers = Pixeler.objects.values(
+                "first_name", "last_name", "last_name", "date_joined",
+            ).order_by("last_name")
+
             return render(request, 'core/home-authenticated.html', {
                 'pixels_by_species': {
                     'title': _('Pixels by Species'),
@@ -92,6 +95,7 @@ class HomeView(TemplateView):
                     'title': _('Tags'),
                     'data': [[row['slug'], row['count']] for row in count_tags]
                 },
+                'pixelers': pixelers,
             })
 
         return super().get(request, *args, **kwargs)

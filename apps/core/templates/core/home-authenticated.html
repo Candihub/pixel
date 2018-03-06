@@ -25,6 +25,32 @@
     <div class="cell">
       <div id="count-tags" style="height: 400px;"></div>
     </div>
+
+    <div class="cell">
+      <p class="google-title">
+        {% trans "Who are the Pixelers?" %}
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>{% trans "Name" %}</th>
+            <th>{% trans "Email" %}</th>
+            <th>{% trans "Joined on" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for pixeler in pixelers %}
+          <tr>
+            <td>{{ pixeler.first_name }} {{ pixeler.last_name }}</td>
+            <td>
+              <a href="mailto:{{ pixeler.email }}">{{ pixeler.email }}</a>
+            </td>
+            <td>{{ pixeler.date_joined|date:'Y-m-d' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 {% endblock content %}
 
@@ -98,6 +124,6 @@ function drawCharts() {
           }
         }
       );
-    }
+}
   </script>
 {% endblock javascript %}
