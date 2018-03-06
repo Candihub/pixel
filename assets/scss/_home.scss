@@ -1,17 +1,22 @@
 .dashboard {
   background: lighten($light-gray, 5%);
 
+  h2{
+    text-align: center;
+  }
+
   #omicsarea-tree tr {
     background: transparent;
   }
 
   .google-title,
-  .widget text:first-child {
+  {
     color: $black;
     font-family: 'Arial';
     font-size: 1rem;
     font-weight: bold;
     text-align: center;
+    margin: 0px;
   }
 
   .count-value {
@@ -31,6 +36,17 @@
     }
   }
 
+  .height-chart{
+    height: 250px;
+  }
+
+  .calendar{
+    height: 150px;
+    width: 700px;
+    display: block;
+    margin: 0 auto;
+  }
+  
   @include breakpoint(medium) {
     .cell:first-child {
       padding-left: 0;

@@ -46,13 +46,19 @@
 
   <div class="grid-x grid-padding-x grid-padding-y">
     <div class="cell medium-6">
-      <div class="widget">
+      <div class="widget height-chart">
+        <p class="google-title">
+          {% trans pixels_by_species.title %}
+        </p>
         <div id="pixels-by-species"></div>
       </div>
     </div>
 
     <div class="cell medium-6">
-      <div class="widget">
+      <div class="widget height-chart">
+        <p class="google-title">
+          {% trans pixels_by_omics_unit_type.title %}
+        </p>
         <div id="pixels-by-omics-unit-type"></div>
       </div>
     </div>
@@ -60,13 +66,19 @@
 
   <div class="grid-x grid-padding-x grid-padding-y">
     <div class="cell medium-6">
-      <div class="widget">
+      <div class="widget height-chart">
+        <p class="google-title">
+          {% trans pixels_by_omics_area.title %}
+        </p>
         <div id="pixels-by-omics-area"></div>
       </div>
     </div>
 
     <div class="cell medium-6">
-      <div class="widget">
+      <div class="widget height-chart">
+        <p class="google-title">
+          {% trans "Organisation of omics area" %}
+        </p>
         <div id="omicsarea-tree" class="unstriped"></div>
       </div>
     </div>
@@ -75,14 +87,20 @@
   <div class="grid-x grid-padding-x grid-padding-y">
     <div class="cell">
       <div class="widget">
-        <div id="analysis-calendar"></div>
+        <p class="google-title">
+          {% trans count_analyses.title %}
+        </p>
+        <div id="analysis-calendar" class="calendar"></div>
       </div>
     </div>
   </div>
 
   <div class="grid-x grid-padding-x grid-padding-y">
     <div class="cell  medium-6">
-      <div class="widget">
+      <div class="widget height-chart">
+        <p class="google-title">
+          {% trans count_tags.title %}
+        </p>
         <div id="count-tags"></div>
       </div>
     </div>
@@ -132,7 +150,10 @@
           {{ pixels_by_species.data|safe }},
           true
         ),
-        { title: '{{ pixels_by_species.title }}' }
+        {
+          legend:{textStyle:{fontSize:'15', fontName:'Arial'}},
+          tooltip:{textStyle:{fontSize:'15', fontName:'Arial'}},
+        }
       );
 
       var omicsareaTree = new google.visualization.OrgChart(
@@ -142,8 +163,7 @@
         google.visualization.arrayToDataTable(
           {{ omics_area_tree.data|safe }},
           true
-        ),
-        { title: '{{ omics_area_tree.title }}' }
+        )
       );
 
       var pixelsByOmicsUnitType = new google.visualization.PieChart(
@@ -154,7 +174,10 @@
           {{ pixels_by_omics_unit_type.data|safe }},
           true
         ),
-        { title: '{{ pixels_by_omics_unit_type.title }}' }
+        {
+          legend:{textStyle:{fontSize:'15', fontName:'Arial'}},
+          tooltip:{textStyle:{fontSize:'15', fontName:'Arial'}},
+        }
       );
 
       var pixelsByOmicsArea = new google.visualization.PieChart(
@@ -165,7 +188,10 @@
           {{ pixels_by_omics_area.data|safe }},
           true
         ),
-        { title: '{{ pixels_by_omics_area.title }}' }
+        {
+          legend:{textStyle:{fontSize:'15', fontName:'Arial'}},
+          tooltip:{textStyle:{fontSize:'15', fontName:'Arial'}},
+        }
       );
 
       var countTags = new google.visualization.ColumnChart(
@@ -177,14 +203,19 @@
           true
         ),
         {
-          title: '{% trans count_tags.title %}',
-          legend: { position: 'none' },
+          legend: { position: 'none', textStyle:{fontSize:'15', fontName:'Arial'}},
           hAxis: {
-            title: '{% trans "Tags" %}'
+            title: '{% trans "Tags" %}',
+            textStyle:{fontSize:'15', fontName:'Arial'},
+            titleTextStyle:{fontSize:'15', fontName:'Arial', bold:true}
           },
           vAxis: {
-            title: '{% trans "Number of tags" %}'
-          }
+            title: '{% trans "Number of tags" %}',
+            textStyle:{fontSize:'15', fontName:'Arial'},
+            titleTextStyle:{fontSize:'15', fontName:'Arial', bold:true}
+          },
+          tooltip:{textStyle:{fontSize:'15', fontName:'Arial'}},
+
         }
       );
 
@@ -208,8 +239,7 @@
       analysisCalendar.draw(
         dataTableCalendar,
         {
-          title: '{{ count_analyses.title }}' ,
-          calendar: { cellSize: 10 },
+          calendar: { cellSize: 12 },
           colorAxis: {
             minValue: 0,
             colors: ['#ffff00', '#ff3300'],
