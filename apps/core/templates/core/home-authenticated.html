@@ -46,13 +46,19 @@
 
   <div class="grid-x grid-padding-x grid-padding-y">
     <div class="cell medium-6">
-      <div class="widget">
+      <div class="widget fixed-height">
+        <p class="google-title">
+          {{ pixels_by_species.title }}
+        </p>
         <div id="pixels-by-species"></div>
       </div>
     </div>
 
     <div class="cell medium-6">
-      <div class="widget">
+      <div class="widget fixed-height">
+        <p class="google-title">
+          {{ pixels_by_omics_unit_type.title }}
+        </p>
         <div id="pixels-by-omics-unit-type"></div>
       </div>
     </div>
@@ -60,14 +66,20 @@
 
   <div class="grid-x grid-padding-x grid-padding-y">
     <div class="cell medium-6">
-      <div class="widget">
+      <div class="widget fixed-height">
+        <p class="google-title">
+          {{ pixels_by_omics_area.title }}
+        </p>
         <div id="pixels-by-omics-area"></div>
       </div>
     </div>
 
     <div class="cell medium-6">
-      <div class="widget">
-        <div id="omicsarea-tree" class="unstriped"></div>
+      <div class="widget fixed-height">
+        <p class="google-title">
+          {% trans "Organisation of omics area" %}
+        </p>
+        <div id="omicsarea-tree"></div>
       </div>
     </div>
   </div>
@@ -75,6 +87,9 @@
   <div class="grid-x grid-padding-x grid-padding-y">
     <div class="cell">
       <div class="widget">
+        <p class="google-title">
+          {{ count_analyses.title }}
+        </p>
         <div id="analysis-calendar"></div>
       </div>
     </div>
@@ -82,7 +97,10 @@
 
   <div class="grid-x grid-padding-x grid-padding-y">
     <div class="cell  medium-6">
-      <div class="widget">
+      <div class="widget fixed-height">
+        <p class="google-title">
+          {{ count_tags.title }}
+        </p>
         <div id="count-tags"></div>
       </div>
     </div>
@@ -92,26 +110,28 @@
         <p class="google-title">
           {% trans "Who are the Pixelers?" %}
         </p>
-        <table>
-          <thead>
-            <tr>
-              <th>{% trans "Name" %}</th>
-              <th>{% trans "Email" %}</th>
-              <th>{% trans "Joined on" %}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for pixeler in pixelers %}
-            <tr>
-              <td>{{ pixeler.first_name }} {{ pixeler.last_name }}</td>
-              <td>
-                <a href="mailto:{{ pixeler.email }}">{{ pixeler.email }}</a>
-              </td>
-              <td>{{ pixeler.date_joined|date:'Y-m-d' }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+        <div class="pixelers">
+          <table>
+            <thead>
+              <tr>
+                <th>{% trans "Name" %}</th>
+                <th>{% trans "Email" %}</th>
+                <th>{% trans "Joined on" %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for pixeler in pixelers %}
+              <tr>
+                <td>{{ pixeler.first_name }} {{ pixeler.last_name }}</td>
+                <td>
+                  <a href="mailto:{{ pixeler.email }}">{{ pixeler.email }}</a>
+                </td>
+                <td>{{ pixeler.date_joined|date:'Y-m-d' }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -120,8 +140,17 @@
 {% block javascript %}
   <script type="text/javascript" src="//www.gstatic.com/charts/loader.js"></script>
   <script type="text/javascript">
-    google.charts.load('current', {'packages':['corechart', 'orgchart' , 'calendar']});
+    google.charts.load('current', {
+      'packages': ['corechart', 'orgchart' , 'calendar'],
+    });
     google.charts.setOnLoadCallback(drawCharts);
+
+    var sharedStyle = {
+      textStyle: {
+        fontSize: '15',
+        fontName: 'Arial',
+      },
+    };
 
     function drawCharts() {
       var pixelBySpecies = new google.visualization.PieChart(
@@ -132,7 +161,10 @@
           {{ pixels_by_species.data|safe }},
           true
         ),
-        { title: '{{ pixels_by_species.title }}' }
+        {
+          legend: sharedStyle,
+          tooltip: sharedStyle,
+        }
       );
 
       var omicsareaTree = new google.visualization.OrgChart(
@@ -142,8 +174,7 @@
         google.visualization.arrayToDataTable(
           {{ omics_area_tree.data|safe }},
           true
-        ),
-        { title: '{{ omics_area_tree.title }}' }
+        )
       );
 
       var pixelsByOmicsUnitType = new google.visualization.PieChart(
@@ -154,7 +185,10 @@
           {{ pixels_by_omics_unit_type.data|safe }},
           true
         ),
-        { title: '{{ pixels_by_omics_unit_type.title }}' }
+        {
+          legend: sharedStyle,
+          tooltip: sharedStyle,
+        }
       );
 
       var pixelsByOmicsArea = new google.visualization.PieChart(
@@ -165,7 +199,10 @@
           {{ pixels_by_omics_area.data|safe }},
           true
         ),
-        { title: '{{ pixels_by_omics_area.title }}' }
+        {
+          legend: sharedStyle,
+          tooltip: sharedStyle,
+        }
       );
 
       var countTags = new google.visualization.ColumnChart(
@@ -177,14 +214,24 @@
           true
         ),
         {
-          title: '{% trans count_tags.title %}',
-          legend: { position: 'none' },
+          legend: Object.assign({}, sharedStyle, {
+            position: 'none',
+          }),
           hAxis: {
-            title: '{% trans "Tags" %}'
+            title: '{% trans "Tags" %}',
+            textStyle: sharedStyle,
+            titleTextStyle: Object.assign({}, sharedStyle, {
+              bold: true,
+            }),
           },
           vAxis: {
-            title: '{% trans "Number of tags" %}'
-          }
+            title: '{% trans "Number of tags" %}',
+            textStyle: sharedStyle,
+            titleTextStyle: Object.assign({}, sharedStyle, {
+              bold: true,
+            }),
+          },
+          tooltip: sharedStyle,
         }
       );
 
@@ -208,8 +255,10 @@
       analysisCalendar.draw(
         dataTableCalendar,
         {
-          title: '{{ count_analyses.title }}' ,
-          calendar: { cellSize: 10 },
+          calendar: {
+            cellSize: 12,
+            width: '100%',
+          },
           colorAxis: {
             minValue: 0,
             colors: ['#ffff00', '#ff3300'],

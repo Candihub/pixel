@@ -1,12 +1,15 @@
 .dashboard {
   background: lighten($light-gray, 5%);
 
+  h2 {
+    text-align: center;
+  }
+
   #omicsarea-tree tr {
     background: transparent;
   }
 
-  .google-title,
-  .widget text:first-child {
+  .google-title {
     color: $black;
     font-family: 'Arial';
     font-size: 1rem;
@@ -27,6 +30,27 @@
     text-align: center;
 
     & > * {
+      width: 100%;
+    }
+
+    &.fixed-height {
+      height: 280px;
+    }
+  }
+
+  #analysis-calendar {
+    height: 150px;
+    margin: 0 auto;
+    max-width: 600px;
+    text-align: center;
+  }
+
+  .pixelers {
+    max-height: 220px;
+    overflow-y: scroll;
+    width: 100%;
+
+    table {
       width: 100%;
     }
   }
