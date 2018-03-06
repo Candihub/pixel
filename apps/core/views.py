@@ -3,7 +3,8 @@ from django.views.generic import TemplateView
 from django.shortcuts import render
 
 
-from apps.core.models import Analysis, Pixel, Pixeler, Tag
+from apps.core.models import Analysis, Pixel, Pixeler, PixelSet, Tag
+from apps.data.models import Entry
 
 
 class HomeView(TemplateView):
@@ -74,6 +75,12 @@ class HomeView(TemplateView):
 
             number_of_pixels = Pixel.objects.count()
 
+            number_of_pixel_sets = PixelSet.objects.count()
+
+            number_of_pixelers = Pixeler.objects.count()
+
+            number_of_genomic_entries = Entry.objects.count()
+
             count_analyses = Analysis.objects.raw((
                 "SELECT TO_CHAR(saved_at, 'YYYY-MM-DD') AS date,"
                 " COUNT(*) AS nb,"
@@ -111,6 +118,10 @@ class HomeView(TemplateView):
                     'data': count_analyses,
                 },
                 'number_of_pixels': number_of_pixels,
+                'number_of_pixel_sets': number_of_pixel_sets,
+                'number_of_pixelers': number_of_pixelers,
+                'number_of_genomic_entries': number_of_genomic_entries,
+
             })
 
         return super().get(request, *args, **kwargs)
