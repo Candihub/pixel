@@ -51,19 +51,23 @@
         </tbody>
       </table>
     </div>
+
+    <div class="cell">
+      <div id="analysis-calendar" style="height: 200px; width: 600px"></div>
+    </div>
   </div>
 {% endblock content %}
 
 {% block javascript %}
   <script type="text/javascript" src="//www.gstatic.com/charts/loader.js"></script>
   <script type="text/javascript">
-    google.charts.load('current', {'packages':['corechart', 'orgchart']});
+    google.charts.load('current', {'packages':['corechart', 'orgchart' , 'calendar']});
     google.charts.setOnLoadCallback(drawCharts);
 
-function drawCharts() {
-  var pixelBySpecies = new google.visualization.PieChart(
-    document.getElementById('pixels-by-species')
-  );
+    function drawCharts() {
+      var pixelBySpecies = new google.visualization.PieChart(
+        document.getElementById('pixels-by-species')
+      );
       pixelBySpecies.draw(
         google.visualization.arrayToDataTable(
           {{ pixels_by_species.data|safe }},
@@ -124,6 +128,35 @@ function drawCharts() {
           }
         }
       );
-}
+
+      var dataTableCalendar = new google.visualization.DataTable();
+      dataTableCalendar.addColumn({
+        type: 'date',
+        id: '{% trans "Date" %}',
+      });
+      dataTableCalendar.addColumn({
+        type: 'number',
+        id: '{% trans "Analysis" %}',
+      });
+      dataTableCalendar.addRows([
+        {% for analysis in count_analyses.data %}
+        [ new Date('{{ analysis.date }}'), {{ analysis.nb }} ],
+        {% endfor %}
+      ]);
+      var analysisCalendar = new google.visualization.Calendar(
+        document.getElementById('analysis-calendar')
+      );
+      analysisCalendar.draw(
+        dataTableCalendar,
+        {
+          title: '{{ count_analyses.title }}' ,
+          calendar: { cellSize: 10 },
+          colorAxis: {
+            minValue: 0,
+            colors: ['#ffff00', '#ff3300'],
+          },
+        },
+      );
+    }
   </script>
 {% endblock javascript %}

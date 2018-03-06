@@ -3,7 +3,7 @@ from django.views.generic import TemplateView
 from django.shortcuts import render
 
 
-from apps.core.models import Pixel, Pixeler, Tag
+from apps.core.models import Analysis, Pixel, Pixeler, Tag
 
 
 class HomeView(TemplateView):
@@ -72,6 +72,14 @@ class HomeView(TemplateView):
                 "first_name", "last_name", "last_name", "date_joined",
             ).order_by("last_name")
 
+            count_analyses = Analysis.objects.raw((
+                "SELECT TO_CHAR(saved_at, 'YYYY-MM-DD') AS date,"
+                " COUNT(*) AS nb,"
+                ' 1 AS id'  # this is a hack to overcome Django ORM limitations
+                " FROM core_analysis"
+                " GROUP BY date;"
+            ))
+
             return render(request, 'core/home-authenticated.html', {
                 'pixels_by_species': {
                     'title': _('Pixels by Species'),
@@ -96,6 +104,10 @@ class HomeView(TemplateView):
                     'data': [[row['slug'], row['count']] for row in count_tags]
                 },
                 'pixelers': pixelers,
+                'count_analyses': {
+                    'title': _('Date of analysis submission'),
+                    'data': count_analyses,
+                },
             })
 
         return super().get(request, *args, **kwargs)
