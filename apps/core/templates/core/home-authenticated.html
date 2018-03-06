@@ -46,18 +46,18 @@
 
   <div class="grid-x grid-padding-x grid-padding-y">
     <div class="cell medium-6">
-      <div class="widget height-chart">
+      <div class="widget fixed-height">
         <p class="google-title">
-          {% trans pixels_by_species.title %}
+          {{ pixels_by_species.title }}
         </p>
         <div id="pixels-by-species"></div>
       </div>
     </div>
 
     <div class="cell medium-6">
-      <div class="widget height-chart">
+      <div class="widget fixed-height">
         <p class="google-title">
-          {% trans pixels_by_omics_unit_type.title %}
+          {{ pixels_by_omics_unit_type.title }}
         </p>
         <div id="pixels-by-omics-unit-type"></div>
       </div>
@@ -66,20 +66,20 @@
 
   <div class="grid-x grid-padding-x grid-padding-y">
     <div class="cell medium-6">
-      <div class="widget height-chart">
+      <div class="widget fixed-height">
         <p class="google-title">
-          {% trans pixels_by_omics_area.title %}
+          {{ pixels_by_omics_area.title }}
         </p>
         <div id="pixels-by-omics-area"></div>
       </div>
     </div>
 
     <div class="cell medium-6">
-      <div class="widget height-chart">
+      <div class="widget fixed-height">
         <p class="google-title">
           {% trans "Organisation of omics area" %}
         </p>
-        <div id="omicsarea-tree" class="unstriped"></div>
+        <div id="omicsarea-tree"></div>
       </div>
     </div>
   </div>
@@ -88,18 +88,18 @@
     <div class="cell">
       <div class="widget">
         <p class="google-title">
-          {% trans count_analyses.title %}
+          {{ count_analyses.title }}
         </p>
-        <div id="analysis-calendar" class="calendar"></div>
+        <div id="analysis-calendar"></div>
       </div>
     </div>
   </div>
 
   <div class="grid-x grid-padding-x grid-padding-y">
     <div class="cell  medium-6">
-      <div class="widget height-chart">
+      <div class="widget fixed-height">
         <p class="google-title">
-          {% trans count_tags.title %}
+          {{ count_tags.title }}
         </p>
         <div id="count-tags"></div>
       </div>
@@ -110,26 +110,28 @@
         <p class="google-title">
           {% trans "Who are the Pixelers?" %}
         </p>
-        <table>
-          <thead>
-            <tr>
-              <th>{% trans "Name" %}</th>
-              <th>{% trans "Email" %}</th>
-              <th>{% trans "Joined on" %}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for pixeler in pixelers %}
-            <tr>
-              <td>{{ pixeler.first_name }} {{ pixeler.last_name }}</td>
-              <td>
-                <a href="mailto:{{ pixeler.email }}">{{ pixeler.email }}</a>
-              </td>
-              <td>{{ pixeler.date_joined|date:'Y-m-d' }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+        <div class="pixelers">
+          <table>
+            <thead>
+              <tr>
+                <th>{% trans "Name" %}</th>
+                <th>{% trans "Email" %}</th>
+                <th>{% trans "Joined on" %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for pixeler in pixelers %}
+              <tr>
+                <td>{{ pixeler.first_name }} {{ pixeler.last_name }}</td>
+                <td>
+                  <a href="mailto:{{ pixeler.email }}">{{ pixeler.email }}</a>
+                </td>
+                <td>{{ pixeler.date_joined|date:'Y-m-d' }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -138,8 +140,17 @@
 {% block javascript %}
   <script type="text/javascript" src="//www.gstatic.com/charts/loader.js"></script>
   <script type="text/javascript">
-    google.charts.load('current', {'packages':['corechart', 'orgchart' , 'calendar']});
+    google.charts.load('current', {
+      'packages': ['corechart', 'orgchart' , 'calendar'],
+    });
     google.charts.setOnLoadCallback(drawCharts);
+
+    var sharedStyle = {
+      textStyle: {
+        fontSize: '15',
+        fontName: 'Arial',
+      },
+    };
 
     function drawCharts() {
       var pixelBySpecies = new google.visualization.PieChart(
@@ -151,8 +162,8 @@
           true
         ),
         {
-          legend:{textStyle:{fontSize:'15', fontName:'Arial'}},
-          tooltip:{textStyle:{fontSize:'15', fontName:'Arial'}},
+          legend: sharedStyle,
+          tooltip: sharedStyle,
         }
       );
 
@@ -175,8 +186,8 @@
           true
         ),
         {
-          legend:{textStyle:{fontSize:'15', fontName:'Arial'}},
-          tooltip:{textStyle:{fontSize:'15', fontName:'Arial'}},
+          legend: sharedStyle,
+          tooltip: sharedStyle,
         }
       );
 
@@ -189,8 +200,8 @@
           true
         ),
         {
-          legend:{textStyle:{fontSize:'15', fontName:'Arial'}},
-          tooltip:{textStyle:{fontSize:'15', fontName:'Arial'}},
+          legend: sharedStyle,
+          tooltip: sharedStyle,
         }
       );
 
@@ -203,19 +214,24 @@
           true
         ),
         {
-          legend: { position: 'none', textStyle:{fontSize:'15', fontName:'Arial'}},
+          legend: Object.assign({}, sharedStyle, {
+            position: 'none',
+          }),
           hAxis: {
             title: '{% trans "Tags" %}',
-            textStyle:{fontSize:'15', fontName:'Arial'},
-            titleTextStyle:{fontSize:'15', fontName:'Arial', bold:true}
+            textStyle: sharedStyle,
+            titleTextStyle: Object.assign({}, sharedStyle, {
+              bold: true,
+            }),
           },
           vAxis: {
             title: '{% trans "Number of tags" %}',
-            textStyle:{fontSize:'15', fontName:'Arial'},
-            titleTextStyle:{fontSize:'15', fontName:'Arial', bold:true}
+            textStyle: sharedStyle,
+            titleTextStyle: Object.assign({}, sharedStyle, {
+              bold: true,
+            }),
           },
-          tooltip:{textStyle:{fontSize:'15', fontName:'Arial'}},
-
+          tooltip: sharedStyle,
         }
       );
 
@@ -239,7 +255,10 @@
       analysisCalendar.draw(
         dataTableCalendar,
         {
-          calendar: { cellSize: 12 },
+          calendar: {
+            cellSize: 12,
+            width: '100%',
+          },
           colorAxis: {
             minValue: 0,
             colors: ['#ffff00', '#ff3300'],

@@ -1,7 +1,7 @@
 .dashboard {
   background: lighten($light-gray, 5%);
 
-  h2{
+  h2 {
     text-align: center;
   }
 
@@ -9,14 +9,12 @@
     background: transparent;
   }
 
-  .google-title,
-  {
+  .google-title {
     color: $black;
     font-family: 'Arial';
     font-size: 1rem;
     font-weight: bold;
     text-align: center;
-    margin: 0px;
   }
 
   .count-value {
@@ -34,19 +32,29 @@
     & > * {
       width: 100%;
     }
+
+    &.fixed-height {
+      height: 280px;
+    }
   }
 
-  .height-chart{
-    height: 250px;
-  }
-
-  .calendar{
+  #analysis-calendar {
     height: 150px;
-    width: 700px;
-    display: block;
     margin: 0 auto;
+    max-width: 600px;
+    text-align: center;
   }
-  
+
+  .pixelers {
+    max-height: 220px;
+    overflow-y: scroll;
+    width: 100%;
+
+    table {
+      width: 100%;
+    }
+  }
+
   @include breakpoint(medium) {
     .cell:first-child {
       padding-left: 0;
