@@ -4,6 +4,7 @@ from django.shortcuts import render
 
 
 from apps.core.models import Pixel
+from apps.core.models import Tag
 
 
 class HomeView(TemplateView):
@@ -36,7 +37,7 @@ class HomeView(TemplateView):
             ))
 
             pixels_by_omics_unit_type = Pixel.objects.raw((
-                'SELECT core_omicsunittype.name AS name, count(*) AS nb,'
+                'SELECT core_omicsunittype.name AS name, COUNT(*) AS nb,'
                 ' 1 AS id'  # this is a hack to overcome Django ORM limitations
                 ' FROM core_pixel'
                 ' JOIN core_omicsunit'
@@ -47,7 +48,7 @@ class HomeView(TemplateView):
             ))
 
             pixels_by_omics_area = Pixel.objects.raw((
-                'SELECT core_omicsarea.name AS name, count(*) AS nb,'
+                'SELECT core_omicsarea.name AS name, COUNT(*) AS nb,'
                 ' 1 AS id'  # this is a hack to overcome Django ORM limitations
                 ' FROM core_pixel'
                 ' JOIN core_pixelset'
@@ -66,31 +67,31 @@ class HomeView(TemplateView):
                 ' GROUP BY core_omicsarea.name'
             ))
 
+            count_tags = Tag.objects.values('slug', 'count')
+
             return render(request, 'core/home-authenticated.html', {
                 'pixels_by_species': {
                     'title': _('Pixels by Species'),
-                    'data': [[row.name, row.nb] for row in pixels_by_species],
+                    'data': [[row.name, row.nb] for row in pixels_by_species]
                 },
-
                 'omics_area_tree': {
                     'title': _('Omics area tree'),
-                    'data': [[row.area, row.parent] for row
-                             in omics_area_tree],
+                    'data': [[row.area, row.parent] for row in omics_area_tree]
                 },
-
                 'pixels_by_omics_unit_type': {
                     'title': _('Pixels by Omics unit type'),
                     'data': [[row.name, row.nb] for row in
                              pixels_by_omics_unit_type],
                 },
-
                 'pixels_by_omics_area': {
                     'title': _('Pixels by Omics area'),
                     'data': [[row.name, row.nb] for row in
                              pixels_by_omics_area],
                 },
-
-
+                'count_tags': {
+                    'title': _('Tags'),
+                    'data': [[row['slug'], row['count']] for row in count_tags]
+                },
             })
 
         return super().get(request, *args, **kwargs)
