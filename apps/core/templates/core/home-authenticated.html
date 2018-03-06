@@ -6,27 +6,76 @@
   <h2>{% trans "Welcome to Pixel" %}</h2>
 
   <div class="grid-x dashboard">
-    <div class="cell">
+
+    <div class="cell medium-3">
+      <p class="google-title">
+        {% trans "Number of Pixels" %}
+      </p>
+      <span class="count-value">{{ number_of_pixels }}</span>
+    </div>
+
+    <div class="cell medium-3">
+      <p class="google-title">
+        {% trans "Number of Pixels" %}
+      </p>
+      <span class="count-value">{{ number_of_pixels }}</span>
+    </div>
+
+    <div class="cell medium-3">
+      <p class="google-title">
+        {% trans "Number of Pixels" %}
+      </p>
+      <span class="count-value">{{ number_of_pixels }}</span>
+    </div>
+
+    <div class="cell medium-3">
+      <p class="google-title">
+        {% trans "Number of Pixels" %}
+      </p>
+      <span class="count-value">{{ number_of_pixels }}</span>
+    </div>
+
+  </div>
+
+  <div class="grid-x dashboard">
+
+    <div class="cell medium-6">
       <div id="pixels-by-species" style="height: 500px"></div>
     </div>
 
-    <div class="cell">
-      <div id="omicsarea-tree" class="unstriped"></div>
-    </div>
-
-    <div class="cell">
-      <div id="pixels-by-omics-area" style="height: 500px"></div>
-    </div>
-
-    <div class="cell">
+    <div class="cell medium-6">
       <div id="pixels-by-omics-unit-type" style="height: 500px"></div>
     </div>
 
+  </div>
+
+  <div class="grid-x dashboard">
+
+    <div class="cell medium-6">
+      <div id="pixels-by-omics-area" style="height: 500px"></div>
+    </div>
+
+    <div class="cell medium-6">
+      <div id="omicsarea-tree" class="unstriped"></div>
+    </div>
+
+  </div>
+
+  <div class="grid-x dashboard">
+
     <div class="cell">
+      <div id="analysis-calendar" style="height: 200px; width: 600px"></div>
+    </div>
+
+  </div>
+
+  <div class="grid-x dashboard">
+
+    <div class="cell  medium-6">
       <div id="count-tags" style="height: 400px;"></div>
     </div>
 
-    <div class="cell">
+    <div class="cell medium-6">
       <p class="google-title">
         {% trans "Who are the Pixelers?" %}
       </p>
@@ -52,16 +101,6 @@
       </table>
     </div>
 
-    <div class="cell">
-      <div id="analysis-calendar" style="height: 200px; width: 600px"></div>
-    </div>
-
-    <div class="cell">
-      <p class="google-title">
-        {% trans "Number of Pixels" %}
-      </p>
-      <span class="count-value">{{ number_of_pixels }}</span>
-    </div>
   </div>
 {% endblock content %}
 
