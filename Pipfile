@@ -20,7 +20,7 @@ pandas = "*"
 background = "*"
 django-spurl = "*"
 pyyaml = "*"
-gviz_api = "*"
+gviz-api = "*"
 
 
 [dev-packages]
