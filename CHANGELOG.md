@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.0.0 (2018/03/13)
+
+* Add multi-pixel sets explorer
+* Add dashboard with many metrics
+* Add search terms highlighting
+* Improve performances with large data sets
+* Minor bug fixes and improvements
+
 ## 3.0.0 (2018/02/04)
 
 * Add feature gene name to entry.description while importing database entries
