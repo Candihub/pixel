@@ -29,7 +29,7 @@ In order to release a new (stable) version (_e.g._, `1.1.0`), you must:
 
 1. create a new branch, _e.g._ `release-1.1.0`
 2. update the version number of the project by updating the following files:
-   `VERSION`, `pixel/__init__.py` and `package.json`
+   `VERSION`, `pixel/__init__.py`, `package.json` and `.zenodo.json`
 3. update the `CHANGELOG` file with a description of the new features, bug
    fixes, and so on for the end users
 4. commit the version changes as well as the updated `CHANGELOG` file (_e.g._,

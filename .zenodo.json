@@ -1,0 +1,39 @@
+{
+    "title": "Pixel (v4.0.0): Integration of smart 'omics' data",
+    "creators": [{
+        "name": "Durand, William",
+        "orcid": "0000-0001-6925-8200"
+    },
+    {
+        "name": "Maupetit, Julien",
+        "orcid": "0000-0001-6285-6646"
+    }, 
+    {
+        "name": "Denecker, Thomas",
+        "orcid": "0000-0003-1421-7641"
+    },
+    {
+        "name": "Hébert, Charles",
+        "orcid": "0000-0003-1271-795X"
+    },
+    {
+        "name": "Poulain, Pierre",
+        "orcid": "0000-0003-4177-3619"
+    },
+    {
+        "name": "Lelandais, Gaëlle",
+        "orcid": "0000-0002-2842-6172"
+    }],
+    "description": "This repository contains the archived release for the software Pixel",
+    "access_right": "open",
+    "license": "bsd-3-clause-license",
+    "keywords": [
+        "Omics",
+        "Proteomics",
+        "Genomics",
+        "Python",
+        "Django",
+        "Docker"
+    ],
+    "upload_type": "software"
+}
