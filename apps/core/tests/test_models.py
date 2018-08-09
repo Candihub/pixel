@@ -549,7 +549,7 @@ class ExperimentTestCase(TestCase):
         experiment.tags = ', '.join(tags)
         experiment.save()
 
-        self.assertEqual(models.Tag.objects.count(), len(experiment.tags))
+        self.assertEqual(models.Tag.objects.count(), experiment.tags.count())
         self.assertEqual(models.Tag.objects.count(), len(tags))
 
     def test_can_add_hierarchical_tags_to_experiment(self):
@@ -648,7 +648,6 @@ class AnalysisTestCase(TestCase):
         analysis.tags = tags
         analysis.save()
 
-        self.assertEqual(analysis.tags.count(), len(analysis.tags))
         self.assertEqual(analysis.tags.count(), len(tags))
 
     def test_can_add_hierarchical_tags_to_analysis(self):
