@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.1 (2018/08/09)
+
+* Upgrade dependencies (#294) to fix importation issue (#292)
+
 ## 4.0.0 (2018/03/13)
 
 * Add multi-pixel sets explorer
