@@ -203,3 +203,12 @@ class ParseXLSXTemplateTestCase(CoreFixturesTestCase):
             'after TRIS base addition in the cell growth media.'
         )
         assert meta['datasets'][1][3] == expected
+
+    def test_parse_template_with_second_omics_unit_type(self):
+        """Test selected Omics Unit Type when the second choice is selected"""
+
+        meta_path = Path('apps/submission/fixtures/dataset-0002/meta.xlsx')
+        meta = parse_template(meta_path)
+
+        rna = OmicsUnitType.objects.get(name='mRNA')
+        assert meta['datasets'][0][1] == rna

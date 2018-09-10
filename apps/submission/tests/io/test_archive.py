@@ -9,7 +9,8 @@ from apps.core.factories import (
     AnalysisFactory, ExperimentFactory, PixelerFactory
 )
 from apps.core.models import (
-    Analysis, Experiment, OmicsArea, OmicsUnitType, Pixel, Strain
+    Analysis, Experiment, OmicsArea, OmicsUnitType, Pixel, PixelSet,
+    Strain
 )
 from apps.core.tests import CoreFixturesTestCase
 from apps.data.factories import EntryFactory
@@ -204,6 +205,35 @@ class PixelArchiveTestCase(LoadCGDMixin, CoreFixturesTestCase):
         self._load_cgd_entries()
         archive.save(pixeler=self.pixeler)
         self.assertEqual(Pixel.objects.count(), 3716)
+        self.assertEqual(Experiment.objects.count(), 1)
+        self.assertEqual(Analysis.objects.count(), 1)
+
+    def test_save_twice_the_same_archive(self):
+
+        archive_path = Path(
+            'apps/submission/fixtures/dataset-0002.zip'
+        )
+        archive = PixelArchive(archive_path)
+        archive.parse()
+
+        self.assertEqual(Pixel.objects.count(), 0)
+        self._load_cgd_entries()
+
+        # First time importation
+        archive.save(pixeler=self.pixeler)
+        self.assertEqual(PixelSet.objects.count(), 1)
+        self.assertEqual(len(PixelSet.objects.get().get_omics_unit_types()), 1)
+        self.assertEqual(Pixel.objects.count(), 7)
+        self.assertEqual(Experiment.objects.count(), 1)
+        self.assertEqual(Analysis.objects.count(), 1)
+
+        # Second importation of the same archive must not create duplicates
+        archive = PixelArchive(archive_path)
+        archive.parse()
+        archive.save(pixeler=self.pixeler)
+        self.assertEqual(PixelSet.objects.count(), 1)
+        self.assertEqual(len(PixelSet.objects.get().get_omics_unit_types()), 1)
+        self.assertEqual(Pixel.objects.count(), 7)
         self.assertEqual(Experiment.objects.count(), 1)
         self.assertEqual(Analysis.objects.count(), 1)
 
