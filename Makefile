@@ -46,7 +46,10 @@ bootstrap: ## install development dependencies
 		$(MANAGE) loaddata apps/core/fixtures/initial_data.json; \
 		$(MANAGE) make_development_fixtures; \
 	fi
-	@if [ -z "$$CI" ] || [ -n "$$CI_BUILD_FRONTEND" ]; then $(YARN_RUN) install -D; ${MAKE} build-css; fi
+	@if [ -z "$$CI" ] || [ -n "$$CI_BUILD_FRONTEND" ]; then \
+		$(YARN_RUN) install -D; \
+		${MAKE} build-css; \
+	fi
 .PHONY: bootstrap
 
 watch-css: ## continuously build CSS

@@ -150,7 +150,9 @@ class PixelSetParser(object):
         OmicsUnit.objects.bulk_create(omics_units)
 
         return OmicsUnit.objects.filter(
-            reference__identifier__in=identifiers
+            reference__identifier__in=identifiers,
+            strain=self.strain,
+            type=self.omics_unit_type,
         )
 
     def _to_pixels(self):

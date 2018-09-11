@@ -291,6 +291,44 @@ class PixelTestCase(LoadCGDMixin, CoreFixturesTestCase):
         parser.save()
         self.assertEqual(Pixel.objects.count(), 1837)
 
+    def test_save_with_same_reference_omics_units(self):
+
+        # Create two OmicsUnits with the same identifier but for different
+        # strains/types
+        identifier = 'CAGL0B00990g'
+        OmicsUnitFactory(
+            reference=EntryFactory(identifier=identifier),
+            strain=StrainFactory(),
+            type=OmicsUnitTypeFactory()
+        )
+        OmicsUnitFactory(
+            reference=EntryFactory(identifier=identifier),
+            strain=self.strain,
+            type=self.omics_unit_type
+        )
+
+        parser = PixelSetParser(
+            Path(
+                'apps/submission/fixtures/dataset-0002/data.txt'
+            ),
+            description=self.description,
+            analysis=self.analysis,
+            omics_unit_type=self.omics_unit_type,
+            strain=self.strain,
+        )
+        parser.parse()
+        self._load_cgd_entries()
+
+        self.assertEqual(Pixel.objects.count(), 0)
+        parser.save()
+        # Even if we've created two OmicsUnits with the same reference
+        # identifier, only the pixel corresponding to the OmicsUnit with the
+        # relevant strain & OmicsUnitType will be imported. Hence, we expect
+        # to have created 7 pixels and not 8, see:
+        # - https://github.com/Candihub/pixel/pull/292
+        # - https://github.com/Candihub/pixel/pull/296
+        self.assertEqual(Pixel.objects.count(), 7)
+
     def test_save_with_existing_pixel(self):
 
         parser = PixelSetParser(

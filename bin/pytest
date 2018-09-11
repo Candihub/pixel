@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+source "$(dirname "${BASH_SOURCE[0]}")/config.sh"
+
+docker_compose_test run --rm -v $PWD:/app/pixel web pytest "$@"
