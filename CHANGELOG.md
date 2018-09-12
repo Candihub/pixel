@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.0.2 (2018/09/12)
+
+* Upgrade dependencies & fix importation issue (#292)
+* Add pytest sugar script
+
 ## 4.0.1 (2018/08/09)
 
 * Upgrade dependencies (#294) to fix importation issue (#292)
