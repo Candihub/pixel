@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.4 (2018/09/24)
+
+* Fix bug with Zenodo automatic export
+
 ## 4.0.3 (2018/09/24)
 
 * Add installation documentation
