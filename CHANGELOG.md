@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.3 (2018/09/24)
+
+* Add installation documentation
+
 ## 4.0.2 (2018/09/12)
 
 * Upgrade dependencies & fix importation issue (#292)
