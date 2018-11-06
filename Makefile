@@ -19,6 +19,10 @@ COMPOSE_TEST         = docker-compose -f docker-compose.test.yml -p pixel-test
 COMPOSE_TEST_RUN     = $(COMPOSE_TEST) run --rm
 COMPOSE_TEST_RUN_WEB = $(COMPOSE_TEST_RUN) web
 
+# User
+UID = $(shell id -u)
+GID = $(shell id -g)
+
 # node
 #
 # $YARN_VERSION environment variable is defined in node container, but hopefully
@@ -38,7 +42,7 @@ default: help
 
 bootstrap: ## install development dependencies
 	@if [ -z "$$CI" ] || [ -n "$$CI_BUILD_BACKEND" ]; then \
-		$(COMPOSE) build web; \
+		$(COMPOSE) build --build-arg UID=$(UID) --build-arg GID=$(GID) web; \
 		echo 'Waiting until database is up'; \
 		sleep 20; \
 		${MAKE} migrate-db; \
@@ -131,11 +135,11 @@ rebuild: ## rebuild docker development and test containers
 .PHONY: rebuild
 
 rebuild-dev: ## rebuild the development container
-	@$(COMPOSE) build web
+	@$(COMPOSE) build --build-arg UID=$(UID) --build-arg GID=$(GID) web
 .PHONY: rebuild-dev
 
 rebuild-test: ## rebuild the test container
-	@$(COMPOSE_TEST) build web
+	@$(COMPOSE_TEST) build --build-arg UID=$(UID) --build-arg GID=$(GID) web
 .PHONY: rebuild-test
 
 help:

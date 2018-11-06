@@ -2,6 +2,9 @@ FROM python:3.6
 
 # Development build
 ARG IS_NOT_PRODUCTION
+# User/Group IDs
+ARG UID=10001
+ARG GID=10001
 
 # Build-time metadata as defined at http://label-schema.org
 ARG BUILD_DATE
@@ -22,8 +25,8 @@ RUN pip install pipenv --upgrade
 
 # Add a non-privileged user for installing and running
 # the application
-RUN groupadd --gid 10001 app && \
-    useradd --uid 10001 --gid 10001 --home /app --create-home app
+RUN groupadd --gid $GID app && \
+    useradd --uid $UID --gid $GID --home /app --create-home app
 
 RUN su app -c "mkdir /app/pixel"
 
