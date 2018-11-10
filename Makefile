@@ -20,8 +20,8 @@ COMPOSE_TEST_RUN     = $(COMPOSE_TEST) run --rm
 COMPOSE_TEST_RUN_WEB = $(COMPOSE_TEST_RUN) web
 
 # User
-UID = $(shell id -u)
-GID = $(shell id -g)
+UID ?= $(shell id -u)
+GID ?= $(shell id -g)
 
 # node
 #
