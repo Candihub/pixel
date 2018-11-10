@@ -107,6 +107,7 @@ class PixelAdmin(admin.ModelAdmin):
         'omics_unit__type', 'pixel_set__analysis__experiments__omics_area',
         'pixel_set__analysis__tags'
     )
+    readonly_fields = ('omics_unit', )
 
     def get_analysis_description(self, obj):
         return obj.pixel_set.analysis.description
