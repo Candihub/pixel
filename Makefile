@@ -20,6 +20,7 @@ COMPOSE_TEST_RUN     = $(COMPOSE_TEST) run --rm
 COMPOSE_TEST_RUN_WEB = $(COMPOSE_TEST_RUN) web
 
 # User
+# For the `?=` operator, see: https://www.gnu.org/software/make/manual/make.html#Flavors
 UID ?= $(shell id -u)
 GID ?= $(shell id -g)
 
