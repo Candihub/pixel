@@ -4,16 +4,11 @@ FONTS_DIR         = static/fonts
 FOUNDATION_PATH = node_modules/foundation-sites
 FA_PATH = node_modules/font-awesome
 
-# Node
-YARN_RUN = yarn
-NODEMON  = $(YARN_RUN) nodemon
-POSTCSS  = $(YARN_RUN) postcss
-SASS     = $(YARN_RUN) node-sass
-
 # Docker
 COMPOSE              = bin/compose
 COMPOSE_RUN          = $(COMPOSE) run --rm
 COMPOSE_RUN_WEB      = $(COMPOSE_RUN) web
+COMPOSE_RUN_NODE     = $(COMPOSE_RUN) node
 MANAGE               = bin/manage
 COMPOSE_TEST         = docker-compose -f docker-compose.test.yml -p pixel-test
 COMPOSE_TEST_RUN     = $(COMPOSE_TEST) run --rm
