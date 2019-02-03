@@ -17,29 +17,3 @@ have to be reproduced.**
    bottom of the new repository page).
 4. Copy the repository token available from [repo
    settings](https://coveralls.io/github/Candihub/pixel/settings).
-
-## CircleCI integration
-
-1. Add a [new environment
-   variable](https://circleci.com/gh/Candihub/pixel/edit#env-vars) to CircleCI
-   settings:  `COVERALLS_REPO_TOKEN` with the repository token as value (see
-   previous section).
-2. Add `coveralls` to project development dependencies
-3. Add `coveralls` as a `test` job command in CircleCI configuration after all
-   tests successfully passed:
-
-```yaml
-version: 2
-jobs:
-  # [...]
-
-  test:
-    # [...]
-    steps:
-      # [...]
-      - run:
-          name: Report code coverage
-          command: |
-            pipenv run coveralls
-          when: on_success
-```
